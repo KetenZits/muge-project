@@ -1,26 +1,30 @@
 @import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
+:root { --blue:#17468c; --gold:#a5812d; --yellow:#fac334; --ink:#17263c; --muted:#68778c; --line:#e5ebf2; --soft:#f5f8fc; }
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--soft); color:var(--ink); font-family:Inter,Kanit,Arial,sans-serif; }
+button,input,textarea,select { font:inherit; }
+button { cursor:pointer; }
+a { text-decoration:none; color:inherit; }
+:focus-visible { outline:3px solid #fac334; outline-offset:2px; }
+::selection { background:#fac33480; }
+.thai { font-family:Kanit,Inter,sans-serif; }
+.card { background:#fff; border:1px solid var(--line); border-radius:20px; }
+.soft-card { background:#f8fafd; border:1px solid #e8edf4; border-radius:16px; }
+.chip { display:inline-flex; align-items:center; gap:5px; padding:5px 10px; border-radius:999px; background:#f0f4f9; color:#53647c; font-size:12px; font-weight:600; white-space:nowrap; }
+.chip.blue { background:#eaf1fc; color:#17468c; }
+.chip.gold { background:#fbf3da; color:#8a6820; }
+.chip.green { background:#e8f6ef; color:#1f805b; }
+.chip.rose { background:#fdf0ef; color:#bb5b55; }
+.page-wrap { max-width:1180px; margin:0 auto; width:100%; }
+.page-title { font-size:30px; line-height:1.2; font-weight:700; letter-spacing:-.04em; }
+.page-subtitle { color:var(--muted); font-size:14px; margin-top:7px; line-height:1.6; }
+.section-title { font-size:18px; font-weight:700; letter-spacing:-.025em; }
+.muted { color:var(--muted); }
+.line-clamp-2 { display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; }
+.line-clamp-3 { display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; overflow:hidden; }
+.brand-grid { background-image:radial-gradient(#d8e3f0 1px, transparent 1px); background-size:20px 20px; }
+.hero-glow { background:radial-gradient(circle at 78% 30%,#d9e8fb 0%,transparent 42%),radial-gradient(circle at 20% 80%,#fff2cd 0%,transparent 30%); }
+.skeleton { background:linear-gradient(90deg,#eef2f6,#f8fafc,#eef2f6); background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:12px; }
+@keyframes shimmer { to { background-position-x:-200%; } }
+@media(max-width:767px){ .page-title{font-size:26px;} }
