@@ -8,7 +8,7 @@ const errors = [];
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 page.on("pageerror", error => errors.push(error.message));
 page.on("console", message => { if (message.type() === "error") errors.push(message.text()); });
-for (const route of ["/", "/home", "/discover", "/people", "/teams", "/competitions", "/events", "/communities", "/saved", "/notifications", "/messages", "/me"]) {
+for (const route of ["/", "/login", "/onboarding", "/home", "/posts/p1", "/discover", "/people", "/profile/thanapon.dev", "/teams", "/teams/t1", "/competitions", "/competitions/c1", "/events", "/communities", "/communities/ai-collective", "/saved", "/notifications", "/messages", "/me"]) {
   await page.goto("http://localhost:3000" + route);
   if (route !== "/") await page.locator("[data-mock-ready=true]").waitFor({ timeout: 20000 });
   const heading = await page.locator("h1").first().textContent({ timeout: 5000 }).catch(() => null);
