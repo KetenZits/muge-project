@@ -86,4 +86,3 @@ Keep the service method signatures in `src/lib/api/client.ts` and point the shar
 ## Design notes
 
 The interface uses university blue `#17468C`, gold `#A5812D`, and accent yellow `#FAC334` on mostly neutral surfaces. No university logo asset was present, so the brand uses a replaceable text mark. Motion handles restrained transitions; GSAP was unnecessary for this layout.
-

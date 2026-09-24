@@ -5,12 +5,250 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { ArrowLeft, ArrowRight, Check, GraduationCap, LockKeyhole, Sparkles, Users } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  GraduationCap,
+  LockKeyhole,
+  Sparkles,
+  Users,
+} from "lucide-react";
 import { Button, Field, inputClass } from "@/components/ui";
 import { demoUser, interests, skills } from "@/lib/mock/data";
 import { useApp } from "@/stores/app";
 import type { Role } from "@/types";
-const loginSchema=z.object({email:z.email("Enter a valid email"),password:z.string().min(4,"Enter at least 4 characters")});
-type LoginForm=z.infer<typeof loginSchema>;
-export function LoginView(){const router=useRouter();const setUser=useApp(s=>s.setUser);const [role,setRole]=useState<Role>("student");const {register,handleSubmit,formState:{errors}}=useForm<LoginForm>({resolver:zodResolver(loginSchema),defaultValues:{email:"thanapon@university.ac.th",password:"demo1234"}});const enter=()=>{setUser({...demoUser,role});router.push("/onboarding");};return <div className="flex min-h-screen bg-white"><div className="hidden w-[48%] flex-col justify-between bg-[#17468c] p-10 text-white lg:flex"><Link href="/" className="text-xl font-bold">M<span className="text-[#fac334]">.</span> <span className="font-medium">MU Connect</span></Link><div className="max-w-md"><div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/12"><Users size={31} className="text-[#fac334]"/></div><h1 className="text-4xl font-bold leading-tight tracking-[-.05em]">Good things happen when we connect.</h1><p className="mt-5 text-sm leading-7 text-[#dce8f8]">A home for students to meet collaborators, exchange ideas, and take on the next challenge together.</p><div className="mt-10 flex -space-x-2">{["TC","PS","NW","SK"].map((x,i)=><span key={x} className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#17468c] text-xs font-bold text-[#17468c]" style={{background:["#e4edf9","#fae6ce","#e7e4f8","#ddf1e8"][i]}}>{x}</span>)}</div><p className="mt-3 text-xs text-[#c7d9ef]">Your people are already here.</p></div><p className="text-xs text-[#aebfda]">Independent university community prototype · 2026</p></div><div className="flex w-full items-center justify-center px-5 py-12 lg:w-[52%]"><div className="w-full max-w-md"><Link href="/" className="mb-12 inline-flex items-center gap-2 text-sm text-[#76879b] hover:text-[#17468c]"><ArrowLeft size={15}/> Back to home</Link><p className="text-xs font-bold uppercase tracking-[.16em] text-[#a5812d]">WELCOME TO THE COMMUNITY</p><h2 className="mt-2 text-3xl font-bold tracking-tight">Enter the demo</h2><p className="mt-3 text-sm leading-6 text-[#73849a]">Choose a preview role, or use the sample university credentials below. No real account is created.</p><div className="mt-7 grid grid-cols-3 gap-2">{([["student","Student",GraduationCap],["organizer","Organizer",Users],["admin","Admin",LockKeyhole]] as const).map(([value,label,Icon])=><button key={value} onClick={()=>setRole(value)} className={`rounded-2xl border p-3 text-left transition ${role===value?"border-[#17468c] bg-[#eef4fc] text-[#17468c]":"border-[#e3eaf2] text-[#8090a4] hover:border-[#b8cbe0]"}`}><Icon size={19}/><span className="mt-3 block text-xs font-bold">{label}</span></button>)}</div><form onSubmit={handleSubmit(enter)} className="mt-7 space-y-4"><Field label="University email" error={errors.email?.message}><input {...register("email")} type="email" className={inputClass}/></Field><Field label="Password" error={errors.password?.message}><input {...register("password")} type="password" className={inputClass}/></Field><Button type="submit" size="lg" className="w-full">Continue to campus <ArrowRight size={17}/></Button></form><div className="my-5 flex items-center gap-3 text-xs text-[#a8b4c1]"><span className="h-px flex-1 bg-[#e3eaf1]"/>or explore instantly<span className="h-px flex-1 bg-[#e3eaf1]"/></div><Button variant="secondary" size="lg" className="w-full" onClick={enter}><Sparkles size={17}/> Continue as demo {role}</Button><p className="mt-6 text-center text-xs leading-5 text-[#9ba9b7]">Frontend demo only. Your activity stays on this device.</p></div></div></div>}
-export function OnboardingView(){const router=useRouter();const user=useApp(s=>s.user);const setUser=useApp(s=>s.setUser);const [selectedInterests,setInterests]=useState<string[]>(user.interests);const [selectedSkills,setSkills]=useState<string[]>(user.skills);const [step,setStep]=useState(0);const toggle=(value:string,items:string[],set:(v:string[])=>void)=>set(items.includes(value)?items.filter(x=>x!==value):[...items,value]);const finish=()=>{setUser({...user,interests:selectedInterests,skills:selectedSkills});localStorage.setItem("mu-connect-onboarded","true");router.push("/home");};return <div className="min-h-screen bg-[#f5f8fc] px-4 py-8"><div className="mx-auto max-w-3xl"><Link href="/" className="text-xl font-bold text-[#17468c]">M<span className="text-[#fac334]">.</span> <span className="font-medium">MU Connect</span></Link><div className="mt-10 card p-6 sm:p-10"><div className="mb-8 flex items-center gap-3"><div className="h-1.5 flex-1 rounded-full bg-[#17468c]"/><div className={`h-1.5 flex-1 rounded-full ${step===1?"bg-[#17468c]":"bg-[#e3eaf3]"}`}/></div><p className="text-xs font-bold uppercase tracking-widest text-[#a5812d]">STEP {step+1} OF 2</p><h1 className="mt-2 text-3xl font-bold tracking-tight">{step===0?"What are you curious about?":"What can you bring to a team?"}</h1><p className="mt-3 text-sm leading-6 text-[#7b8c9f]">{step===0?"Choose 5–10 interests so we can show you relevant people, posts, and communities.":"Pick the skills you'd love to use or keep growing. You can edit these any time."}</p><div className="mt-7 flex flex-wrap gap-2">{(step===0?interests:skills).map(x=>{const active=(step===0?selectedInterests:selectedSkills).includes(x);return <button key={x} onClick={()=>step===0?toggle(x,selectedInterests,setInterests):toggle(x,selectedSkills,setSkills)} className={`rounded-xl border px-4 py-2.5 text-sm font-semibold transition ${active?"border-[#e0b64a] bg-[#fff4d4] text-[#795d20]":"border-[#e0e8f0] bg-white text-[#6d7f94] hover:border-[#b8cbe0]"}`}>{active&&<Check size={14} className="mr-1 inline"/>}{x}</button>})}</div><div className="mt-8 flex items-center justify-between border-t border-[#e9eef4] pt-6"><span className="text-xs text-[#94a2b2]">{(step===0?selectedInterests:selectedSkills).length} selected</span><div className="flex gap-2">{step===1&&<Button variant="secondary" onClick={()=>setStep(0)}>Back</Button>}<Button onClick={()=>step===0?setStep(1):finish()} disabled={step===0?selectedInterests.length<3:selectedSkills.length<1}>{step===0?"Continue":"Enter the community"} <ArrowRight size={16}/></Button></div></div></div><p className="mt-5 text-center text-xs text-[#a0adba]">Your selections are saved in this browser for the demo.</p></div></div>}
+const loginSchema = z.object({
+  email: z.email("Enter a valid email"),
+  password: z.string().min(4, "Enter at least 4 characters"),
+});
+type LoginForm = z.infer<typeof loginSchema>;
+export function LoginView() {
+  const router = useRouter();
+  const setUser = useApp((s) => s.setUser);
+  const [role, setRole] = useState<Role>("student");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginForm>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "thanapon@university.ac.th", password: "demo1234" },
+  });
+  const enter = () => {
+    setUser({ ...demoUser, role });
+    router.push("/onboarding");
+  };
+  return (
+    <div className="flex min-h-screen bg-white">
+      <div className="hidden w-[48%] flex-col justify-between bg-[#17468c] p-10 text-white lg:flex">
+        <Link href="/" className="text-xl font-bold">
+          M<span className="text-[#fac334]">.</span>{" "}
+          <span className="font-medium">MU Connect</span>
+        </Link>
+        <div className="max-w-md">
+          <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/12">
+            <Users size={31} className="text-[#fac334]" />
+          </div>
+          <h1 className="text-4xl font-bold leading-tight tracking-[-.05em]">
+            Good things happen when we connect.
+          </h1>
+          <p className="mt-5 text-sm leading-7 text-[#dce8f8]">
+            A home for students to meet collaborators, exchange ideas, and take
+            on the next challenge together.
+          </p>
+          <div className="mt-10 flex -space-x-2">
+            {["TC", "PS", "NW", "SK"].map((x, i) => (
+              <span
+                key={x}
+                className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#17468c] text-xs font-bold text-[#17468c]"
+                style={{
+                  background: ["#e4edf9", "#fae6ce", "#e7e4f8", "#ddf1e8"][i],
+                }}
+              >
+                {x}
+              </span>
+            ))}
+          </div>
+          <p className="mt-3 text-xs text-[#c7d9ef]">
+            Your people are already here.
+          </p>
+        </div>
+        <p className="text-xs text-[#aebfda]">
+          Independent university community prototype · 2026
+        </p>
+      </div>
+      <div className="flex w-full items-center justify-center px-5 py-12 lg:w-[52%]">
+        <div className="w-full max-w-md">
+          <Link
+            href="/"
+            className="mb-12 inline-flex items-center gap-2 text-sm text-[#76879b] hover:text-[#17468c]"
+          >
+            <ArrowLeft size={15} /> Back to home
+          </Link>
+          <p className="text-xs font-bold uppercase tracking-[.16em] text-[#a5812d]">
+            WELCOME TO THE COMMUNITY
+          </p>
+          <h2 className="mt-2 text-3xl font-bold tracking-tight">
+            Enter the demo
+          </h2>
+          <p className="mt-3 text-sm leading-6 text-[#73849a]">
+            Choose a preview role, or use the sample university credentials
+            below. No real account is created.
+          </p>
+          <div className="mt-7 grid grid-cols-3 gap-2">
+            {(
+              [
+                ["student", "Student", GraduationCap],
+                ["organizer", "Organizer", Users],
+                ["admin", "Admin", LockKeyhole],
+              ] as const
+            ).map(([value, label, Icon]) => (
+              <button
+                key={value}
+                onClick={() => setRole(value)}
+                className={`rounded-2xl border p-3 text-left transition ${role === value ? "border-[#17468c] bg-[#eef4fc] text-[#17468c]" : "border-[#e3eaf2] text-[#8090a4] hover:border-[#b8cbe0]"}`}
+              >
+                <Icon size={19} />
+                <span className="mt-3 block text-xs font-bold">{label}</span>
+              </button>
+            ))}
+          </div>
+          <form onSubmit={handleSubmit(enter)} className="mt-7 space-y-4">
+            <Field label="University email" error={errors.email?.message}>
+              <input
+                {...register("email")}
+                type="email"
+                className={inputClass}
+              />
+            </Field>
+            <Field label="Password" error={errors.password?.message}>
+              <input
+                {...register("password")}
+                type="password"
+                className={inputClass}
+              />
+            </Field>
+            <Button type="submit" size="lg" className="w-full">
+              Continue to campus <ArrowRight size={17} />
+            </Button>
+          </form>
+          <div className="my-5 flex items-center gap-3 text-xs text-[#a8b4c1]">
+            <span className="h-px flex-1 bg-[#e3eaf1]" />
+            or explore instantly
+            <span className="h-px flex-1 bg-[#e3eaf1]" />
+          </div>
+          <Button
+            variant="secondary"
+            size="lg"
+            className="w-full"
+            onClick={enter}
+          >
+            <Sparkles size={17} /> Continue as demo {role}
+          </Button>
+          <p className="mt-6 text-center text-xs leading-5 text-[#9ba9b7]">
+            Frontend demo only. Your activity stays on this device.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+export function OnboardingView() {
+  const router = useRouter();
+  const user = useApp((s) => s.user);
+  const setUser = useApp((s) => s.setUser);
+  const [selectedInterests, setInterests] = useState<string[]>(user.interests);
+  const [selectedSkills, setSkills] = useState<string[]>(user.skills);
+  const [step, setStep] = useState(0);
+  const toggle = (value: string, items: string[], set: (v: string[]) => void) =>
+    set(
+      items.includes(value)
+        ? items.filter((x) => x !== value)
+        : [...items, value],
+    );
+  const finish = () => {
+    setUser({ ...user, interests: selectedInterests, skills: selectedSkills });
+    localStorage.setItem("mu-connect-onboarded", "true");
+    router.push("/home");
+  };
+  return (
+    <div className="min-h-screen bg-[#f5f8fc] px-4 py-8">
+      <div className="mx-auto max-w-3xl">
+        <Link href="/" className="text-xl font-bold text-[#17468c]">
+          M<span className="text-[#fac334]">.</span>{" "}
+          <span className="font-medium">MU Connect</span>
+        </Link>
+        <div className="mt-10 card p-6 sm:p-10">
+          <div className="mb-8 flex items-center gap-3">
+            <div className="h-1.5 flex-1 rounded-full bg-[#17468c]" />
+            <div
+              className={`h-1.5 flex-1 rounded-full ${step === 1 ? "bg-[#17468c]" : "bg-[#e3eaf3]"}`}
+            />
+          </div>
+          <p className="text-xs font-bold uppercase tracking-widest text-[#a5812d]">
+            STEP {step + 1} OF 2
+          </p>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight">
+            {step === 0
+              ? "What are you curious about?"
+              : "What can you bring to a team?"}
+          </h1>
+          <p className="mt-3 text-sm leading-6 text-[#7b8c9f]">
+            {step === 0
+              ? "Choose 5–10 interests so we can show you relevant people, posts, and communities."
+              : "Pick the skills you'd love to use or keep growing. You can edit these any time."}
+          </p>
+          <div className="mt-7 flex flex-wrap gap-2">
+            {(step === 0 ? interests : skills).map((x) => {
+              const active = (
+                step === 0 ? selectedInterests : selectedSkills
+              ).includes(x);
+              return (
+                <button
+                  key={x}
+                  onClick={() =>
+                    step === 0
+                      ? toggle(x, selectedInterests, setInterests)
+                      : toggle(x, selectedSkills, setSkills)
+                  }
+                  className={`rounded-xl border px-4 py-2.5 text-sm font-semibold transition ${active ? "border-[#e0b64a] bg-[#fff4d4] text-[#795d20]" : "border-[#e0e8f0] bg-white text-[#6d7f94] hover:border-[#b8cbe0]"}`}
+                >
+                  {active && <Check size={14} className="mr-1 inline" />}
+                  {x}
+                </button>
+              );
+            })}
+          </div>
+          <div className="mt-8 flex items-center justify-between border-t border-[#e9eef4] pt-6">
+            <span className="text-xs text-[#94a2b2]">
+              {(step === 0 ? selectedInterests : selectedSkills).length}{" "}
+              selected
+            </span>
+            <div className="flex gap-2">
+              {step === 1 && (
+                <Button variant="secondary" onClick={() => setStep(0)}>
+                  Back
+                </Button>
+              )}
+              <Button
+                onClick={() => (step === 0 ? setStep(1) : finish())}
+                disabled={
+                  step === 0
+                    ? selectedInterests.length < 3
+                    : selectedSkills.length < 1
+                }
+              >
+                {step === 0 ? "Continue" : "Enter the community"}{" "}
+                <ArrowRight size={16} />
+              </Button>
+            </div>
+          </div>
+        </div>
+        <p className="mt-5 text-center text-xs text-[#a0adba]">
+          Your selections are saved in this browser for the demo.
+        </p>
+      </div>
+    </div>
+  );
+}

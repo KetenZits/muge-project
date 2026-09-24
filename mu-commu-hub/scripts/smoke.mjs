@@ -6,24 +6,62 @@ const browser = await chromium.launch({
 });
 const errors = [];
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-page.on("pageerror", error => errors.push(error.message));
-page.on("console", message => { if (message.type() === "error") errors.push(message.text()); });
-for (const route of ["/", "/login", "/onboarding", "/home", "/posts/p1", "/discover", "/people", "/profile/thanapon.dev", "/teams", "/teams/t1", "/competitions", "/competitions/c1", "/events", "/communities", "/communities/ai-collective", "/saved", "/notifications", "/messages", "/me"]) {
+page.on("pageerror", (error) => errors.push(error.message));
+page.on("console", (message) => {
+  if (message.type() === "error") errors.push(message.text());
+});
+for (const route of [
+  "/",
+  "/login",
+  "/onboarding",
+  "/home",
+  "/posts/p1",
+  "/discover",
+  "/people",
+  "/profile/thanapon.dev",
+  "/teams",
+  "/teams/t1",
+  "/competitions",
+  "/competitions/c1",
+  "/events",
+  "/communities",
+  "/communities/ai-collective",
+  "/saved",
+  "/notifications",
+  "/messages",
+  "/me",
+]) {
   await page.goto("http://localhost:3000" + route);
-  if (route !== "/") await page.locator("[data-mock-ready=true]").waitFor({ timeout: 20000 });
-  const heading = await page.locator("h1").first().textContent({ timeout: 5000 }).catch(() => null);
+  if (route !== "/")
+    await page.locator("[data-mock-ready=true]").waitFor({ timeout: 20000 });
+  const heading = await page
+    .locator("h1")
+    .first()
+    .textContent({ timeout: 5000 })
+    .catch(() => null);
   console.log(route, heading ?? "(no h1)");
-  if (!heading) console.log((await page.locator("body").innerText()).slice(0, 700));
-  if (route === "/home") await page.screenshot({ path: process.env.TEMP + "/mu-connect-desktop.png", fullPage: true });
+  if (!heading)
+    console.log((await page.locator("body").innerText()).slice(0, 700));
+  if (route === "/home")
+    await page.screenshot({
+      path: process.env.TEMP + "/mu-connect-desktop.png",
+      fullPage: true,
+    });
 }
 for (const width of [375, 430, 768, 1024, 1440]) {
   await page.setViewportSize({ width, height: 812 });
   await page.goto("http://localhost:3000/home");
   await page.locator("[data-mock-ready=true]").waitFor({ timeout: 20000 });
-  const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth);
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth > innerWidth,
+  );
   console.log(width + "px horizontal overflow", overflow);
   if (overflow) errors.push("Horizontal overflow at " + width + "px");
-  if (width === 375) await page.screenshot({ path: process.env.TEMP + "/mu-connect-mobile.png", fullPage: true });
+  if (width === 375)
+    await page.screenshot({
+      path: process.env.TEMP + "/mu-connect-mobile.png",
+      fullPage: true,
+    });
 }
 console.log("browser errors", errors);
 await browser.close();

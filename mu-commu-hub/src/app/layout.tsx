@@ -11,13 +11,20 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "MU Connect — Find your people on campus",
-  description: "A university community prototype for people, projects, teams, and opportunities.",
+  description:
+    "A university community prototype for people, projects, teams, and opportunities.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
-      <body><ClientProviders>{children}</ClientProviders></body>
+      <body>
+        <ClientProviders>{children}</ClientProviders>
+      </body>
     </html>
   );
 }
