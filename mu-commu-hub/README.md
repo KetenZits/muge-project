@@ -4,7 +4,7 @@ A frontend-only university community prototype for meeting students, recruiting 
 
 ## Tech stack
 
-Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4, Radix UI primitives, Lucide, Motion, Zustand, Faker, MSW, React Hook Form, Zod, Dexie/IndexedDB, and Sonner. Inter and Kanit are bundled locally for English and Thai text.
+Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4, Radix UI primitives, Lucide, Motion, Three.js, React Three Fiber, Zustand, Faker, MSW, React Hook Form, Zod, Dexie/IndexedDB, and Sonner. Inter and Kanit are bundled locally for English and Thai text.
 
 ## Install and run
 
@@ -23,6 +23,8 @@ npm run build
 
 With the dev server running, `npm run test:smoke` checks primary routes, browser errors, and responsive overflow on key routes at 375, 430, 768, 1024, and 1440 pixels. `npm run test:interactions` checks posts, comments, recruitment, event announcements, bookmarks, join requests, follows, messages, drafts, and profile edits across refreshes in an isolated Chrome session. These scripts use the installed Chrome executable on Windows.
 
+`npm run test:motion` checks the landing scene at five viewport sizes, Canvas DPR caps, scroll pausing, reduced motion, WebGL fallback, and CTA navigation.
+
 ## Main routes
 
 - `/`, `/login`, `/onboarding`: introduction and demo entry
@@ -40,6 +42,8 @@ The app uses a desktop sidebar, a tablet/mobile top bar, and mobile bottom navig
 ```text
 src/app/                 App Router route files and layouts
 src/components/layout/   Responsive shell, navigation, search, route loading states
+src/components/motion/   Reusable entrance and reveal component
+src/components/three/    Isolated, lazy loaded landing scene and fallback
 src/components/events/   Calendar view
 src/components/people/   Profile editing dialog
 src/components/posts/    Post creation dialog
@@ -51,6 +55,7 @@ src/lib/db/              Dexie schema for persistent local demo records
 src/lib/mock/            Deterministic seed data grouped by domain
 src/lib/validation/      Zod form schemas and parsing
 src/lib/discovery.ts     Recommendation scores and discovery filters
+src/lib/motion/         Shared motion timing and card behavior
 src/mocks/handlers/      MSW HTTP request handlers
 src/stores/              Zustand application state and actions
 src/types/               Domain types with a barrel export
@@ -90,4 +95,4 @@ Keep the service method signatures in `src/lib/api/client.ts` and point the shar
 
 ## Design notes
 
-The interface uses university blue `#17468C`, gold `#A5812D`, and accent yellow `#FAC334` on mostly neutral surfaces. No university logo asset was present, so the brand uses a replaceable text mark. Motion handles restrained transitions; GSAP was unnecessary for this layout.
+The interface uses university blue `#17468C`, gold `#A5812D`, and accent yellow `#FAC334` on mostly neutral surfaces. No university logo asset was present, so the brand uses a replaceable text mark. Motion handles navigation, card, dialog, and message feedback with shared timing. The landing network is the only WebGL scene. It loads when visible, stops rendering offscreen or in a hidden tab, caps mobile DPR at 1, and falls back to a static illustration for reduced motion or unavailable WebGL. GSAP was unnecessary for this layout.

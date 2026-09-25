@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { motion, useReducedMotion } from "motion/react";
 import {
   ArrowLeft,
   ImagePlus,
@@ -18,7 +19,9 @@ import {
 } from "@/components/ui";
 import { useApp } from "@/stores/app";
 import { relative } from "@/lib/utils";
+import { motionTiming } from "@/lib/motion/config";
 export function MessagesView() {
+  const reducedMotion = useReducedMotion();
   const {
     user,
     users,
@@ -33,6 +36,9 @@ export function MessagesView() {
   const [query, setQuery] = useState("");
   const [draft, setDraft] = useState("");
   const [typing, setTyping] = useState(false);
+  const [animatedMessageId, setAnimatedMessageId] = useState<string | null>(
+    null,
+  );
   const bottom = useRef<HTMLDivElement>(null);
   const initialized = useRef(false);
   useEffect(() => {
@@ -71,8 +77,10 @@ export function MessagesView() {
     openConversation,
   ]);
   useEffect(() => {
-    bottom.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, selected]);
+    bottom.current?.scrollIntoView({
+      behavior: reducedMotion ? "auto" : "smooth",
+    });
+  }, [messages, selected, reducedMotion]);
   const shown = conversations
     .filter((x) => {
       const other = users.find(
@@ -91,8 +99,10 @@ export function MessagesView() {
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!draft.trim() || !selected) return;
+    const id = `msg-${crypto.randomUUID()}`;
+    setAnimatedMessageId(id);
     await sendMessage({
-      id: `msg-${crypto.randomUUID()}`,
+      id,
       conversationId: selected,
       senderId: user.id,
       content: draft.trim(),
@@ -198,8 +208,18 @@ export function MessagesView() {
                 {thread.map((message) => {
                   const mine = message.senderId === user.id;
                   return (
-                    <div
+                    <motion.div
                       key={message.id}
+                      initial={
+                        reducedMotion || animatedMessageId !== message.id
+                          ? false
+                          : { opacity: 0, x: mine ? 12 : -12 }
+                      }
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{
+                        duration: reducedMotion ? 0 : motionTiming.normal,
+                        ease: motionTiming.easeOut,
+                      }}
                       className={`flex ${mine ? "justify-end" : "justify-start"}`}
                     >
                       <div
@@ -215,7 +235,7 @@ export function MessagesView() {
                           )}
                         </small>
                       </div>
-                    </div>
+                    </motion.div>
                   );
                 })}
                 {typing && (

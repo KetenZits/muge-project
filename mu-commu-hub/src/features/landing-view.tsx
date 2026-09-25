@@ -9,6 +9,8 @@ import {
   Trophy,
   Users,
 } from "lucide-react";
+import { Reveal } from "@/components/motion/reveal";
+import { HeroNetwork } from "@/components/three/hero-network";
 const features = [
   {
     icon: Users,
@@ -34,7 +36,7 @@ const features = [
 export default function LandingView() {
   return (
     <div className="bg-white">
-      <header className="sticky top-0 z-20 border-b border-[#e9eef4] bg-white/95 backdrop-blur">
+      <header className="landing-nav-enter sticky top-0 z-20 border-b border-[#e9eef4] bg-white/95 backdrop-blur">
         <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-5 md:px-8">
           <Link href="/" className="flex items-center gap-3">
             <span className="flex h-10 w-10 items-center justify-center rounded-[13px] bg-[#17468c] text-xl font-black text-white">
@@ -52,7 +54,7 @@ export default function LandingView() {
           </nav>
           <Link
             href="/login"
-            className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#17468c] px-4 text-sm font-semibold text-white"
+            className="landing-link-button landing-primary-cta inline-flex h-10 items-center gap-2 rounded-xl bg-[#17468c] px-4 text-sm font-semibold text-white"
           >
             Enter demo <ArrowRight size={16} />
           </Link>
@@ -60,19 +62,19 @@ export default function LandingView() {
       </header>
       <main>
         <section className="hero-glow border-b border-[#edf1f5]">
-          <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 py-18 md:grid-cols-2 md:px-8 md:py-28">
-            <div>
+          <div className="mx-auto grid max-w-7xl items-center gap-8 px-5 py-12 sm:py-16 md:grid-cols-2 md:gap-12 md:px-8 md:py-28">
+            <Reveal className="min-w-0" y={12}>
               <span className="inline-flex items-center gap-2 rounded-full border border-[#e6d49f] bg-[#fff8e5] px-3 py-1.5 text-xs font-bold text-[#927028]">
                 <Sparkles size={14} /> YOUR CAMPUS, MORE CONNECTED
               </span>
-              <h1 className="mt-7 max-w-xl text-[48px] font-bold leading-[1.06] tracking-[-.065em] text-[#172a43] sm:text-[64px]">
+              <h1 className="mt-5 max-w-xl text-[44px] font-bold leading-[1.06] tracking-[-.065em] text-[#172a43] sm:mt-7 sm:text-[64px]">
                 Find your people.
                 <br />
                 <span className="text-[#17468c]">Build something</span>
                 <br />
                 together<span className="text-[#fac334]">.</span>
               </h1>
-              <p className="thai mt-6 max-w-lg text-base text-[#65788f]">
+              <p className="thai mt-4 max-w-lg text-base text-[#65788f] sm:mt-6">
                 พื้นที่สำหรับหาเพื่อนร่วมทีม แบ่งปันไอเดีย และค้นพบโอกาสใหม่ ๆ
                 ในมหาวิทยาลัย
               </p>
@@ -80,21 +82,21 @@ export default function LandingView() {
                 Meet students through shared interests, skills, projects,
                 competitions, and everyday campus life.
               </p>
-              <div className="mt-8 flex flex-wrap gap-3">
+              <div className="mt-6 flex flex-wrap gap-3 sm:mt-8">
                 <Link
                   href="/login"
-                  className="inline-flex h-12 items-center gap-2 rounded-xl bg-[#17468c] px-6 text-sm font-bold text-white"
+                  className="landing-link-button landing-primary-cta inline-flex h-12 items-center gap-2 rounded-xl bg-[#17468c] px-6 text-sm font-bold text-white"
                 >
                   Start exploring <ArrowRight size={17} />
                 </Link>
                 <Link
                   href="/teams"
-                  className="inline-flex h-12 items-center gap-2 rounded-xl border border-[#dbe5ef] bg-white px-6 text-sm font-bold text-[#17468c]"
+                  className="landing-link-button inline-flex h-12 items-center gap-2 rounded-xl border border-[#dbe5ef] bg-white px-6 text-sm font-bold text-[#17468c]"
                 >
                   Find a team <Users size={17} />
                 </Link>
               </div>
-              <div className="mt-9 flex items-center gap-4">
+              <div className="mt-6 flex items-center gap-4 sm:mt-9">
                 <div className="flex -space-x-2">
                   {["TC", "PS", "NW", "SK"].map((x, i) => (
                     <span
@@ -119,81 +121,14 @@ export default function LandingView() {
                   Meet the people behind your next project.
                 </p>
               </div>
-            </div>
-            <div className="relative mx-auto w-full max-w-[540px]">
-              <div className="absolute inset-8 -rotate-5 rounded-[35px] bg-[#e8f0fb]" />
-              <div className="absolute inset-12 rotate-6 rounded-[35px] bg-[#fff1c7]" />
-              <div className="relative rounded-[27px] border border-[#dce7f3] bg-white p-5 shadow-[0_25px_65px_#17468c1c]">
-                <div className="flex items-center justify-between border-b border-[#edf1f5] pb-4">
-                  <span className="text-sm font-bold text-[#17468c]">
-                    M<span className="text-[#fac334]">.</span> &nbsp;Your campus
-                    feed
-                  </span>
-                  <span className="rounded-full bg-[#f1f5fa] px-3 py-1 text-[10px] text-[#8b9bad]">
-                    For you ✦
-                  </span>
-                </div>
-                <div className="mt-5 rounded-2xl border border-[#e6edf5] p-4">
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#faead4] text-xs font-bold text-[#8e6226]">
-                      PS
-                    </span>
-                    <span>
-                      <b className="block text-xs">Pimchanok Srisuwan</b>
-                      <small className="text-[10px] text-[#9ba9b8]">
-                        Information Technology · 2h ago
-                      </small>
-                    </span>
-                    <span className="ml-auto rounded-full bg-[#fdf3d9] px-2 py-1 text-[10px] font-bold text-[#98702a]">
-                      TEAM
-                    </span>
-                  </div>
-                  <h3 className="mt-4 text-sm font-bold">
-                    Looking for 2 teammates for AI Hackathon
-                  </h3>
-                  <p className="mt-2 text-xs leading-5 text-[#7d8da0]">
-                    Building an AI study companion. We need a frontend developer
-                    and a product designer...
-                  </p>
-                  <div className="mt-3 flex gap-1.5">
-                    <span className="chip blue">AI</span>
-                    <span className="chip blue">React</span>
-                    <span className="chip blue">Hackathon</span>
-                  </div>
-                  <div className="mt-4 border-t border-[#edf1f5] pt-3 text-[11px] text-[#9aa8b7]">
-                    ♡ 42 &nbsp; ◯ 8
-                  </div>
-                </div>
-                <div className="mt-3 grid grid-cols-2 gap-3">
-                  <div className="rounded-2xl bg-[#f3f7fc] p-4">
-                    <span className="text-xl">✦</span>
-                    <b className="mt-3 block text-xs">AI Collective</b>
-                    <small className="text-[10px] text-[#9ba9b8]">
-                      428 members
-                    </small>
-                  </div>
-                  <div className="rounded-2xl bg-[#fdf7e8] p-4">
-                    <Trophy size={20} className="text-[#a5812d]" />
-                    <b className="mt-3 block text-xs">Campus AI Challenge</b>
-                    <small className="text-[10px] text-[#9b8c68]">
-                      Registration open
-                    </small>
-                  </div>
-                </div>
-              </div>
-              <div className="absolute -bottom-6 -left-5 rounded-2xl border border-[#e8edf3] bg-white px-4 py-3 shadow-lg">
-                <span className="text-xs font-bold text-[#17468c]">
-                  ✦ 85% match
-                </span>
-                <p className="mt-1 text-[10px] text-[#8c9aab]">
-                  Someone great to build with
-                </p>
-              </div>
-            </div>
+            </Reveal>
+            <Reveal className="min-w-0" delay={0.16}>
+              <HeroNetwork />
+            </Reveal>
           </div>
         </section>
         <section id="features" className="mx-auto max-w-7xl px-5 py-20 md:px-8">
-          <div className="text-center">
+          <Reveal className="text-center">
             <p className="text-xs font-bold uppercase tracking-[.16em] text-[#a5812d]">
               EVERYTHING STARTS WITH CONNECTION
             </p>
@@ -204,25 +139,26 @@ export default function LandingView() {
               The right conversation can become your next project, friendship,
               or breakthrough.
             </p>
-          </div>
+          </Reveal>
           <div className="mt-10 grid gap-4 md:grid-cols-4">
-            {features.map(({ icon: Icon, title, body }) => (
-              <div
-                key={title}
-                className="rounded-[20px] border border-[#e6edf4] bg-white p-6 transition hover:-translate-y-1"
-              >
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eaf1fc] text-[#17468c]">
-                  <Icon size={23} />
-                </span>
-                <h3 className="mt-5 text-base font-bold">{title}</h3>
-                <p className="mt-2 text-xs leading-6 text-[#8292a5]">{body}</p>
-              </div>
+            {features.map(({ icon: Icon, title, body }, index) => (
+              <Reveal key={title} delay={index * 0.05}>
+                <div className="landing-card h-full rounded-[20px] border border-[#e6edf4] bg-white p-6">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eaf1fc] text-[#17468c]">
+                    <Icon size={23} />
+                  </span>
+                  <h3 className="mt-5 text-base font-bold">{title}</h3>
+                  <p className="mt-2 text-xs leading-6 text-[#8292a5]">
+                    {body}
+                  </p>
+                </div>
+              </Reveal>
             ))}
           </div>
         </section>
         <section id="communities" className="bg-[#f5f8fc] py-20">
           <div className="mx-auto max-w-7xl px-5 md:px-8">
-            <div className="flex flex-wrap items-end justify-between gap-4">
+            <Reveal className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <p className="text-xs font-bold uppercase tracking-widest text-[#a5812d]">
                   FIND YOUR CIRCLE
@@ -238,7 +174,7 @@ export default function LandingView() {
                 Explore communities{" "}
                 <ArrowUpRight size={15} className="inline" />
               </Link>
-            </div>
+            </Reveal>
             <div className="mt-8 grid gap-4 md:grid-cols-3">
               {[
                 [
@@ -259,28 +195,29 @@ export default function LandingView() {
                   "A home for visual thinkers and problem solvers.",
                   "#eee6f9",
                 ],
-              ].map(([icon, name, copy, color]) => (
-                <Link
-                  key={name}
-                  href="/communities"
-                  className="overflow-hidden rounded-[20px] border border-[#e4ebf3] bg-white transition hover:-translate-y-1"
-                >
-                  <div
-                    className="flex h-28 items-center px-6 text-5xl text-[#17468c]"
-                    style={{ background: color }}
+              ].map(([icon, name, copy, color], index) => (
+                <Reveal key={name} delay={index * 0.06}>
+                  <Link
+                    href="/communities"
+                    className="landing-card block h-full overflow-hidden rounded-[20px] border border-[#e4ebf3] bg-white"
                   >
-                    {icon}
-                  </div>
-                  <div className="p-6">
-                    <h3 className="font-bold">{name}</h3>
-                    <p className="mt-2 text-xs leading-6 text-[#8696a8]">
-                      {copy}
-                    </p>
-                    <span className="mt-4 inline-flex text-xs font-bold text-[#17468c]">
-                      Meet the community →
-                    </span>
-                  </div>
-                </Link>
+                    <div
+                      className="flex h-28 items-center px-6 text-5xl text-[#17468c]"
+                      style={{ background: color }}
+                    >
+                      {icon}
+                    </div>
+                    <div className="p-6">
+                      <h3 className="font-bold">{name}</h3>
+                      <p className="mt-2 text-xs leading-6 text-[#8696a8]">
+                        {copy}
+                      </p>
+                      <span className="mt-4 inline-flex text-xs font-bold text-[#17468c]">
+                        Meet the community →
+                      </span>
+                    </div>
+                  </Link>
+                </Reveal>
               ))}
             </div>
           </div>
@@ -290,7 +227,7 @@ export default function LandingView() {
           className="mx-auto max-w-7xl px-5 py-20 md:px-8"
         >
           <div className="grid items-center gap-10 md:grid-cols-2">
-            <div>
+            <Reveal>
               <p className="text-xs font-bold uppercase tracking-widest text-[#a5812d]">
                 YOUR NEXT CHALLENGE
               </p>
@@ -303,12 +240,12 @@ export default function LandingView() {
               </p>
               <Link
                 href="/competitions"
-                className="mt-6 inline-flex h-11 items-center gap-2 rounded-xl bg-[#17468c] px-5 text-sm font-bold text-white"
+                className="landing-link-button landing-primary-cta mt-6 inline-flex h-11 items-center gap-2 rounded-xl bg-[#17468c] px-5 text-sm font-bold text-white"
               >
                 Explore competitions <ArrowRight size={16} />
               </Link>
-            </div>
-            <div className="space-y-3">
+            </Reveal>
+            <Reveal className="space-y-3" delay={0.1}>
               {[
                 [
                   "Campus AI Challenge 2026",
@@ -352,29 +289,31 @@ export default function LandingView() {
                   </span>
                 </div>
               ))}
-            </div>
+            </Reveal>
           </div>
         </section>
         <section
           id="about"
           className="bg-[#17468c] px-5 py-20 text-center text-white"
         >
-          <p className="text-xs font-bold uppercase tracking-widest text-[#fac334]">
-            READY WHEN YOU ARE
-          </p>
-          <h2 className="mx-auto mt-3 max-w-xl text-3xl font-bold tracking-tight sm:text-4xl">
-            Your next team could be one hello away.
-          </h2>
-          <p className="mx-auto mt-4 max-w-md text-sm leading-7 text-[#d9e6f7]">
-            Step into a community made for curious, ambitious students. Your
-            first connection starts here.
-          </p>
-          <Link
-            href="/login"
-            className="mt-7 inline-flex h-12 items-center gap-2 rounded-xl bg-[#fac334] px-6 text-sm font-bold text-[#55400c]"
-          >
-            Enter the demo <ArrowRight size={17} />
-          </Link>
+          <Reveal>
+            <p className="text-xs font-bold uppercase tracking-widest text-[#fac334]">
+              READY WHEN YOU ARE
+            </p>
+            <h2 className="mx-auto mt-3 max-w-xl text-3xl font-bold tracking-tight sm:text-4xl">
+              Your next team could be one hello away.
+            </h2>
+            <p className="mx-auto mt-4 max-w-md text-sm leading-7 text-[#d9e6f7]">
+              Step into a community made for curious, ambitious students. Your
+              first connection starts here.
+            </p>
+            <Link
+              href="/login"
+              className="landing-link-button landing-gold-cta mt-7 inline-flex h-12 items-center gap-2 rounded-xl bg-[#fac334] px-6 text-sm font-bold text-[#55400c]"
+            >
+              Enter the demo <ArrowRight size={17} />
+            </Link>
+          </Reveal>
         </section>
       </main>
       <footer className="bg-[#102f61] px-5 py-7 text-[#abc1df]">

@@ -1,15 +1,17 @@
 "use client";
 import Link from "next/link";
 import { motion } from "motion/react";
+import { useCardMotion } from "@/lib/motion/use-card-motion";
 import { Button, Tag } from "@/components/ui";
 import { useApp } from "@/stores/app";
 import type { Club } from "@/types";
 
 export function ClubCard({ club }: { club: Club }) {
+  const cardMotion = useCardMotion();
   const { joinedClubs, toggleClub } = useApp();
   const joined = joinedClubs.includes(club.id);
   return (
-    <motion.article whileHover={{ y: -3 }} className="card overflow-hidden">
+    <motion.article {...cardMotion} className="card overflow-hidden">
       <div
         className="relative flex h-24 items-center px-5"
         style={{ background: club.color }}

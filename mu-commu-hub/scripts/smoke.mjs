@@ -48,8 +48,14 @@ for (const route of [
       fullPage: true,
     });
 }
-for (const width of [375, 430, 768, 1024, 1440]) {
-  await page.setViewportSize({ width, height: 812 });
+for (const { width, height } of [
+  { width: 375, height: 812 },
+  { width: 430, height: 932 },
+  { width: 768, height: 1024 },
+  { width: 1024, height: 768 },
+  { width: 1440, height: 900 },
+]) {
+  await page.setViewportSize({ width, height });
   for (const route of [
     "/home",
     "/discover",

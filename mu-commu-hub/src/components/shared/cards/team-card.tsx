@@ -1,13 +1,20 @@
 "use client";
+import { useState } from "react";
 import Link from "next/link";
-import { motion } from "motion/react";
-import { ArrowRight, Bookmark, Users } from "lucide-react";
+import { motion, useReducedMotion } from "motion/react";
+import { toast } from "sonner";
+import { ArrowRight, Bookmark, Check, LoaderCircle, Users } from "lucide-react";
 import { Button, Tag } from "@/components/ui";
+import { motionTiming } from "@/lib/motion/config";
+import { useCardMotion } from "@/lib/motion/use-card-motion";
 import { deadline } from "@/lib/utils";
 import { useApp } from "@/stores/app";
 import type { TeamRecruitment } from "@/types";
 
 export function TeamCard({ team }: { team: TeamRecruitment }) {
+  const cardMotion = useCardMotion({ reveal: true });
+  const reducedMotion = useReducedMotion();
+  const [pending, setPending] = useState(false);
   const {
     user,
     users,
@@ -24,11 +31,29 @@ export function TeamCard({ team }: { team: TeamRecruitment }) {
   const ownTeam = team.leaderId === user.id;
   const closed = deadline(team.deadline) === "Closed";
   const full = team.members >= team.capacity;
+  const sendRequest = async () => {
+    setPending(true);
+    try {
+      await requestTeam(team.id);
+    } catch {
+      toast.error("Could not send your request. Please try again.");
+    } finally {
+      setPending(false);
+    }
+  };
+  const requestLabel = ownTeam
+    ? "Your team"
+    : requested
+      ? "Request sent"
+      : pending
+        ? "Sending..."
+        : closed
+          ? "Closed"
+          : full
+            ? "Team full"
+            : "Request to join";
   return (
-    <motion.article
-      whileHover={{ y: -2 }}
-      className="card flex flex-col p-5 sm:p-6"
-    >
+    <motion.article {...cardMotion} className="card flex flex-col p-5 sm:p-6">
       <div className="flex items-start justify-between gap-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#eaf1fc] text-[#17468c]">
           <Users size={22} />
@@ -78,9 +103,19 @@ export function TeamCard({ team }: { team: TeamRecruitment }) {
           aria-valuemin={0}
           aria-valuemax={team.capacity}
         >
-          <div
+          <motion.div
             className="h-full rounded-full bg-[#17468c]"
-            style={{ width: `${(team.members / team.capacity) * 100}%` }}
+            style={{
+              width: `${(team.members / team.capacity) * 100}%`,
+              transformOrigin: "left",
+            }}
+            initial={reducedMotion ? false : { scaleX: 0 }}
+            whileInView={{ scaleX: 1 }}
+            viewport={{ once: true }}
+            transition={{
+              duration: reducedMotion ? 0 : motionTiming.large,
+              ease: motionTiming.easeOut,
+            }}
           />
         </div>
         <div className="mt-3 flex flex-wrap gap-1.5">
@@ -107,18 +142,20 @@ export function TeamCard({ team }: { team: TeamRecruitment }) {
         </Link>
         <Button
           size="sm"
-          disabled={requested || ownTeam || closed || full}
-          onClick={() => requestTeam(team.id)}
+          disabled={requested || ownTeam || closed || full || pending}
+          onClick={sendRequest}
         >
-          {ownTeam
-            ? "Your team"
-            : requested
-              ? "Request sent"
-              : closed
-                ? "Closed"
-                : full
-                  ? "Team full"
-                  : "Request to join"}
+          <motion.span
+            key={requestLabel}
+            className="inline-flex items-center gap-1"
+            initial={reducedMotion ? false : { opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: reducedMotion ? 0 : motionTiming.fast }}
+          >
+            {pending && <LoaderCircle size={14} className="animate-spin" />}
+            {requested && <Check size={14} />}
+            {requestLabel}
+          </motion.span>
         </Button>
       </div>
     </motion.article>

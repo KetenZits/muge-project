@@ -110,7 +110,13 @@ export function HomeView() {
         </div>
         <div className="space-y-4">
           {visible.length ? (
-            visible.map((post) => <PostCard key={post.id} post={post} />)
+            visible.map((post, index) => (
+              <PostCard
+                key={post.id}
+                post={post}
+                entranceDelay={Math.min(index, 5) * 0.035}
+              />
+            ))
           ) : (
             <EmptyState
               icon={<MessageCircle />}

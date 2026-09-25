@@ -152,7 +152,7 @@ export function EmptyState({
 }) {
   return (
     <Card className="card flex flex-col items-center justify-center px-6 py-16 text-center">
-      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#eef4fb] text-[#17468c]">
+      <div className="empty-state-icon mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#eef4fb] text-[#17468c]">
         {icon}
       </div>
       <h3 className="text-lg font-bold">{title}</h3>

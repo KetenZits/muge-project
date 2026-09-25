@@ -1,17 +1,19 @@
 "use client";
 import Link from "next/link";
 import { motion } from "motion/react";
+import { useCardMotion } from "@/lib/motion/use-card-motion";
 import { Bookmark, Clock3, MapPin } from "lucide-react";
 import { Button, Tag } from "@/components/ui";
 import { useApp } from "@/stores/app";
 import type { Event } from "@/types";
 
 export function EventCard({ event }: { event: Event }) {
+  const cardMotion = useCardMotion();
   const { interactions, rsvp, bookmarks, toggleBookmark } = useApp();
   const going = interactions.some((i) => i.id === `eventRsvp:${event.id}`);
   const saved = bookmarks.some((b) => b.id === `events:${event.id}`);
   return (
-    <motion.article whileHover={{ y: -2 }} className="card flex gap-4 p-5">
+    <motion.article {...cardMotion} className="card flex gap-4 p-5">
       <div className="flex h-17 w-17 shrink-0 flex-col items-center justify-center rounded-2xl bg-[#eaf1fc] text-[#17468c]">
         <strong className="text-xl leading-none">
           {new Date(event.date).getDate()}

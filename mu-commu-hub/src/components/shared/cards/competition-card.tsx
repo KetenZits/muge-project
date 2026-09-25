@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { motion } from "motion/react";
+import { useCardMotion } from "@/lib/motion/use-card-motion";
 import { toast } from "sonner";
 import { ArrowRight, Bookmark, CalendarDays, Share2 } from "lucide-react";
 import { Button, Tag } from "@/components/ui";
@@ -9,12 +10,13 @@ import { useApp } from "@/stores/app";
 import type { Competition } from "@/types";
 
 export function CompetitionCard({ competition }: { competition: Competition }) {
+  const cardMotion = useCardMotion();
   const { bookmarks, toggleBookmark } = useApp();
   const saved = bookmarks.some(
     (b) => b.id === `competitions:${competition.id}`,
   );
   return (
-    <motion.article whileHover={{ y: -2 }} className="card overflow-hidden">
+    <motion.article {...cardMotion} className="card overflow-hidden">
       <div
         className={`relative flex h-28 items-end p-4 ${competition.featured ? "bg-[#17468c]" : "bg-[#e7eef8]"}`}
       >

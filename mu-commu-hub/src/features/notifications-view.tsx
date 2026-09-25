@@ -1,11 +1,14 @@
 "use client";
 import { useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Bell, Heart, Trophy, Users } from "lucide-react";
 import { Button, EmptyState, PageHeader } from "@/components/ui";
 import { useApp } from "@/stores/app";
+import { motionTiming } from "@/lib/motion/config";
 import { Segmented } from "./shared-controls";
 
 export function NotificationsView() {
+  const reducedMotion = useReducedMotion();
   const { notifications, markRead, markAllRead } = useApp();
   const [tab, setTab] = useState("All");
   const list = notifications.filter((n) => tab === "All" || n.category === tab);
@@ -41,7 +44,7 @@ export function NotificationsView() {
             <button
               key={n.id}
               onClick={() => markRead(n.id)}
-              className={`flex w-full items-start gap-4 border-b border-[#edf1f5] p-4 text-left last:border-0 hover:bg-[#f8fafc] sm:p-5 ${!n.read ? "bg-[#f6f9fd]" : ""}`}
+              className={`flex w-full items-start gap-4 border-b border-[#edf1f5] p-4 text-left transition-colors duration-200 last:border-0 hover:bg-[#f8fafc] sm:p-5 ${!n.read ? "bg-[#f6f9fd]" : ""}`}
             >
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#eaf1fc] text-[#17468c]">
                 {n.category === "Teams" ? (
@@ -57,9 +60,20 @@ export function NotificationsView() {
               <span className="min-w-0 flex-1">
                 <span className="flex items-center gap-2 text-sm font-bold">
                   {n.title}
-                  {!n.read && (
-                    <i className="h-2 w-2 rounded-full bg-[#17468c]" />
-                  )}
+                  <AnimatePresence initial={false}>
+                    {!n.read && (
+                      <motion.i
+                        key="unread"
+                        className="h-2 w-2 shrink-0 rounded-full bg-[#17468c]"
+                        initial={reducedMotion ? false : { scale: 0 }}
+                        animate={{ scale: 1 }}
+                        exit={{ scale: 0 }}
+                        transition={{
+                          duration: reducedMotion ? 0 : motionTiming.fast,
+                        }}
+                      />
+                    )}
+                  </AnimatePresence>
                 </span>
                 <span className="mt-1 block text-xs leading-5 text-[#76879b]">
                   {n.body}

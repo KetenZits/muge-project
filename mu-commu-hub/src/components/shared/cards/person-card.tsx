@@ -2,14 +2,18 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { Check, Sparkles, UserPlus } from "lucide-react";
 import { Avatar, Button, Modal, Tag } from "@/components/ui";
 import { matchScore } from "@/lib/utils";
+import { motionTiming } from "@/lib/motion/config";
+import { useCardMotion } from "@/lib/motion/use-card-motion";
 import { useApp } from "@/stores/app";
 import type { User } from "@/types";
 
 export function PersonCard({ person }: { person: User }) {
+  const cardMotion = useCardMotion({ reveal: true });
+  const reducedMotion = useReducedMotion();
   const { user, following, toggleFollow, teams, setCreateOpen } = useApp();
   const mutual = person.interests.filter((x) => user.interests.includes(x));
   const score = matchScore(user, person);
@@ -18,12 +22,21 @@ export function PersonCard({ person }: { person: User }) {
   const [inviteOpen, setInviteOpen] = useState(false);
   const router = useRouter();
   return (
-    <motion.article whileHover={{ y: -3 }} className="card flex flex-col p-5">
+    <motion.article {...cardMotion} className="card flex flex-col p-5">
       <div className="flex items-start justify-between gap-2">
         <Avatar user={person} size="lg" />
-        <span className="chip gold">
+        <motion.span
+          className="chip gold"
+          initial={reducedMotion ? false : { opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{
+            duration: reducedMotion ? 0 : motionTiming.normal,
+            delay: reducedMotion ? 0 : 0.1,
+          }}
+        >
           <Sparkles size={11} /> {score}% match
-        </span>
+        </motion.span>
       </div>
       <Link
         href={`/profile/${person.username}`}
@@ -65,15 +78,16 @@ export function PersonCard({ person }: { person: User }) {
           onClick={() => toggleFollow(person.id)}
           className="flex-1"
         >
-          {followed ? (
-            <>
-              <Check size={14} /> Following
-            </>
-          ) : (
-            <>
-              <UserPlus size={14} /> Follow
-            </>
-          )}
+          <motion.span
+            key={followed ? "following" : "follow"}
+            className="inline-flex items-center gap-1"
+            initial={reducedMotion ? false : { opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={motionTiming.quickSpring}
+          >
+            {followed ? <Check size={14} /> : <UserPlus size={14} />}
+            {followed ? "Following" : "Follow"}
+          </motion.span>
         </Button>
         <Button
           variant="secondary"

@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { toast } from "sonner";
 import {
   Bookmark,
@@ -13,10 +13,20 @@ import {
 } from "lucide-react";
 import { Avatar, Tag } from "@/components/ui";
 import { deadline, relative, shortDate } from "@/lib/utils";
+import { motionTiming } from "@/lib/motion/config";
+import { useCardMotion } from "@/lib/motion/use-card-motion";
 import { useApp } from "@/stores/app";
 import type { Post } from "@/types";
 
-export function PostCard({ post }: { post: Post }) {
+export function PostCard({
+  post,
+  entranceDelay = 0,
+}: {
+  post: Post;
+  entranceDelay?: number;
+}) {
+  const cardMotion = useCardMotion({ reveal: true, delay: entranceDelay });
+  const reducedMotion = useReducedMotion();
   const { users, user, bookmarks, interactions, toggleLike, toggleBookmark } =
     useApp();
   const author = users.find((x) => x.id === post.authorId) ?? user;
@@ -28,11 +38,7 @@ export function PostCard({ post }: { post: Post }) {
     toast.success("Post link copied");
   };
   return (
-    <motion.article
-      whileHover={{ y: -2 }}
-      transition={{ duration: 0.2 }}
-      className="card overflow-hidden p-5 sm:p-6"
-    >
+    <motion.article {...cardMotion} className="card overflow-hidden p-5 sm:p-6">
       <div className="flex items-start gap-3">
         <Link href={`/profile/${author.username}`}>
           <Avatar user={author} />
@@ -122,8 +128,16 @@ export function PostCard({ post }: { post: Post }) {
           onClick={() => toggleLike(post.id)}
           className={`flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold transition active:scale-95 ${liked ? "text-[#d95e6d]" : "text-[#8392a3] hover:bg-[#f7f9fc] hover:text-[#17468c]"}`}
           aria-label={liked ? "Unlike post" : "Like post"}
+          aria-pressed={liked}
         >
-          <Heart size={17} fill={liked ? "currentColor" : "none"} />
+          <motion.span
+            key={liked ? "liked" : "not-liked"}
+            initial={reducedMotion ? false : { scale: 0.72 }}
+            animate={{ scale: 1 }}
+            transition={motionTiming.quickSpring}
+          >
+            <Heart size={17} fill={liked ? "currentColor" : "none"} />
+          </motion.span>
           {post.likes + (liked ? 1 : 0)}
         </button>
         <Link
@@ -137,8 +151,16 @@ export function PostCard({ post }: { post: Post }) {
           onClick={() => toggleBookmark("posts", post.id)}
           className={`ml-auto rounded-lg p-2 transition active:scale-90 ${saved ? "text-[#17468c]" : "text-[#8392a3] hover:text-[#17468c]"}`}
           aria-label={saved ? "Remove bookmark" : "Save post"}
+          aria-pressed={saved}
         >
-          <Bookmark size={17} fill={saved ? "currentColor" : "none"} />
+          <motion.span
+            key={saved ? "saved" : "not-saved"}
+            initial={reducedMotion ? false : { scale: 0.72 }}
+            animate={{ scale: 1 }}
+            transition={motionTiming.quickSpring}
+          >
+            <Bookmark size={17} fill={saved ? "currentColor" : "none"} />
+          </motion.span>
         </button>
         <button
           onClick={share}

@@ -34,6 +34,17 @@
 - [x] Production build passes.
 - [x] Browser smoke and interaction tests pass, including 375, 430, 768, 1024, and 1440 pixel layouts.
 
+## Motion & Interactive Experience
+
+- [x] Add shared durations, easing, and reduced-motion behavior.
+- [x] Refine page entry, landing entrance, and selected scroll reveals.
+- [x] Animate navigation selection, dialogs, cards, loading handoff, and interaction feedback.
+- [x] Add a lazy loaded, responsive landing 3D scene with a static fallback.
+- [x] Pause 3D outside the viewport or in a hidden tab; cap mobile quality.
+- [x] Verify Canvas fallback, scene pause/resume, navigation, five viewport widths, and existing interactions.
+
+The landing network uses one small scene with 6 mobile or 10 desktop nodes, 8 or 22 particles, no post-processing, and DPR capped at 1 or 1.4. Reduced motion uses the static illustration.
+
 ## Assumptions
 
 - The app remains a frontend-only prototype with a single mock current user and local, per-browser persistence.

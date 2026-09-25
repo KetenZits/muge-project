@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as Popover from "@radix-ui/react-popover";
+import { motion, useReducedMotion } from "motion/react";
 import {
   Bell,
   Bookmark,
@@ -19,6 +20,7 @@ import {
   Users,
 } from "lucide-react";
 import { Avatar } from "@/components/ui";
+import { motionTiming } from "@/lib/motion/config";
 import { useApp } from "@/stores/app";
 
 const nav = [
@@ -51,6 +53,7 @@ function Brand() {
 
 export function Sidebar() {
   const pathname = usePathname();
+  const reducedMotion = useReducedMotion();
   const user = useApp((s) => s.user);
   const open = useApp((s) => s.setCreateOpen);
   return (
@@ -73,10 +76,20 @@ export function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex h-10 items-center gap-3 rounded-xl px-3 text-[13px] font-semibold transition ${active ? "bg-[#eaf1fc] text-[#17468c]" : "text-[#687990] hover:bg-[#f5f8fc] hover:text-[#17468c]"}`}
+              aria-current={active ? "page" : undefined}
+              className={`relative isolate flex h-10 items-center gap-3 rounded-xl px-3 text-[13px] font-semibold transition-colors ${active ? "text-[#17468c]" : "text-[#687990] hover:bg-[#f5f8fc] hover:text-[#17468c]"}`}
             >
+              {active && (
+                <motion.span
+                  layoutId="sidebar-active"
+                  className="absolute inset-0 -z-10 rounded-xl bg-[#eaf1fc]"
+                  transition={
+                    reducedMotion ? { duration: 0 } : motionTiming.softSpring
+                  }
+                />
+              )}
               <Icon size={18} strokeWidth={active ? 2.4 : 1.9} />
-              {item.label}
+              <span>{item.label}</span>
               {item.label === "Notifications" && <UnreadBadge />}
             </Link>
           );
@@ -118,14 +131,22 @@ export function Sidebar() {
 
 function UnreadBadge() {
   const count = useApp((s) => s.notifications.filter((n) => !n.read).length);
+  const reducedMotion = useReducedMotion();
   return count > 0 ? (
-    <span className="ml-auto flex min-w-5 items-center justify-center rounded-full bg-[#fac334] px-1 text-[10px] text-[#654b0b]">
+    <motion.span
+      key={count}
+      initial={reducedMotion ? false : { scale: 0.75, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={motionTiming.quickSpring}
+      className="ml-auto flex min-w-5 items-center justify-center rounded-full bg-[#fac334] px-1 text-[10px] text-[#654b0b]"
+    >
       {count}
-    </span>
+    </motion.span>
   ) : null;
 }
 
 export function Topbar() {
+  const reducedMotion = useReducedMotion();
   const setSearch = useApp((s) => s.setSearchOpen);
   const user = useApp((s) => s.user);
   const notifications = useApp((s) => s.notifications);
@@ -166,7 +187,12 @@ export function Topbar() {
             >
               <Bell size={20} />
               {notifications.some((n) => !n.read) && (
-                <span className="absolute right-2 top-1.5 h-2 w-2 rounded-full bg-[#fac334] ring-2 ring-white" />
+                <motion.span
+                  initial={reducedMotion ? false : { scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={motionTiming.quickSpring}
+                  className="absolute right-2 top-1.5 h-2 w-2 rounded-full bg-[#fac334] ring-2 ring-white"
+                />
               )}
             </button>
           </Popover.Trigger>
@@ -174,7 +200,7 @@ export function Topbar() {
             <Popover.Content
               sideOffset={8}
               align="end"
-              className="z-50 w-[min(360px,calc(100vw-24px))] rounded-2xl border border-[#e2eaf2] bg-white p-2 shadow-xl"
+              className="z-50 w-[min(360px,calc(100vw-24px))] rounded-2xl border border-[#e2eaf2] bg-white p-2 shadow-xl data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-top-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-top-1 data-[state=open]:duration-200 data-[state=closed]:duration-150"
             >
               <div className="flex items-center justify-between px-3 py-3">
                 <strong className="text-sm">Notifications</strong>
@@ -216,6 +242,7 @@ export function Topbar() {
 
 export function MobileNav() {
   const pathname = usePathname();
+  const reducedMotion = useReducedMotion();
   const open = useApp((s) => s.setCreateOpen);
   const items = [
     { href: "/home", label: "Home", icon: Home },
@@ -231,13 +258,15 @@ export function MobileNav() {
       {items.slice(0, 2).map((x) => (
         <MobileLink key={x.href} {...x} active={pathname === x.href} />
       ))}
-      <button
+      <motion.button
         onClick={() => open(true)}
+        whileTap={reducedMotion ? undefined : { scale: 0.94 }}
+        transition={motionTiming.quickSpring}
         className="-mt-7 flex h-13 w-13 items-center justify-center rounded-2xl bg-[#17468c] text-white shadow-[0_7px_18px_#17468c55]"
         aria-label="Create post"
       >
         <Plus size={26} />
-      </button>
+      </motion.button>
       {items.slice(2).map((x) => (
         <MobileLink key={x.href} {...x} active={pathname === x.href} />
       ))}
@@ -256,12 +285,25 @@ function MobileLink({
   icon: typeof Home;
   active: boolean;
 }) {
+  const reducedMotion = useReducedMotion();
   return (
     <Link
       href={href}
-      className={`flex min-w-13 flex-col items-center gap-1 text-[10px] font-semibold ${active ? "text-[#17468c]" : "text-[#8b9aab]"}`}
+      aria-current={active ? "page" : undefined}
+      className={`group relative flex min-w-13 flex-col items-center gap-1 text-[10px] font-semibold ${active ? "text-[#17468c]" : "text-[#8b9aab]"}`}
     >
-      <Icon size={21} strokeWidth={active ? 2.5 : 2} />
+      {active && (
+        <motion.span
+          layoutId="mobile-active"
+          className="absolute -top-2 left-3 right-3 h-1 rounded-full bg-[#17468c]"
+          transition={reducedMotion ? { duration: 0 } : motionTiming.softSpring}
+        />
+      )}
+      <Icon
+        size={21}
+        strokeWidth={active ? 2.5 : 2}
+        className="transition-transform duration-150 group-active:scale-90"
+      />
       {label}
     </Link>
   );
