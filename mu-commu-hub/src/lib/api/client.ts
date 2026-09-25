@@ -5,6 +5,7 @@ import type {
   Competition,
   Conversation,
   Event,
+  Follow,
   Message,
   Notification,
   Post,
@@ -70,4 +71,19 @@ export const messageService = {
 export const interactionService = {
   getBookmarks: () => request<Bookmark[]>("/bookmarks"),
   getInteractions: () => request<Interaction[]>("/interactions"),
+  getFollows: () => request<Follow[]>("/follows"),
+  saveBookmark: (bookmark: Bookmark) => post<Bookmark>("/bookmarks", bookmark),
+  removeBookmark: (kind: Bookmark["kind"], itemId: string) =>
+    request<{ ok: boolean }>(`/bookmarks/${kind}/${itemId}`, {
+      method: "DELETE",
+    }),
+  follow: (follow: Follow) => post<Follow>("/follows", follow),
+  unfollow: (targetId: string) =>
+    request<{ ok: boolean }>(`/follows/${targetId}`, { method: "DELETE" }),
+  addInteraction: (interaction: Interaction) =>
+    post<Interaction>("/interactions", interaction),
+  removeInteraction: (kind: Interaction["kind"], itemId: string) =>
+    request<{ ok: boolean }>(`/interactions/${kind}/${itemId}`, {
+      method: "DELETE",
+    }),
 };

@@ -10,6 +10,8 @@ export interface Competition {
   prize: string;
   teamSize: string;
   skills: string[];
+  requirements?: string[];
+  eligibility?: string;
   status: "Open" | "Closing Soon" | "Upcoming" | "Closed";
   featured?: boolean;
 }

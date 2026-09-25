@@ -16,6 +16,7 @@ export const postCategories: PostCategory[] = [
   "Gaming",
   "Sports",
   "Activity",
+  "Event",
 ];
 
 export function isRecruitmentCategory(category: PostCategory): boolean {
@@ -53,8 +54,37 @@ export const createPostSchema = z
     location: z.string().optional(),
     faculty: z.string().optional(),
     contactMethod: z.string().optional(),
+    eventDate: z.string().optional(),
+    eventTime: z.string().optional(),
+    eventLocation: z.string().optional(),
   })
   .superRefine((data, context) => {
+    if (data.category === "Event") {
+      if (
+        !data.eventDate ||
+        new Date(`${data.eventDate}T23:59:59`).getTime() < Date.now()
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["eventDate"],
+          message: "Choose a future event date",
+        });
+      }
+      if (!data.eventTime) {
+        context.addIssue({
+          code: "custom",
+          path: ["eventTime"],
+          message: "Add an event time",
+        });
+      }
+      if (!data.eventLocation?.trim()) {
+        context.addIssue({
+          code: "custom",
+          path: ["eventLocation"],
+          message: "Add an event location",
+        });
+      }
+    }
     if (!isRecruitmentCategory(data.category)) return;
     if (!data.roles?.split(",").some((role) => role.trim())) {
       context.addIssue({
@@ -99,5 +129,12 @@ export const createPostSchema = z
 export type CreatePostForm = z.infer<typeof createPostSchema>;
 
 export function parseTags(value: string): string[] {
-  return [...new Set(value.split(",").map((tag) => tag.trim()).filter(Boolean))];
+  return [
+    ...new Set(
+      value
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter(Boolean),
+    ),
+  ];
 }

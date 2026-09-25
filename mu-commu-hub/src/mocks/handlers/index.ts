@@ -1,5 +1,7 @@
 import { http, HttpResponse } from "msw";
 import { db } from "@/lib/db";
+import { eventFromPost } from "@/lib/events";
+import type { Interaction } from "@/lib/db";
 import {
   clubs,
   comments,
@@ -13,8 +15,10 @@ import {
   users,
 } from "@/lib/mock/data";
 import type {
+  Bookmark,
   Comment,
   Conversation,
+  Follow,
   Message,
   Notification,
   Post,
@@ -37,7 +41,11 @@ async function postsWithLocalComments(): Promise<Post[]> {
 export const handlers = [
   http.get("/api/posts", async () => json(await postsWithLocalComments())),
   http.get("/api/posts/:id", async ({ params }) =>
-    json((await postsWithLocalComments()).find((post) => post.id === id(params.id)) ?? null),
+    json(
+      (await postsWithLocalComments()).find(
+        (post) => post.id === id(params.id),
+      ) ?? null,
+    ),
   ),
   http.post("/api/posts", async ({ request }) => {
     const post = (await request.json()) as Post;
@@ -78,7 +86,12 @@ export const handlers = [
   http.get("/api/competitions/:id", ({ params }) =>
     json(competitions.find((c) => c.id === params.id) ?? null),
   ),
-  http.get("/api/events", () => json(events)),
+  http.get("/api/events", async () => {
+    const localEvents = (await db.posts.toArray())
+      .map(eventFromPost)
+      .filter((event) => event !== null);
+    return json([...localEvents, ...events]);
+  }),
   http.get("/api/communities", () => json(clubs)),
   http.get("/api/notifications", async () => {
     const updates = await db.notifications.toArray();
@@ -116,7 +129,9 @@ export const handlers = [
     const local = await db.conversations.toArray();
     return json([
       ...local,
-      ...conversations.filter((seed) => !local.some((item) => item.id === seed.id)),
+      ...conversations.filter(
+        (seed) => !local.some((item) => item.id === seed.id),
+      ),
     ]);
   }),
   http.post("/api/conversations", async ({ request }) => {
@@ -137,6 +152,15 @@ export const handlers = [
     return json(changed);
   }),
   http.get("/api/bookmarks", async () => json(await db.bookmarks.toArray())),
+  http.post("/api/bookmarks", async ({ request }) => {
+    const bookmark = (await request.json()) as Bookmark;
+    await db.bookmarks.put(bookmark);
+    return json(bookmark);
+  }),
+  http.delete("/api/bookmarks/:kind/:itemId", async ({ params }) => {
+    await db.bookmarks.delete(`${id(params.kind)}:${id(params.itemId)}`);
+    return json({ ok: true });
+  }),
   http.post("/api/posts/:id/bookmark", async ({ params }) => {
     const itemId = id(params.id);
     await db.bookmarks.put({ id: `posts:${itemId}`, kind: "posts", itemId });
@@ -150,6 +174,25 @@ export const handlers = [
   http.get("/api/interactions", async () =>
     json(await db.interactions.toArray()),
   ),
+  http.post("/api/interactions", async ({ request }) => {
+    const interaction = (await request.json()) as Interaction;
+    await db.interactions.put(interaction);
+    return json(interaction);
+  }),
+  http.delete("/api/interactions/:kind/:itemId", async ({ params }) => {
+    await db.interactions.delete(`${id(params.kind)}:${id(params.itemId)}`);
+    return json({ ok: true });
+  }),
+  http.get("/api/follows", async () => json(await db.follows.toArray())),
+  http.post("/api/follows", async ({ request }) => {
+    const follow = (await request.json()) as Follow;
+    await db.follows.put(follow);
+    return json(follow);
+  }),
+  http.delete("/api/follows/:targetId", async ({ params }) => {
+    await db.follows.delete(`follow:${id(params.targetId)}`);
+    return json({ ok: true });
+  }),
   http.get("/api/comments/:postId", async ({ params }) =>
     json([
       ...(await db.comments

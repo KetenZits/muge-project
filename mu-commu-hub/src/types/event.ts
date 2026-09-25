@@ -8,4 +8,5 @@ export interface Event {
   location: string;
   host: string;
   attendees: number;
+  postId?: string;
 }

@@ -1,4 +1,12 @@
-import type { Competition, TeamRecruitment, User, WorkMode } from "@/types";
+import type {
+  Club,
+  Competition,
+  Event,
+  Post,
+  TeamRecruitment,
+  User,
+  WorkMode,
+} from "@/types";
 
 export interface PeopleFilters {
   query: string;
@@ -20,6 +28,27 @@ export interface TeamFilters {
   deadline: "Any deadline" | "7 days" | "30 days";
   mode: "" | WorkMode;
   sort: "Recommended" | "Newest" | "Deadline soon" | "Most active";
+}
+
+export interface DiscoverFilters {
+  query: string;
+  faculty: string;
+  major: string;
+  year: string;
+  skill: string;
+  interest: string;
+  category: string;
+  availability: string;
+  mode: "" | WorkMode;
+}
+
+export interface DiscoverData {
+  users: User[];
+  posts: Post[];
+  teams: TeamRecruitment[];
+  competitions: Competition[];
+  events: Event[];
+  clubs: Club[];
 }
 
 export function sharedItems(first: string[], second: string[]): string[] {
@@ -69,8 +98,7 @@ export function filterPeople(
     .sort((first, second) =>
       filters.sort === "Name"
         ? first.name.localeCompare(second.name)
-        : peopleMatchScore(current, second) -
-          peopleMatchScore(current, first),
+        : peopleMatchScore(current, second) - peopleMatchScore(current, first),
     );
 }
 
@@ -164,4 +192,125 @@ export function filterTeams(
         teamMatchScore(first, current, firstLeader, firstCompetition)
       );
     });
+}
+
+export function discoverResults(
+  data: DiscoverData,
+  current: User,
+  filters: DiscoverFilters,
+) {
+  const query = filters.query.trim().toLowerCase();
+  const people = filterPeople(data.users, current, {
+    ...filters,
+    sort: "Best match",
+  });
+  const authorMatches = (authorId: string) => {
+    const author = data.users.find((person) => person.id === authorId);
+    return (
+      (!filters.faculty || author?.faculty === filters.faculty) &&
+      (!filters.major || author?.major === filters.major) &&
+      (!filters.year || author?.year === Number(filters.year)) &&
+      (!filters.availability ||
+        author?.availability.includes(filters.availability))
+    );
+  };
+  const posts = data.posts.filter(
+    (post) =>
+      (!query ||
+        [post.title, post.content, ...post.tags]
+          .join(" ")
+          .toLowerCase()
+          .includes(query)) &&
+      (!filters.category || post.category === filters.category) &&
+      (!filters.skill || post.tags.includes(filters.skill)) &&
+      (!filters.interest || post.tags.includes(filters.interest)) &&
+      authorMatches(post.authorId),
+  );
+  const teams = filterTeams(
+    data.teams,
+    data.users,
+    data.competitions,
+    current,
+    {
+      query: filters.query,
+      competitionId: "",
+      role: "",
+      skill: filters.skill,
+      faculty: filters.faculty,
+      deadline: "Any deadline",
+      mode: filters.mode,
+      sort: "Recommended",
+    },
+  ).filter(
+    (team) =>
+      !filters.category &&
+      !filters.major &&
+      !filters.year &&
+      !filters.availability &&
+      (!filters.interest ||
+        data.competitions
+          .find((competition) => competition.id === team.competitionId)
+          ?.categories.includes(filters.interest)),
+  );
+  const broadResultsAllowed =
+    !filters.faculty &&
+    !filters.major &&
+    !filters.year &&
+    !filters.availability &&
+    !filters.category &&
+    !filters.mode;
+  const competitions = broadResultsAllowed
+    ? data.competitions.filter(
+        (competition) =>
+          (!query ||
+            [
+              competition.title,
+              competition.description,
+              ...competition.categories,
+            ]
+              .join(" ")
+              .toLowerCase()
+              .includes(query)) &&
+          (!filters.skill || competition.skills.includes(filters.skill)) &&
+          (!filters.interest ||
+            competition.categories.includes(filters.interest)),
+      )
+    : [];
+  const events =
+    broadResultsAllowed && !filters.skill && !filters.interest
+      ? data.events.filter(
+          (event) =>
+            !query ||
+            [event.title, event.category, event.description]
+              .join(" ")
+              .toLowerCase()
+              .includes(query),
+        )
+      : [];
+  const clubs =
+    broadResultsAllowed && !filters.skill
+      ? data.clubs.filter(
+          (club) =>
+            (!query ||
+              [club.name, club.description, ...club.tags]
+                .join(" ")
+                .toLowerCase()
+                .includes(query)) &&
+            (!filters.interest || club.tags.includes(filters.interest)),
+        )
+      : [];
+  return { people, posts, teams, competitions, events, clubs };
+}
+
+export function trendingSkills(users: User[], limit = 6): string[] {
+  const counts = new Map<string, number>();
+  for (const user of users) {
+    for (const skill of user.skills) {
+      counts.set(skill, (counts.get(skill) ?? 0) + 1);
+    }
+  }
+  return [...counts]
+    .sort((first, second) => second[1] - first[1])
+    .slice(0, limit)
+    .map(([skill]) => skill);
 }

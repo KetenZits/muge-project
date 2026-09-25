@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, Save, Send } from "lucide-react";
 import { toast } from "sonner";
 import { Button, Field, Modal, inputClass } from "@/components/ui";
-import { db } from "@/lib/db";
+import { draftService } from "@/lib/db/draft-service";
 import {
   createPostSchema,
   isRecruitmentCategory,
@@ -45,7 +45,7 @@ export function CreatePostModal() {
   });
   useEffect(() => {
     if (open)
-      db.drafts.get("current").then((d) => {
+      draftService.getCurrent().then((d) => {
         if (d)
           reset({
             category: d.type as CreatePostForm["category"],
@@ -60,6 +60,9 @@ export function CreatePostModal() {
             location: d.location,
             faculty: d.faculty,
             contactMethod: d.contactMethod ?? "MU Connect messages",
+            eventDate: d.eventDate,
+            eventTime: d.eventTime,
+            eventLocation: d.eventLocation,
           });
       });
   }, [open, reset]);
@@ -68,7 +71,7 @@ export function CreatePostModal() {
   const content = useWatch({ control, name: "content" }) ?? "";
   const recruitment = isRecruitmentCategory(category);
   const saveDraft = async () => {
-    await db.drafts.put({
+    await draftService.save({
       id: "current",
       type: category,
       title,
@@ -82,6 +85,9 @@ export function CreatePostModal() {
       location: getValues("location"),
       faculty: getValues("faculty"),
       contactMethod: getValues("contactMethod"),
+      eventDate: getValues("eventDate"),
+      eventTime: getValues("eventTime"),
+      eventLocation: getValues("eventLocation"),
       updatedAt: new Date().toISOString(),
     });
     toast.success("Draft saved on this device");
@@ -101,6 +107,14 @@ export function CreatePostModal() {
         likes: 0,
         comments: 0,
       };
+      if (data.category === "Event") {
+        post.eventDate = new Date(
+          `${data.eventDate}T${data.eventTime}`,
+        ).toISOString();
+        post.eventTime = data.eventTime;
+        post.eventLocation = data.eventLocation?.trim();
+        post.eventHost = user.name;
+      }
       if (recruitment) {
         const teamId = `local-team-${crypto.randomUUID()}`;
         const parsedRoles = parseTags(data.roles ?? "");
@@ -119,7 +133,9 @@ export function CreatePostModal() {
           capacity: size.capacity,
           deadline: new Date(`${data.deadline}T23:59:59`).toISOString(),
           mode: data.mode ?? "Hybrid",
-          location: data.location?.trim() || (data.mode === "Online" ? "Online" : "Main Campus"),
+          location:
+            data.location?.trim() ||
+            (data.mode === "Online" ? "Online" : "Main Campus"),
           faculty: data.faculty?.trim() || undefined,
           contactMethod: data.contactMethod?.trim(),
           createdAt: new Date().toISOString(),
@@ -128,7 +144,7 @@ export function CreatePostModal() {
         post.recruitmentId = teamId;
       }
       await createPost(post);
-      await db.drafts.delete("current");
+      await draftService.clear();
       reset();
       setOpen(false);
       toast.success("Your post is live in the community");
@@ -237,11 +253,49 @@ export function CreatePostModal() {
               </Field>
             </div>
             <Field label="Faculty requirement">
-              <input {...register("faculty")} className={inputClass} placeholder="Optional" />
+              <input
+                {...register("faculty")}
+                className={inputClass}
+                placeholder="Optional"
+              />
             </Field>
             <Field label="Contact method" error={errors.contactMethod?.message}>
-              <input {...register("contactMethod")} className={inputClass} placeholder="MU Connect messages" />
+              <input
+                {...register("contactMethod")}
+                className={inputClass}
+                placeholder="MU Connect messages"
+              />
             </Field>
+          </div>
+        )}
+        {category === "Event" && (
+          <div className="grid gap-4 rounded-2xl border border-[#e4ebf4] bg-[#f8fafd] p-4 sm:grid-cols-2">
+            <Field label="Event date" error={errors.eventDate?.message}>
+              <input
+                {...register("eventDate")}
+                type="date"
+                className={inputClass}
+              />
+            </Field>
+            <Field label="Event time" error={errors.eventTime?.message}>
+              <input
+                {...register("eventTime")}
+                type="time"
+                className={inputClass}
+              />
+            </Field>
+            <div className="sm:col-span-2">
+              <Field
+                label="Event location"
+                error={errors.eventLocation?.message}
+              >
+                <input
+                  {...register("eventLocation")}
+                  className={inputClass}
+                  placeholder="Innovation Hub or online"
+                />
+              </Field>
+            </div>
           </div>
         )}
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#e9eef4] pt-5">

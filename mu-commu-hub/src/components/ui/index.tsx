@@ -9,9 +9,9 @@ import {
 } from "./dialog";
 import { Badge } from "./badge";
 import { Card } from "./card";
-import { Skeleton } from "./skeleton";
 import { cn } from "@/lib/utils";
 import type { User } from "@/types";
+export { ErrorState } from "./error-state";
 export function Button({
   children,
   variant = "primary",
@@ -203,25 +203,5 @@ export function Tag({
     >
       {children}
     </Badge>
-  );
-}
-export function LoadingCards({ count = 3 }: { count?: number }) {
-  return (
-    <div className="grid gap-4">
-      {Array.from({ length: count }, (_, i) => (
-        <Card key={i} className="card p-6">
-          <div className="flex items-center gap-3">
-            <Skeleton className="h-11 w-11 rounded-full" />
-            <div className="grid flex-1 gap-2">
-              <Skeleton className="h-3 w-1/3" />
-              <Skeleton className="h-3 w-1/5" />
-            </div>
-          </div>
-          <Skeleton className="mt-6 h-5 w-3/4" />
-          <Skeleton className="mt-3 h-3 w-full" />
-          <Skeleton className="mt-2 h-3 w-4/5" />
-        </Card>
-      ))}
-    </div>
   );
 }

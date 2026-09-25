@@ -13,7 +13,6 @@ import type {
   User,
 } from "@/types";
 import type { Interaction } from "@/lib/db";
-import { db } from "@/lib/db";
 import {
   communityService,
   competitionService,
@@ -26,6 +25,7 @@ import {
   userService,
 } from "@/lib/api/client";
 import { demoUser } from "@/lib/mock/data";
+import { eventFromPost } from "@/lib/events";
 interface AppState {
   ready: boolean;
   error: string | null;
@@ -111,7 +111,7 @@ export const useApp = create<AppState>((set, get) => ({
         messageService.getMessages(),
         interactionService.getBookmarks(),
         interactionService.getInteractions(),
-        db.follows.toArray(),
+        interactionService.getFollows(),
       ]);
       const stored = localStorage.getItem("mu-connect-user");
       const user = stored
@@ -149,7 +149,9 @@ export const useApp = create<AppState>((set, get) => ({
     localStorage.setItem("mu-connect-user", JSON.stringify(user));
     set((state) => ({
       user,
-      users: state.users.map((person) => (person.id === user.id ? user : person)),
+      users: state.users.map((person) =>
+        person.id === user.id ? user : person,
+      ),
     }));
   },
   updateProfile: (user) => {
@@ -163,7 +165,11 @@ export const useApp = create<AppState>((set, get) => ({
   setSearchOpen: (searchOpen) => set({ searchOpen }),
   createPost: async (post) => {
     await postService.createPost(post);
-    set((s) => ({ posts: [post, ...s.posts] }));
+    const event = eventFromPost(post);
+    set((state) => ({
+      posts: [post, ...state.posts],
+      events: event ? [event, ...state.events] : state.events,
+    }));
   },
   createTeam: async (team) => {
     await teamService.createTeam(team);
@@ -183,12 +189,11 @@ export const useApp = create<AppState>((set, get) => ({
     const id = `${kind}:${itemId}`;
     const found = get().bookmarks.some((b) => b.id === id);
     if (found) {
-      await db.bookmarks.delete(id);
+      await interactionService.removeBookmark(kind, itemId);
       set((s) => ({ bookmarks: s.bookmarks.filter((b) => b.id !== id) }));
     } else {
       const bookmark: Bookmark = { id, kind, itemId };
-      if (kind === "posts") await postService.bookmark(itemId);
-      else await db.bookmarks.put(bookmark);
+      await interactionService.saveBookmark(bookmark);
       set((s) => ({ bookmarks: [...s.bookmarks, bookmark] }));
     }
   },
@@ -196,7 +201,7 @@ export const useApp = create<AppState>((set, get) => ({
     const key = `like:${id}`;
     const found = get().interactions.some((i) => i.id === key);
     if (found) {
-      await db.interactions.delete(key);
+      await interactionService.removeInteraction("like", id);
       set((s) => ({
         interactions: s.interactions.filter((i) => i.id !== key),
       }));
@@ -213,10 +218,10 @@ export const useApp = create<AppState>((set, get) => ({
   toggleFollow: async (id) => {
     const found = get().following.includes(id);
     if (found) {
-      await db.follows.delete(`follow:${id}`);
+      await interactionService.unfollow(id);
       set((s) => ({ following: s.following.filter((x) => x !== id) }));
     } else {
-      await db.follows.put({
+      await interactionService.follow({
         id: `follow:${id}`,
         userId: get().user.id,
         targetId: id,
@@ -227,10 +232,14 @@ export const useApp = create<AppState>((set, get) => ({
   toggleClub: async (id) => {
     const found = get().joinedClubs.includes(id);
     if (found) {
-      await db.interactions.delete(`join:${id}`);
+      await interactionService.removeInteraction("join", id);
       set((s) => ({ joinedClubs: s.joinedClubs.filter((x) => x !== id) }));
     } else {
-      await db.interactions.put({ id: `join:${id}`, kind: "join", itemId: id });
+      await interactionService.addInteraction({
+        id: `join:${id}`,
+        kind: "join",
+        itemId: id,
+      });
       set((s) => ({ joinedClubs: [...s.joinedClubs, id] }));
     }
   },
@@ -258,7 +267,7 @@ export const useApp = create<AppState>((set, get) => ({
       kind: "eventRsvp" as const,
       itemId: id,
     };
-    await db.interactions.put(item);
+    await interactionService.addInteraction(item);
     set((s) => ({ interactions: [...s.interactions, item] }));
   },
   markRead: async (id) => {

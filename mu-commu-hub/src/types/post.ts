@@ -12,6 +12,7 @@ export type PostCategory =
   | "Gaming"
   | "Sports"
   | "Activity"
+  | "Event"
   | "Question";
 
 export interface Post {
@@ -26,6 +27,10 @@ export interface Post {
   comments: number;
   image?: string;
   recruitmentId?: string;
+  eventDate?: string;
+  eventTime?: string;
+  eventLocation?: string;
+  eventHost?: string;
 }
 
 export interface Comment {
@@ -50,6 +55,9 @@ export interface Draft {
   location?: string;
   faculty?: string;
   contactMethod?: string;
+  eventDate?: string;
+  eventTime?: string;
+  eventLocation?: string;
   updatedAt: string;
 }
 

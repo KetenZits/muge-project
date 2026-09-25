@@ -50,18 +50,66 @@ for (const route of [
 }
 for (const width of [375, 430, 768, 1024, 1440]) {
   await page.setViewportSize({ width, height: 812 });
-  await page.goto("http://localhost:3000/home");
-  await page.locator("[data-mock-ready=true]").waitFor({ timeout: 20000 });
-  const overflow = await page.evaluate(
-    () => document.documentElement.scrollWidth > innerWidth,
-  );
-  console.log(width + "px horizontal overflow", overflow);
-  if (overflow) errors.push("Horizontal overflow at " + width + "px");
-  if (width === 375)
-    await page.screenshot({
-      path: process.env.TEMP + "/mu-connect-mobile.png",
-      fullPage: true,
-    });
+  for (const route of [
+    "/home",
+    "/discover",
+    "/people",
+    "/profile/thanapon.dev",
+    "/teams",
+    "/teams/t1",
+    "/competitions",
+    "/competitions/c1",
+    "/events",
+    "/messages",
+    "/saved",
+    "/notifications",
+    "/me",
+  ]) {
+    await page.goto("http://localhost:3000" + route);
+    await page.locator("[data-mock-ready=true]").waitFor({ timeout: 20000 });
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth > innerWidth,
+    );
+    if (overflow) {
+      const offenders = await page.evaluate(() =>
+        [...document.querySelectorAll("body *")]
+          .filter(
+            (element) => element.getBoundingClientRect().right > innerWidth + 1,
+          )
+          .slice(0, 5)
+          .map((element) => ({
+            tag: element.tagName,
+            className: element.className,
+            right: Math.round(element.getBoundingClientRect().right),
+            text: element.textContent?.trim().slice(0, 70),
+          })),
+      );
+      errors.push(
+        `Horizontal overflow at ${width}px on ${route}: ${JSON.stringify(offenders)}`,
+      );
+    }
+    if (route === "/events") {
+      await page.getByRole("button", { name: "Calendar", exact: true }).click();
+      const calendarOverflow = await page.evaluate(
+        () => document.documentElement.scrollWidth > innerWidth,
+      );
+      if (calendarOverflow) errors.push(`Calendar overflow at ${width}px`);
+    }
+    if (width === 375 && route === "/home") {
+      await page.screenshot({
+        path: process.env.TEMP + "/mu-connect-mobile.png",
+        fullPage: true,
+      });
+      await page.getByRole("button", { name: "Create post" }).last().click();
+      const dialog = page.getByRole("dialog");
+      await dialog.waitFor();
+      const dialogOverflow = await dialog.evaluate(
+        (element) => element.scrollWidth > element.clientWidth,
+      );
+      if (dialogOverflow) errors.push("Create dialog overflows at 375px");
+    }
+  }
+  console.log(width + "px responsive routes checked");
 }
 console.log("browser errors", errors);
 await browser.close();

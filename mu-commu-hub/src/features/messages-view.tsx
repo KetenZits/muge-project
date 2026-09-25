@@ -46,7 +46,9 @@ export function MessagesView() {
     );
     if (invitedTeam) {
       queueMicrotask(() =>
-        setDraft(`Hi! Would you be interested in joining ${invitedTeam.title}? I'd love to tell you more about the team.`),
+        setDraft(
+          `Hi! Would you be interested in joining ${invitedTeam.title}? I'd love to tell you more about the team.`,
+        ),
       );
     }
     if (!target) {
@@ -60,16 +62,25 @@ export function MessagesView() {
       setSelected(id);
       void openConversation(id);
     });
-  }, [conversations, users, teams, user.id, startConversation, openConversation]);
+  }, [
+    conversations,
+    users,
+    teams,
+    user.id,
+    startConversation,
+    openConversation,
+  ]);
   useEffect(() => {
     bottom.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, selected]);
-  const shown = conversations.filter((x) => {
-    const other = users.find(
-      (u) => x.participantIds.includes(u.id) && u.id !== user.id,
-    );
-    return other?.name.toLowerCase().includes(query.toLowerCase());
-  }).sort((first, second) => second.updatedAt.localeCompare(first.updatedAt));
+  const shown = conversations
+    .filter((x) => {
+      const other = users.find(
+        (u) => x.participantIds.includes(u.id) && u.id !== user.id,
+      );
+      return other?.name.toLowerCase().includes(query.toLowerCase());
+    })
+    .sort((first, second) => second.updatedAt.localeCompare(first.updatedAt));
   const current = conversations.find((x) => x.id === selected);
   const other = users.find(
     (x) => current?.participantIds.includes(x.id) && x.id !== user.id,
@@ -123,7 +134,9 @@ export function MessagesView() {
               );
               const last = messages
                 .filter((message) => message.conversationId === c.id)
-                .sort((first, second) => second.createdAt.localeCompare(first.createdAt))[0];
+                .sort((first, second) =>
+                  second.createdAt.localeCompare(first.createdAt),
+                )[0];
               return (
                 <button
                   key={c.id}
