@@ -1,5 +1,15 @@
 import { http, HttpResponse } from "msw";
 import { db } from "@/lib/db";
+import { postRepository } from "@/lib/db/post-repository";
+import { storageErrorMessage } from "@/lib/db/storage-error";
+import {
+  imageMetadataSchema,
+  MAX_POST_IMAGES,
+} from "@/lib/validation/post-images";
+import {
+  postPayloadSchema,
+  teamPayloadSchema,
+} from "@/lib/validation/post-payload";
 import { eventFromPost } from "@/lib/events";
 import type { Interaction } from "@/lib/db";
 import {
@@ -22,6 +32,7 @@ import type {
   Message,
   Notification,
   Post,
+  PreparedPostImage,
   TeamRecruitment,
 } from "@/types";
 const json = (data: unknown) => HttpResponse.json(data as never);
@@ -48,9 +59,55 @@ export const handlers = [
     ),
   ),
   http.post("/api/posts", async ({ request }) => {
-    const post = (await request.json()) as Post;
-    await db.posts.put(post);
-    return json(post);
+    try {
+      if (
+        !request.headers.get("content-type")?.includes("multipart/form-data")
+      ) {
+        return json(
+          await postRepository.create(
+            postPayloadSchema.parse(await request.json()),
+          ),
+        );
+      }
+      const form = await request.formData();
+      const post = postPayloadSchema.parse(
+        JSON.parse(String(form.get("post"))),
+      );
+      const metadata = imageMetadataSchema
+        .array()
+        .max(MAX_POST_IMAGES)
+        .parse(JSON.parse(String(form.get("imageMetadata"))));
+      const files = form.getAll("images");
+      if (files.length !== metadata.length)
+        throw new Error(
+          "Some photo data is missing. Please select the photos again.",
+        );
+      const images: PreparedPostImage[] = metadata.map((image, index) => {
+        const blob = files[index];
+        if (!(blob instanceof Blob)) throw new Error("Invalid photo data.");
+        return { ...image, blob };
+      });
+      const teamData = form.get("team");
+      const team = teamData
+        ? teamPayloadSchema.parse(JSON.parse(String(teamData)))
+        : undefined;
+      const draftId = form.get("draftId");
+      if (draftId !== null && draftId !== "current")
+        throw new Error("Unknown draft.");
+      return json(
+        await postRepository.create(post, {
+          images,
+          team,
+          draftId: draftId ?? undefined,
+        }),
+      );
+    } catch (error) {
+      const message = storageErrorMessage(error);
+      return HttpResponse.json(
+        { error: message },
+        { status: /storage is full/.test(message) ? 507 : 400 },
+      );
+    }
   }),
   http.get("/api/users", () => json(users)),
   http.get("/api/users/:id", ({ params }) =>

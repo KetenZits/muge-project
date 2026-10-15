@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { PostCategory } from "@/types";
+import { postImagesSchema } from "./post-images";
 
 export const postCategories: PostCategory[] = [
   "General",
@@ -39,12 +40,9 @@ export function parseTeamSize(
 export const createPostSchema = z
   .object({
     category: z.enum(postCategories),
-    title: z.string().trim().min(8, "Use at least 8 characters").max(120),
-    content: z
-      .string()
-      .trim()
-      .min(20, "Tell the community a little more")
-      .max(2000),
+    title: z.string().trim().max(120),
+    content: z.string().trim().max(2000),
+    images: postImagesSchema,
     tags: z.string().max(120),
     competitionId: z.string().optional(),
     roles: z.string().optional(),
@@ -59,6 +57,24 @@ export const createPostSchema = z
     eventLocation: z.string().optional(),
   })
   .superRefine((data, context) => {
+    const requiresText =
+      !data.images.length ||
+      isRecruitmentCategory(data.category) ||
+      data.category === "Event";
+    if (requiresText && data.title.length < 8) {
+      context.addIssue({
+        code: "custom",
+        path: ["title"],
+        message: "Use at least 8 characters",
+      });
+    }
+    if (requiresText && data.content.length < 20) {
+      context.addIssue({
+        code: "custom",
+        path: ["content"],
+        message: "Tell the community a little more",
+      });
+    }
     if (data.category === "Event") {
       if (
         !data.eventDate ||

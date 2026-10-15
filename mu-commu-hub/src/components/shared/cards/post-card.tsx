@@ -16,6 +16,7 @@ import { deadline, relative, shortDate } from "@/lib/utils";
 import { motionTiming } from "@/lib/motion/config";
 import { useCardMotion } from "@/lib/motion/use-card-motion";
 import { useApp } from "@/stores/app";
+import { PostImageGrid } from "@/components/posts/post-image-grid";
 import type { Post } from "@/types";
 
 export function PostCard({
@@ -123,6 +124,7 @@ export function PostCard({
           <Tag key={tag}>{tag}</Tag>
         ))}
       </div>
+      <PostImageGrid post={post} />
       <div className="mt-5 flex items-center gap-1 border-t border-[#edf1f5] pt-4">
         <button
           onClick={() => toggleLike(post.id)}

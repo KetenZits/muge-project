@@ -26,6 +26,7 @@ export interface Post {
   likes: number;
   comments: number;
   image?: string;
+  imageIds?: string[];
   recruitmentId?: string;
   eventDate?: string;
   eventTime?: string;
@@ -59,6 +60,27 @@ export interface Draft {
   eventTime?: string;
   eventLocation?: string;
   updatedAt: string;
+  imageIds?: string[];
+}
+
+export interface PostImageMetadata {
+  id: string;
+  mimeType: "image/jpeg" | "image/png" | "image/webp";
+  fileName: string;
+  fileSize: number;
+  width: number;
+  height: number;
+  createdAt: string;
+}
+
+/** Composer data only. Never JSON-serialize the binary field. */
+export interface PreparedPostImage extends PostImageMetadata {
+  blob: Blob;
+}
+
+export interface StoredPostImage extends PreparedPostImage {
+  ownerId: string;
+  position: number;
 }
 
 export interface Bookmark {

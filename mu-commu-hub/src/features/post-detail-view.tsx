@@ -21,6 +21,7 @@ import {
   inputClass,
 } from "@/components/ui";
 import { postService } from "@/lib/api/client";
+import { PostImageGrid } from "@/components/posts/post-image-grid";
 import { relative, shortDate } from "@/lib/utils";
 import { useApp } from "@/stores/app";
 import type { Comment } from "@/types";
@@ -135,6 +136,7 @@ export function PostDetailView({ id }: { id: string }) {
             <Tag key={x}>{x}</Tag>
           ))}
         </div>
+        <PostImageGrid post={post} />
         <div className="mt-6 flex gap-2 border-t border-[#e8eef4] pt-5">
           <Button
             variant={liked ? "secondary" : "ghost"}

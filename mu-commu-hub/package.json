@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test:smoke": "node scripts/smoke.mjs",
     "test:interactions": "node scripts/interaction-smoke.mjs",
+    "test:images": "node scripts/image-attachments.mjs",
     "test:motion": "node scripts/motion-smoke.mjs"
   },
   "dependencies": {

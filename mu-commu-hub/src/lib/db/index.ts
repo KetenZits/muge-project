@@ -8,6 +8,7 @@ import type {
   Message,
   Notification,
   Post,
+  StoredPostImage,
   TeamRecruitment,
 } from "@/types";
 export interface Interaction {
@@ -26,6 +27,7 @@ export const db = new Dexie("mu-connect-prototype") as Dexie & {
   messages: EntityTable<Message, "id">;
   interactions: EntityTable<Interaction, "id">;
   comments: EntityTable<Comment, "id">;
+  postImages: EntityTable<StoredPostImage, "id">;
 };
 db.version(1).stores({
   posts: "id,createdAt",
@@ -49,4 +51,8 @@ db.version(2).stores({
   messages: "id,conversationId,createdAt",
   interactions: "id,kind,itemId",
   comments: "id,postId,createdAt",
+});
+// Additive migration: all v1/v2 tables and records remain untouched.
+db.version(3).stores({
+  postImages: "id,ownerId,[ownerId+position]",
 });

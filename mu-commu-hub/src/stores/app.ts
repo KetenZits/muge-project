@@ -13,6 +13,7 @@ import type {
   User,
 } from "@/types";
 import type { Interaction } from "@/lib/db";
+import type { CreatePostOptions } from "@/lib/db/post-repository";
 import {
   communityService,
   competitionService,
@@ -49,7 +50,7 @@ interface AppState {
   setUser: (user: User) => void;
   setCreateOpen: (v: boolean) => void;
   setSearchOpen: (v: boolean) => void;
-  createPost: (post: Post) => Promise<void>;
+  createPost: (post: Post, options?: CreatePostOptions) => Promise<void>;
   createTeam: (team: TeamRecruitment) => Promise<void>;
   addComment: (comment: Comment) => Promise<void>;
   toggleBookmark: (kind: Bookmark["kind"], itemId: string) => Promise<void>;
@@ -163,12 +164,21 @@ export const useApp = create<AppState>((set, get) => ({
   },
   setCreateOpen: (createOpen) => set({ createOpen }),
   setSearchOpen: (searchOpen) => set({ searchOpen }),
-  createPost: async (post) => {
-    await postService.createPost(post);
-    const event = eventFromPost(post);
+  createPost: async (post, options) => {
+    const saved = await postService.createPost(post, options);
+    const savedTeam =
+      options?.team && saved.recruitmentId
+        ? await teamService.getTeam(saved.recruitmentId)
+        : null;
+    const event = eventFromPost(saved);
     set((state) => ({
-      posts: [post, ...state.posts],
-      events: event ? [event, ...state.events] : state.events,
+      posts: [saved, ...state.posts.filter((item) => item.id !== saved.id)],
+      teams: savedTeam
+        ? [savedTeam, ...state.teams.filter((item) => item.id !== savedTeam.id)]
+        : state.teams,
+      events: event
+        ? [event, ...state.events.filter((item) => item.id !== event.id)]
+        : state.events,
     }));
   },
   createTeam: async (team) => {

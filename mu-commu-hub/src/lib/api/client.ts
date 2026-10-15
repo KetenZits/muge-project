@@ -13,12 +13,29 @@ import type {
   User,
 } from "@/types";
 import type { Interaction } from "@/lib/db";
+import type { CreatePostOptions } from "@/lib/db/post-repository";
+import { imageMetadataSchema } from "@/lib/validation/post-images";
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`/api${path}`, {
     ...options,
-    headers: { "Content-Type": "application/json", ...options?.headers },
+    headers: {
+      ...(options?.body instanceof FormData
+        ? {}
+        : { "Content-Type": "application/json" }),
+      ...options?.headers,
+    },
   });
-  if (!response.ok) throw new Error(`Request failed (${response.status})`);
+  if (!response.ok) {
+    const detail: unknown = await response.json().catch(() => null);
+    throw new Error(
+      detail &&
+        typeof detail === "object" &&
+        "error" in detail &&
+        typeof detail.error === "string"
+        ? detail.error
+        : `Request failed (${response.status})`,
+    );
+  }
   return response.json() as Promise<T>;
 }
 const post = <T>(path: string, data?: unknown) =>
@@ -29,7 +46,27 @@ const post = <T>(path: string, data?: unknown) =>
 export const postService = {
   getPosts: () => request<Post[]>("/posts"),
   getPost: (id: string) => request<Post | null>(`/posts/${id}`),
-  createPost: (data: Post) => post<Post>("/posts", data),
+  createPost: (data: Post, options: CreatePostOptions = {}) => {
+    const { images = [], team, draftId } = options;
+    const payload = {
+      ...data,
+      imageIds: images.length ? images.map((image) => image.id) : data.imageIds,
+    };
+    if (!images.length && !team && !draftId)
+      return post<Post>("/posts", payload);
+    // MSW intercepts this locally. Binary data never goes through JSON or an upload server.
+    const body = new FormData();
+    body.set("post", JSON.stringify(payload));
+    body.set(
+      "imageMetadata",
+      JSON.stringify(images.map((image) => imageMetadataSchema.parse(image))),
+    );
+    for (const image of images)
+      body.append("images", image.blob, image.fileName);
+    if (team) body.set("team", JSON.stringify(team));
+    if (draftId) body.set("draftId", draftId);
+    return request<Post>("/posts", { method: "POST", body });
+  },
   like: (id: string) => post<{ ok: boolean }>(`/posts/${id}/like`),
   bookmark: (id: string) => post<{ ok: boolean }>(`/posts/${id}/bookmark`),
   getComments: (id: string) => request<Comment[]>(`/comments/${id}`),
