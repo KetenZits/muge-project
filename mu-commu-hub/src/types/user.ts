@@ -17,6 +17,8 @@ export interface User {
   followingCount: number;
   achievements?: string[];
   role?: Role;
+  email?: string;
+  displayRole?: string;
 }
 
 export interface Profile extends User {

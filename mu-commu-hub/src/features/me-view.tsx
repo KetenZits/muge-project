@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -18,6 +18,7 @@ import {
   PostCard,
   TeamCard,
 } from "@/components/shared/cards";
+import { useShallow } from "zustand/react/shallow";
 import { useApp } from "@/stores/app";
 import { deadline } from "@/lib/utils";
 import { SectionHead } from "./shared-controls";
@@ -33,8 +34,21 @@ export function MeView() {
     events,
     interactions,
     messages,
-    setCreateOpen,
-  } = useApp();
+    openComposer,
+  } = useApp(
+    useShallow((state) => ({
+      user: state.user,
+      posts: state.posts,
+      teams: state.teams,
+      competitions: state.competitions,
+      bookmarks: state.bookmarks,
+      following: state.following,
+      events: state.events,
+      interactions: state.interactions,
+      messages: state.messages,
+      openComposer: state.openComposer,
+    })),
+  );
   const mine = posts.filter((post) => post.authorId === user.id);
   const myTeams = teams.filter((team) => team.leaderId === user.id);
   const requested = teams.filter((team) =>
@@ -64,7 +78,7 @@ export function MeView() {
         id: message.id,
         title: `Sent a message: ${message.content}`,
         date: message.createdAt,
-        href: "/messages",
+        href: `/messages?conversation=${message.conversationId}`,
       })),
   ]
     .sort((first, second) => second.date.localeCompare(first.date))
@@ -72,38 +86,40 @@ export function MeView() {
   return (
     <div>
       <PageHeader
-        eyebrow="YOUR SPACE"
-        title={`Hi, ${user.name.split(" ")[0]} 👋`}
-        subtitle="A quick look at everything you're building and exploring."
+        title="My Activity"
+        subtitle="Your posts, teams, and plans saved in this local demo."
         action={
-          <Link href={`/profile/${user.username}`}>
-            <Button variant="secondary" size="sm">
+          <Button asChild variant="secondary" size="sm">
+            <Link href={`/profile/${user.username}`}>
               View profile <ArrowRight size={14} />
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         }
       />
-      <div className="mb-7 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="mb-7 grid grid-cols-2 gap-5 border-y border-[var(--line)] py-5 sm:grid-cols-4">
         {(
           [
             [mine.length, "Posts created", MessageCircle],
             [myTeams.length, "Teams led", Users],
             [bookmarks.length, "Saved items", Bookmark],
-            [following.length, "Connections", Heart],
+            [following.length, "Following", Heart],
           ] as const
         ).map(([value, label, Icon]) => (
-          <div key={String(label)} className="card p-4">
+          <div key={String(label)}>
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#eaf1fc] text-[#17468c]">
               <Icon size={17} />
             </span>
             <strong className="mt-3 block text-2xl">{String(value)}</strong>
-            <span className="text-xs text-[#8c9bab]">{String(label)}</span>
+            <span className="text-xs text-[#68778c]">{String(label)}</span>
           </div>
         ))}
       </div>
       <div className="grid min-w-0 gap-6 [&>section]:min-w-0">
         <section>
-          <SectionHead title="My posts" href={`/profile/${user.username}`} />
+          <SectionHead
+            title="My posts"
+            href={`/profile/${user.username}?tab=posts`}
+          />
           {mine.length ? (
             <div className="space-y-4">
               {mine.slice(0, 3).map((x) => (
@@ -116,15 +132,16 @@ export function MeView() {
               title="Your first post starts here"
               description="Share what you're working on or ask the community a question."
               action={
-                <Button onClick={() => setCreateOpen(true)}>
-                  Create a post
-                </Button>
+                <Button onClick={() => openComposer()}>Create a post</Button>
               }
             />
           )}
         </section>
         <section>
-          <SectionHead title="My teams" href="/teams" />
+          <SectionHead
+            title="Teams I lead"
+            href={`/profile/${user.username}?tab=teams`}
+          />
           {myTeams.length ? (
             <div className="grid gap-4 md:grid-cols-2">
               {myTeams.map((team) => (
@@ -137,7 +154,7 @@ export function MeView() {
               title="You have not started a team"
               description="Create a recruitment post to find collaborators."
               action={
-                <Button onClick={() => setCreateOpen(true)}>
+                <Button onClick={() => openComposer("Team")}>
                   Create a team post
                 </Button>
               }
@@ -155,18 +172,21 @@ export function MeView() {
           ) : (
             <EmptyState
               icon={<Users />}
-              title="No requests sent"
+              title="No saved join requests"
               description="Explore the Team Finder to discover projects you could join."
               action={
-                <Link href="/teams">
-                  <Button variant="secondary">Find a team</Button>
-                </Link>
+                <Button asChild variant="secondary">
+                  <Link href="/teams">Find a team</Link>
+                </Button>
               }
             />
           )}
         </section>
         <section>
-          <SectionHead title="Saved competitions" href="/saved" />
+          <SectionHead
+            title="Saved competitions"
+            href="/saved?tab=competitions"
+          />
           {savedCompetitions.length ? (
             <div className="grid gap-4 md:grid-cols-2">
               {savedCompetitions.map((competition) => (
@@ -182,9 +202,9 @@ export function MeView() {
               title="No saved competitions"
               description="Bookmark opportunities that you may want to enter later."
               action={
-                <Link href="/competitions">
-                  <Button variant="secondary">Explore competitions</Button>
-                </Link>
+                <Button asChild variant="secondary">
+                  <Link href="/competitions">Explore competitions</Link>
+                </Button>
               }
             />
           )}
@@ -201,11 +221,11 @@ export function MeView() {
             <EmptyState
               icon={<CalendarDays />}
               title="No upcoming events on your list"
-              description="Mark an event as interesting to keep it here."
+              description="Choose I'm going on an event to keep it here. You can cancel your local RSVP any time."
               action={
-                <Link href="/events">
-                  <Button variant="secondary">Explore events</Button>
-                </Link>
+                <Button asChild variant="secondary">
+                  <Link href="/events">Explore events</Link>
+                </Button>
               }
             />
           )}
@@ -223,7 +243,7 @@ export function MeView() {
                   <p className="truncate text-sm font-semibold">
                     {activity.title}
                   </p>
-                  <p className="mt-1 text-xs text-[#8b9aab]">
+                  <p className="mt-1 text-xs text-[#68778c]">
                     {new Date(activity.date).toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",

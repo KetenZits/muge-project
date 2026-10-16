@@ -19,9 +19,11 @@ export function ErrorState({
         <AlertCircle size={22} />
       </span>
       <h2 className="mt-4 text-base font-bold">{title}</h2>
-      <p className="mt-2 max-w-sm text-sm text-[#718096]">{description}</p>
+      <p className="mt-2 max-w-sm text-sm text-[var(--text-muted)]">
+        {description}
+      </p>
       <Button
-        className="mt-5 bg-[#17468c] text-white hover:bg-[#0f3672]"
+        className="mt-5 min-h-11 bg-[#17468c] text-white hover:bg-[#0f3672]"
         onClick={onRetry}
       >
         Try again

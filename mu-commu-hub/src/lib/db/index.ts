@@ -56,3 +56,38 @@ db.version(2).stores({
 db.version(3).stores({
   postImages: "id,ownerId,[ownerId+position]",
 });
+
+let opening: Promise<void> | null = null;
+
+export function openDemoDatabase(): Promise<void> {
+  if (opening) return opening;
+  let onBlocked!: () => void;
+  const blocked = new Promise<never>((_, reject) => {
+    onBlocked = () =>
+      reject(
+        new Error(
+          "Another MU Connect tab is preventing your local database from updating. Close other MU Connect tabs, then try again. Your saved data has not been changed.",
+        ),
+      );
+  });
+  db.on("blocked", onBlocked);
+  const physicalOpen = Promise.resolve()
+    .then(() => db.open())
+    .then(() => undefined)
+    .catch((error: unknown) => {
+      throw new Error(
+        "Your local database could not be opened. Check that browser storage is allowed, then try again. Your saved data has not been reset.",
+        { cause: error },
+      );
+    })
+    .finally(() => {
+      db.on("blocked").unsubscribe(onBlocked);
+      opening = null;
+    });
+  // IndexedDB cannot cancel its native open request. Keep one physical attempt
+  // alive, but report its blocked event immediately. Retrying while blocked
+  // returns the same error; after the other tab closes, the additive upgrade
+  // finishes and a retry can use that connection without racing a second open.
+  opening = Promise.race([physicalOpen, blocked]);
+  return opening;
+}

@@ -1,0 +1,77 @@
+{
+  "environment": "Local Next.js development server; headless Chrome; warm routes; reduced motion; 1440x900. Reload timing includes browser automation and is not a Core Web Vitals benchmark.",
+  "measurements": [
+    {
+      "route": "/home",
+      "run": 1,
+      "readyMs": 463,
+      "elements": 972,
+      "articles": 16,
+      "scriptBytes": 9300
+    },
+    {
+      "route": "/home",
+      "run": 2,
+      "readyMs": 412,
+      "elements": 972,
+      "articles": 16,
+      "scriptBytes": 9300
+    },
+    {
+      "route": "/home",
+      "run": 3,
+      "readyMs": 400,
+      "elements": 972,
+      "articles": 16,
+      "scriptBytes": 9300
+    },
+    {
+      "route": "/discover",
+      "run": 1,
+      "readyMs": 437,
+      "elements": 1257,
+      "articles": 23,
+      "scriptBytes": 9300
+    },
+    {
+      "route": "/discover",
+      "run": 2,
+      "readyMs": 462,
+      "elements": 1257,
+      "articles": 23,
+      "scriptBytes": 9300
+    },
+    {
+      "route": "/discover",
+      "run": 3,
+      "readyMs": 487,
+      "elements": 1257,
+      "articles": 23,
+      "scriptBytes": 9300
+    },
+    {
+      "route": "/teams",
+      "run": 1,
+      "readyMs": 374,
+      "elements": 942,
+      "articles": 15,
+      "scriptBytes": 9300
+    },
+    {
+      "route": "/teams",
+      "run": 2,
+      "readyMs": 412,
+      "elements": 942,
+      "articles": 15,
+      "scriptBytes": 9300
+    },
+    {
+      "route": "/teams",
+      "run": 3,
+      "readyMs": 401,
+      "elements": 942,
+      "articles": 15,
+      "scriptBytes": 9300
+    }
+  ]
+}

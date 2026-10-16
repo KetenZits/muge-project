@@ -1,9 +1,8 @@
-"use client";
+﻿"use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import {
-  ArrowLeft,
   Bookmark,
   CalendarDays,
   Heart,
@@ -23,8 +22,11 @@ import {
 import { postService } from "@/lib/api/client";
 import { PostImageGrid } from "@/components/posts/post-image-grid";
 import { relative, shortDate } from "@/lib/utils";
+import { useShallow } from "zustand/react/shallow";
 import { useApp } from "@/stores/app";
 import type { Comment } from "@/types";
+import { BackLink } from "@/components/shared/back-link";
+import { withReturnTo } from "@/lib/navigation";
 
 export function PostDetailView({ id }: { id: string }) {
   const {
@@ -36,12 +38,25 @@ export function PostDetailView({ id }: { id: string }) {
     bookmarks,
     toggleBookmark,
     addComment,
-  } = useApp();
+  } = useApp(
+    useShallow((state) => ({
+      posts: state.posts,
+      users: state.users,
+      user: state.user,
+      interactions: state.interactions,
+      toggleLike: state.toggleLike,
+      bookmarks: state.bookmarks,
+      toggleBookmark: state.toggleBookmark,
+      addComment: state.addComment,
+    })),
+  );
   const post = posts.find((x) => x.id === id);
   const [comments, setComments] = useState<Comment[]>([]);
   const [content, setContent] = useState("");
   const [commentError, setCommentError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const [submitError, setSubmitError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   useEffect(() => {
     let active = true;
     postService
@@ -72,7 +87,13 @@ export function PostDetailView({ id }: { id: string }) {
   const saved = bookmarks.some((x) => x.id === `posts:${id}`);
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (content.trim().length < 2) return;
+    if (submitting) return;
+    if (content.trim().length < 2) {
+      setSubmitError(
+        "Write at least 2 characters before posting your comment.",
+      );
+      return;
+    }
     const comment: Comment = {
       id: `comment-${crypto.randomUUID()}`,
       postId: id,
@@ -80,34 +101,35 @@ export function PostDetailView({ id }: { id: string }) {
       content: content.trim(),
       createdAt: new Date().toISOString(),
     };
+    setSubmitting(true);
+    setSubmitError("");
     try {
       await addComment(comment);
       setComments((items) => [...items, comment]);
       setContent("");
-      toast.success("Comment added");
+      toast.success("Comment saved in your local demo");
     } catch {
-      toast.error("Could not add your comment. Try again.");
+      setSubmitError(
+        "Could not save your comment. Your text is still here. Try again.",
+      );
+    } finally {
+      setSubmitting(false);
     }
   };
   return (
     <div>
-      <Link
-        href="/home"
-        className="mb-5 inline-flex items-center gap-1 text-xs font-semibold text-[#71839a] hover:text-[#17468c]"
-      >
-        <ArrowLeft size={14} /> Back to feed
-      </Link>
+      <BackLink fallback="/home" />
       <article className="card p-6 sm:p-8">
         <div className="flex items-center gap-3">
           <Avatar user={author} />
           <div>
             <Link
-              href={`/profile/${author.username}`}
+              href={withReturnTo(`/profile/${author.username}`)}
               className="text-sm font-bold hover:text-[#17468c]"
             >
               {author.name}
             </Link>
-            <p className="mt-0.5 text-xs text-[#8d9bab]">
+            <p className="mt-0.5 text-xs text-[#68778c]">
               {author.major} · {relative(post.createdAt)}
             </p>
           </div>
@@ -141,7 +163,14 @@ export function PostDetailView({ id }: { id: string }) {
           <Button
             variant={liked ? "secondary" : "ghost"}
             size="sm"
-            onClick={() => toggleLike(id)}
+            onClick={async () => {
+              try {
+                await toggleLike(id);
+              } catch {
+                toast.error("Could not update your like. Try again.");
+              }
+            }}
+            aria-pressed={liked}
           >
             <Heart size={16} fill={liked ? "currentColor" : "none"} />
             {post.likes + (liked ? 1 : 0)} likes
@@ -149,7 +178,14 @@ export function PostDetailView({ id }: { id: string }) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => toggleBookmark("posts", id)}
+            onClick={async () => {
+              try {
+                await toggleBookmark("posts", id);
+              } catch {
+                toast.error("Could not update saved post. Try again.");
+              }
+            }}
+            aria-pressed={saved}
           >
             <Bookmark size={16} fill={saved ? "currentColor" : "none"} />
             {saved ? "Saved" : "Save"}
@@ -158,8 +194,14 @@ export function PostDetailView({ id }: { id: string }) {
             variant="ghost"
             size="sm"
             onClick={async () => {
-              await navigator.clipboard.writeText(location.href);
-              toast.success("Link copied");
+              try {
+                await navigator.clipboard.writeText(location.href);
+                toast.success("Link copied");
+              } catch {
+                toast.error(
+                  "Could not copy the link. Copy the page address from your browser.",
+                );
+              }
             }}
           >
             <Share2 size={16} /> Share
@@ -169,20 +211,43 @@ export function PostDetailView({ id }: { id: string }) {
       <div className="card mt-5 p-6">
         <h2 className="section-title">
           Conversation{" "}
-          <span className="text-sm text-[#9ca9b7]">({comments.length})</span>
+          <span className="text-sm text-[#68778c]">({comments.length})</span>
         </h2>
         <form onSubmit={submit} className="mt-5 flex gap-2">
           <input
             className={inputClass}
             value={content}
-            onChange={(e) => setContent(e.target.value)}
+            onChange={(e) => {
+              setContent(e.target.value);
+              setSubmitError("");
+            }}
+            disabled={submitting}
             placeholder="Add a thoughtful comment..."
             aria-label="Comment"
+            aria-describedby="comment-guidance"
+            aria-invalid={
+              Boolean(submitError) ||
+              (content.length > 0 && content.trim().length < 2)
+            }
           />
-          <Button type="submit" disabled={!content.trim()}>
+          <Button
+            type="submit"
+            disabled={content.trim().length < 2 || submitting}
+            aria-label={submitting ? "Saving comment" : "Post comment"}
+          >
             <Send size={16} />
           </Button>
         </form>
+        <p
+          id="comment-guidance"
+          role={submitError ? "alert" : "status"}
+          className={`mt-2 text-sm ${submitError ? "text-red-700" : "text-[#53647c]"}`}
+        >
+          {submitError ||
+            (content.length > 0 && content.trim().length < 2
+              ? "Write at least 2 characters to post your comment."
+              : "At least 2 characters. Comments are saved in this browser.")}
+        </p>
         {commentError ? (
           <div className="mt-6">
             <ErrorState
@@ -210,7 +275,7 @@ export function PostDetailView({ id }: { id: string }) {
             })}
           </div>
         ) : (
-          <p className="mt-8 text-center text-xs text-[#9aa8b8]">
+          <p className="mt-8 text-center text-xs text-[#68778c]">
             Be the first to comment in this demo conversation.
           </p>
         )}

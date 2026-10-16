@@ -1,163 +1,163 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import { toast } from "sonner";
-import { ArrowRight, Bookmark, Check, LoaderCircle, Users } from "lucide-react";
+import { ArrowRight, Bookmark, LoaderCircle } from "lucide-react";
 import { Button, Tag } from "@/components/ui";
-import { motionTiming } from "@/lib/motion/config";
 import { useCardMotion } from "@/lib/motion/use-card-motion";
 import { deadline } from "@/lib/utils";
+import { withReturnTo } from "@/lib/navigation";
 import { useApp } from "@/stores/app";
 import type { TeamRecruitment } from "@/types";
 
 export function TeamCard({ team }: { team: TeamRecruitment }) {
-  const cardMotion = useCardMotion({ reveal: true });
-  const reducedMotion = useReducedMotion();
+  const cardMotion = useCardMotion();
   const [pending, setPending] = useState(false);
-  const {
-    user,
-    users,
-    competitions,
-    interactions,
-    requestTeam,
-    bookmarks,
-    toggleBookmark,
-  } = useApp();
-  const leader = users.find((x) => x.id === team.leaderId);
-  const competition = competitions.find((c) => c.id === team.competitionId);
-  const requested = interactions.some((i) => i.id === `teamRequest:${team.id}`);
-  const saved = bookmarks.some((b) => b.id === `teams:${team.id}`);
-  const ownTeam = team.leaderId === user.id;
+  const [saving, setSaving] = useState(false);
+  const leader = useApp((state) =>
+    state.users.find((person) => person.id === team.leaderId),
+  );
+  const competition = useApp((state) =>
+    state.competitions.find((item) => item.id === team.competitionId),
+  );
+  const requested = useApp((state) =>
+    state.interactions.some((item) => item.id === "teamRequest:" + team.id),
+  );
+  const saved = useApp((state) =>
+    state.bookmarks.some((item) => item.id === "teams:" + team.id),
+  );
+  const ownTeam = useApp((state) => team.leaderId === state.user.id);
+  const requestTeam = useApp((state) => state.requestTeam);
+  const toggleBookmark = useApp((state) => state.toggleBookmark);
   const closed = deadline(team.deadline) === "Closed";
   const full = team.members >= team.capacity;
+  const roles = team.roles.filter((role) => !role.filled);
   const sendRequest = async () => {
     setPending(true);
     try {
       await requestTeam(team.id);
     } catch {
-      toast.error("Could not send your request. Please try again.");
+      toast.error("Could not save your request. Please try again.");
     } finally {
       setPending(false);
     }
   };
-  const requestLabel = ownTeam
-    ? "Your team"
-    : requested
-      ? "Request sent"
-      : pending
-        ? "Sending..."
+  const bookmark = async () => {
+    setSaving(true);
+    try {
+      await toggleBookmark("teams", team.id);
+    } catch {
+      toast.error("Could not save this bookmark. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+  const requestLabel = pending
+    ? "Saving..."
+    : ownTeam
+      ? "Your team"
+      : requested
+        ? "Withdraw request"
         : closed
-          ? "Closed"
+          ? "Applications closed"
           : full
             ? "Team full"
             : "Request to join";
   return (
-    <motion.article {...cardMotion} className="card flex flex-col p-5 sm:p-6">
+    <motion.article
+      {...cardMotion}
+      className="card flex min-w-0 flex-col p-5 sm:p-6"
+    >
       <div className="flex items-start justify-between gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#eaf1fc] text-[#17468c]">
-          <Users size={22} />
+        <div className="min-w-0">
+          <p className="text-xs font-semibold leading-5 text-[var(--section-accent)]">
+            {competition?.title ?? "Independent project"}
+          </p>
+          <h3 className="mt-1 text-lg font-bold tracking-tight">
+            <Link
+              href={withReturnTo("/teams/" + team.id)}
+              className="hover:text-[#17468c]"
+            >
+              {team.title}
+            </Link>
+          </h3>
         </div>
         <button
-          onClick={() => toggleBookmark("teams", team.id)}
-          className={
-            saved ? "text-[#17468c]" : "text-[#98a7b7] hover:text-[#17468c]"
+          onClick={() => void bookmark()}
+          disabled={saving}
+          className="icon-button shrink-0"
+          aria-label={
+            (saved ? "Remove bookmark for " : "Save team ") + team.title
           }
-          aria-label={saved ? "Remove team bookmark" : "Save team"}
           aria-pressed={saved}
         >
           <Bookmark size={18} fill={saved ? "currentColor" : "none"} />
         </button>
       </div>
-      <div className="mt-4">
-        <Tag tone="gold">{competition?.title ?? "Independent project"}</Tag>
-        <Link
-          href={`/teams/${team.id}`}
-          className="mt-3 block text-lg font-bold tracking-tight hover:text-[#17468c]"
-        >
-          {team.title}
-        </Link>
-        <p className="mt-1 text-xs text-[#8a9aab]">
-          Led by {leader?.name} · {team.mode}
-        </p>
-        <p className="mt-1 text-xs text-[#8a9aab]">
-          {team.location}
-          {team.faculty ? ` · ${team.faculty} only` : ""}
-        </p>
-        <p className="line-clamp-2 mt-3 min-h-10 text-[13px] leading-5 text-[#66778c]">
-          {team.description}
-        </p>
-      </div>
-      <div className="mt-5">
-        <div className="mb-2 flex justify-between text-xs font-semibold">
-          <span>
-            {team.members}/{team.capacity} members
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        {roles.length ? (
+          roles.slice(0, 3).map((role) => (
+            <Tag key={role.name} tone="blue">
+              {role.name}
+            </Tag>
+          ))
+        ) : (
+          <Tag>No open roles</Tag>
+        )}
+        {roles.length > 3 && (
+          <span className="text-xs text-muted">
+            +{roles.length - 3} more roles
           </span>
-          <span className="text-[#a5812d]">{deadline(team.deadline)}</span>
-        </div>
-        <div
-          className="h-2 overflow-hidden rounded-full bg-[#eaf0f7]"
-          role="progressbar"
-          aria-label={`${team.title} members`}
-          aria-valuenow={team.members}
-          aria-valuemin={0}
-          aria-valuemax={team.capacity}
-        >
-          <motion.div
-            className="h-full rounded-full bg-[#17468c]"
-            style={{
-              width: `${(team.members / team.capacity) * 100}%`,
-              transformOrigin: "left",
-            }}
-            initial={reducedMotion ? false : { scaleX: 0 }}
-            whileInView={{ scaleX: 1 }}
-            viewport={{ once: true }}
-            transition={{
-              duration: reducedMotion ? 0 : motionTiming.large,
-              ease: motionTiming.easeOut,
-            }}
-          />
-        </div>
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {team.roles
-            .filter((r) => !r.filled)
-            .slice(0, 3)
-            .map((r) => (
-              <Tag key={r.name} tone="blue">
-                {r.name}
-              </Tag>
-            ))}
-        </div>
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {team.skills.slice(0, 3).map((skill) => (
-            <Tag key={skill}>{skill}</Tag>
-          ))}
-        </div>
+        )}
       </div>
-      <div className="mt-auto flex gap-2 pt-5">
-        <Link href={`/teams/${team.id}`} className="flex-1">
-          <Button variant="secondary" size="sm" className="w-full">
-            View team <ArrowRight size={14} />
-          </Button>
+      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+        <span className="font-semibold text-[#8a6820]">
+          {deadline(team.deadline)}
+        </span>
+        <span className="text-muted">
+          {team.members}/{team.capacity} places filled
+        </span>
+        <span className="text-muted">
+          {team.mode} · {team.location}
+        </span>
+      </div>
+      <p className="mt-3 line-clamp-2 text-sm leading-6 text-[#53647c]">
+        {team.description}
+      </p>
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        {team.skills.slice(0, 3).map((skill) => (
+          <Tag key={skill}>{skill}</Tag>
+        ))}
+      </div>
+      <p className="mt-3 text-xs leading-5 text-muted">
+        Led by {leader?.name ?? "a sample student"}
+        {team.faculty
+          ? " · " + team.faculty + " only"
+          : " · All faculties welcome"}
+      </p>
+      <div className="mt-auto flex flex-wrap justify-between gap-2 pt-5">
+        <Link
+          href={withReturnTo("/teams/" + team.id)}
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#dce5ef] bg-white px-4 text-sm font-semibold text-[#17468c] hover:bg-[#f5f8fc]"
+        >
+          View team <ArrowRight size={14} />
         </Link>
         <Button
-          size="sm"
-          disabled={requested || ownTeam || closed || full || pending}
-          onClick={sendRequest}
+          className="min-h-11"
+          variant={requested ? "secondary" : "primary"}
+          disabled={pending || ownTeam || (!requested && (closed || full))}
+          onClick={() => void sendRequest()}
         >
-          <motion.span
-            key={requestLabel}
-            className="inline-flex items-center gap-1"
-            initial={reducedMotion ? false : { opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reducedMotion ? 0 : motionTiming.fast }}
-          >
-            {pending && <LoaderCircle size={14} className="animate-spin" />}
-            {requested && <Check size={14} />}
-            {requestLabel}
-          </motion.span>
+          {pending && <LoaderCircle size={14} className="animate-spin" />}
+          {requestLabel}
         </Button>
       </div>
+      {requested && (
+        <p role="status" className="mt-3 text-xs leading-5 text-muted">
+          Join request saved on this device. No one has been contacted.
+        </p>
+      )}
     </motion.article>
   );
 }

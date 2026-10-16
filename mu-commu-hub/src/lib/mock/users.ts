@@ -70,7 +70,6 @@ const majors = [
 ];
 
 const thaiNames = [
-  "Thanapon Chaiyasit",
   "Pimchanok Srisuwan",
   "Nattapong Wongsa",
   "Sirinya Kanjana",
@@ -95,13 +94,15 @@ export const colors = [
 
 export const demoUser: User = {
   id: "u0",
-  username: "thanapon.dev",
-  name: "Thanapon Chaiyasit",
-  initials: "TC",
+  username: "tester",
+  name: "Tester",
+  initials: "T",
+  email: "user@gmail.com",
+  displayRole: "Demo Student",
   faculty: "Information Technology",
   major: "Software Engineering",
   year: 1,
-  bio: "Building useful things with code. Always up for a hackathon, a new idea, or a good cup of coffee.",
+  bio: "Exploring campus projects and finding people to collaborate with.",
   skills: ["Next.js", "TypeScript", "React", "Python", "UI Design"],
   interests: [
     "Artificial Intelligence",
@@ -111,18 +112,17 @@ export const demoUser: User = {
     "Design",
   ],
   availability: ["Hackathons", "Projects", "Startups"],
-  avatarColor: "#DDE9FA",
+  avatarColor: "#E8EDF3",
   followersCount: 12,
   followingCount: 0,
-  achievements: ["MU Innovation Hackathon 2025 finalist"],
+  achievements: [],
   role: "student",
 };
 
 export const users: User[] = [
   demoUser,
   ...Array.from({ length: 39 }, (_, i) => {
-    const name =
-      i < thaiNames.length - 1 ? thaiNames[i + 1] : faker.person.fullName();
+    const name = i < thaiNames.length ? thaiNames[i] : faker.person.fullName();
     return {
       id: `u${i + 1}`,
       username: `${name

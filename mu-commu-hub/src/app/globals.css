@@ -12,6 +12,24 @@
   --gold: #a5812d;
   --yellow: #fac334;
   --ink: #17263c;
+  --text-muted: #617187;
+  --input-border: #8091a5;
+  --accent-home: #17468c;
+  --tint-home: #eaf1fc;
+  --accent-discover: #4845a5;
+  --tint-discover: #efeffb;
+  --accent-teams: #75409a;
+  --tint-teams: #f5eef9;
+  --accent-competitions: #805d15;
+  --tint-competitions: #fbf3da;
+  --accent-communities: #146d67;
+  --tint-communities: #e8f5f2;
+  --accent-events: #a34337;
+  --tint-events: #fdf0ec;
+  --accent-messages: #146a91;
+  --tint-messages: #eaf5fc;
+  --section-accent: var(--accent-home);
+  --section-tint: var(--tint-home);
   --muted: oklch(0.97 0 0);
   --line: #e5ebf2;
   --soft: #f5f8fc;
@@ -52,32 +70,98 @@
 }
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 88px;
+  scrollbar-color: #b5c3d4 var(--soft);
+  scrollbar-width: thin;
 }
 body {
   margin: 0;
   background: var(--soft);
   color: var(--ink);
   font-family: Inter, Kanit, Arial, sans-serif;
-}
-button,
-input,
-textarea,
-select {
-  font: inherit;
+  overflow-wrap: break-word;
 }
 button {
   cursor: pointer;
 }
-a {
-  text-decoration: none;
-  color: inherit;
+button:disabled {
+  cursor: default;
+}
+input,
+textarea {
+  caret-color: var(--blue);
+}
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
 }
 :focus-visible {
-  outline: 3px solid #fac334;
+  outline: 3px solid var(--blue);
   outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--yellow);
 }
 ::selection {
   background: #fac33480;
+  color: var(--ink);
+}
+[data-section="discover"] {
+  --section-accent: var(--accent-discover);
+  --section-tint: var(--tint-discover);
+}
+[data-section="teams"] {
+  --section-accent: var(--accent-teams);
+  --section-tint: var(--tint-teams);
+}
+[data-section="competitions"] {
+  --section-accent: var(--accent-competitions);
+  --section-tint: var(--tint-competitions);
+}
+[data-section="communities"] {
+  --section-accent: var(--accent-communities);
+  --section-tint: var(--tint-communities);
+}
+[data-section="events"] {
+  --section-accent: var(--accent-events);
+  --section-tint: var(--tint-events);
+}
+[data-section="messages"] {
+  --section-accent: var(--accent-messages);
+  --section-tint: var(--tint-messages);
+}
+.section-heading {
+  color: var(--section-accent);
+}
+h2.section-heading {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+.text-muted {
+  color: var(--text-muted);
+}
+@layer components {
+  .icon-button {
+    display: inline-flex;
+    min-height: 44px;
+    min-width: 44px;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+  }
+  .icon-button:hover {
+    background: var(--soft);
+  }
+}
+summary {
+  cursor: pointer;
+}
+summary:focus-visible {
+  border-radius: 8px;
+}
+.page-title,
+.section-title {
+  text-wrap: balance;
 }
 .thai {
   font-family: Kanit, Inter, sans-serif;
@@ -102,7 +186,9 @@ a {
   color: #53647c;
   font-size: 12px;
   font-weight: 600;
-  white-space: nowrap;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 .chip.blue {
   background: #eaf1fc;
@@ -110,15 +196,15 @@ a {
 }
 .chip.gold {
   background: #fbf3da;
-  color: #8a6820;
+  color: #765514;
 }
 .chip.green {
   background: #e8f6ef;
-  color: #1f805b;
+  color: #19694b;
 }
 .chip.rose {
   background: #fdf0ef;
-  color: #bb5b55;
+  color: #9b443e;
 }
 .page-wrap {
   max-width: 1180px;
@@ -132,7 +218,7 @@ a {
   letter-spacing: -0.04em;
 }
 .page-subtitle {
-  color: #68778c;
+  color: var(--text-muted);
   font-size: 14px;
   margin-top: 7px;
   line-height: 1.6;
@@ -143,7 +229,7 @@ a {
   letter-spacing: -0.025em;
 }
 .muted {
-  color: #68778c;
+  color: var(--text-muted);
 }
 .line-clamp-2 {
   display: -webkit-box;

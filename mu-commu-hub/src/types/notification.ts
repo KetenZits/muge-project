@@ -6,4 +6,6 @@ export interface Notification {
   createdAt: string;
   read: boolean;
   userId?: string;
+  /** Optional destination backed by an existing item in the local demo. */
+  href?: string;
 }

@@ -25,6 +25,8 @@ With the dev server running, `npm run test:smoke` checks primary routes, browser
 
 `npm run test:motion` checks the landing scene at five viewport sizes, Canvas DPR caps, scroll pausing, reduced motion, WebGL fallback, and CTA navigation.
 
+`npm run test:auth` checks profile restoration and startup states, Strict Mode replay, blocked database upgrades, storage and MSW failures, Retry, entering before data loads, onboarding completion, and browser navigation. It uses isolated storage and never opens an existing browser profile. Set `BASE_URL` to test a different local server.
+
 ## Main routes
 
 - `/`, `/login`, `/onboarding`: introduction and demo entry
@@ -64,14 +66,16 @@ scripts/                 Browser smoke tests
 
 ## Mock API
 
-`src/components/providers.tsx` starts the MSW browser worker before loading application data. Components use typed services in `src/lib/api/client.ts`; the services call relative `/api/*` URLs. MSW intercepts these requests in the browser. There are no Next.js API route handlers.
+`src/components/providers.tsx` restores the local demo profile independently of campus data. Profile restoration has explicit initializing, ready, and error states, with Retry when browser storage cannot be accessed. The store shares one data startup attempt across Strict Mode effect replays: start MSW, open IndexedDB, then request campus data. Components use typed services in `src/lib/api/client.ts`; the services call relative `/api/*` URLs. MSW intercepts these requests in the browser. There are no Next.js API route handlers.
+
+If another tab blocks a database upgrade, login remains usable and explains which tabs to close before retrying campus data. One native database open stays pending until the blocker releases it; retries do not create competing upgrades or reset data. Failed MSW startup is stopped and can be retried. A data refresh never replaces a newer profile edit.
 
 Handlers cover posts, comments, users, teams, competitions, events, communities, notifications, messages, conversations, bookmarks, and interactions. The worker file is in `public/mockServiceWorker.js`.
 Event announcements created as posts are exposed on the Events board through the mock events endpoint.
 
 ## Mock data
 
-`src/lib/mock/data.ts` is a barrel for domain seed files. Faker uses fixed seeds for students, competitions, and teams, alongside hand-written campus examples. The data provides 40 students, 60 posts, 15 teams, 12 competitions, 15 events, 9 communities, 30 notifications, and 10 conversations. The default student is Thanapon Chaiyasit. Seed content is stable; relative timestamps are calculated for the current date.
+`src/lib/mock/data.ts` is a barrel for domain seed files. Faker uses fixed seeds for students, competitions, and teams, alongside hand-written campus examples. The data provides 40 students, 60 posts, 15 teams, 12 competitions, 15 events, 9 communities, 30 notifications, and 10 conversations. The default student is Tester (`tester`, `user@gmail.com`), a Demo Student in Information Technology, Year 1. The stable `u0` ID preserves existing authorship and conversations. Only the exact untouched former seed profile is migrated; customized profiles remain intact. Seed content is stable; relative timestamps are calculated for the current date.
 
 ## Persistence
 

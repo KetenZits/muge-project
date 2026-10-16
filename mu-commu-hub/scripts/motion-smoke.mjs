@@ -22,7 +22,11 @@ for (const viewport of widths) {
   await page.goto("http://localhost:3000/");
   const visual = page.locator("[data-scene-state]");
   await visual.waitFor();
-  await page.waitForTimeout(900);
+  // A lazily imported scene can outlive a fixed delay, especially during route compilation.
+  await page.waitForTimeout(100);
+  if ((await visual.getAttribute("data-scene-state")) === "webgl") {
+    await visual.locator("canvas").waitFor({ timeout: 20000 });
+  }
   const result = await page.evaluate(() => {
     const visual = document.querySelector("[data-scene-state]");
     const bounds = visual.getBoundingClientRect();

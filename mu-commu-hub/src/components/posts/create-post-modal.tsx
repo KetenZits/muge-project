@@ -28,6 +28,7 @@ function PostComposer() {
   const createPost = useApp((s) => s.createPost);
   const competitions = useApp((s) => s.competitions);
   const user = useApp((s) => s.user);
+  const initialCategory = useApp((s) => s.composerCategory);
   const [submitting, setSubmitting] = useState(false);
   const [saving, setSaving] = useState(false);
   const [restoring, setRestoring] = useState(true);
@@ -50,7 +51,7 @@ function PostComposer() {
   } = useForm<CreatePostForm>({
     resolver: zodResolver(createPostSchema),
     defaultValues: {
-      category: "General",
+      category: initialCategory,
       title: "",
       content: "",
       tags: "",
@@ -242,7 +243,7 @@ function PostComposer() {
       await createPost(post, { images: data.images, draftId: "current", team });
       reset();
       setOpen(false);
-      toast.success("Your post is live in the community");
+      toast.success("Published in your local demo.");
     } catch (error) {
       const message = storageErrorMessage(error, "publish your post");
       setOperationError(message);
@@ -258,10 +259,17 @@ function PostComposer() {
       onOpenChange={closeComposer}
       title="Create a post"
       description="Share an idea, ask a question, or find your next teammate."
+      className="sm:max-w-2xl"
     >
       {restoring && (
-        <p role="status" className="mb-4 text-xs text-[#718096]">
+        <p role="status" className="mb-4 text-xs text-[var(--text-muted)]">
           Restoring your local draft...
+        </p>
+      )}
+      {!restoring && hasDraft && initialCategory === "Team" && !recruitment && (
+        <p className="mb-4 text-sm leading-6 text-[var(--text-muted)]">
+          Your existing draft has been restored. Choose “Find teammates” to
+          adapt it for recruitment, or save it before starting another post.
         </p>
       )}
       {operationError && (
@@ -310,7 +318,7 @@ function PostComposer() {
               className={inputClass}
               placeholder="Give your post a clear, inviting title"
             />
-            <span className="mt-1 block text-right text-[11px] text-[#9aa8ba]">
+            <span className="mt-1 block text-right text-xs text-[var(--text-muted)]">
               {title.length}/120
             </span>
           </Field>
@@ -321,7 +329,7 @@ function PostComposer() {
               className={inputClass + " resize-y py-3"}
               placeholder="Tell students what you're thinking, building, or looking for..."
             />
-            <span className="mt-1 block text-right text-[11px] text-[#9aa8ba]">
+            <span className="mt-1 block text-right text-xs text-[var(--text-muted)]">
               {content.length}/2000
             </span>
           </Field>
@@ -341,7 +349,7 @@ function PostComposer() {
             error={errors.images?.message ?? errors.images?.root?.message}
           />
           {images.length > 0 && !recruitment && category !== "Event" && (
-            <p className="text-xs text-[#718096]">
+            <p className="text-xs text-[var(--text-muted)]">
               A title and caption are optional when you share photos.
             </p>
           )}
@@ -353,7 +361,7 @@ function PostComposer() {
             />
           </Field>
           {recruitment && (
-            <div className="grid gap-4 rounded-2xl border border-[#e4ebf4] bg-[#f8fafd] p-4 sm:grid-cols-2">
+            <div className="grid gap-4 border-t border-[var(--line)] pt-5 sm:grid-cols-2">
               <Field label="Competition" error={errors.competitionId?.message}>
                 <select {...register("competitionId")} className={inputClass}>
                   <option value="">Independent project</option>
@@ -421,7 +429,7 @@ function PostComposer() {
             </div>
           )}
           {category === "Event" && (
-            <div className="grid gap-4 rounded-2xl border border-[#e4ebf4] bg-[#f8fafd] p-4 sm:grid-cols-2">
+            <div className="grid gap-4 border-t border-[var(--line)] pt-5 sm:grid-cols-2">
               <Field label="Event date" error={errors.eventDate?.message}>
                 <input
                   {...register("eventDate")}
@@ -450,7 +458,7 @@ function PostComposer() {
               </div>
             </div>
           )}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#e9eef4] pt-5">
+          <div className="sticky -bottom-5 z-10 flex flex-wrap items-center justify-between gap-3 border-t border-[#e9eef4] bg-white py-4 sm:-bottom-8">
             <div className="flex flex-wrap items-center gap-1">
               <Button
                 type="button"
@@ -482,11 +490,12 @@ function PostComposer() {
           </div>
         </fieldset>
       </form>
-      <p className="mt-3 text-[11px] text-[#8998a8]">
+      <p className="mt-3 text-xs text-[var(--text-muted)]">
         Closing saves unfinished posts and photos as a draft on this device.
       </p>
-      <p className="mt-4 flex items-center gap-1.5 text-xs text-[#8998a8]">
-        <Check size={13} /> Visible to everyone in the demo community
+      <p className="mt-3 flex items-center gap-1.5 text-xs text-[var(--text-muted)]">
+        <Check size={14} /> Posts are saved on this device. Other students won’t
+        receive them.
       </p>
     </Modal>
   );

@@ -569,8 +569,8 @@ try {
     .click();
   await go("/saved");
   await assertPhotosLoaded(multi.id, 5);
-  await go("/profile/thanapon.dev");
-  await page.getByRole("button", { name: "Posts", exact: true }).click();
+  await go("/profile/tester");
+  await page.getByRole("button", { name: /^Posts\b/ }).click();
   await assertPhotosLoaded(multi.id, 5);
   await go("/me");
   await assertPhotosLoaded(multi.id, 5);

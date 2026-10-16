@@ -44,7 +44,7 @@ const post = <T>(path: string, data?: unknown) =>
     body: data === undefined ? undefined : JSON.stringify(data),
   });
 export const postService = {
-  getPosts: () => request<Post[]>("/posts"),
+  getPosts: (signal?: AbortSignal) => request<Post[]>("/posts", { signal }),
   getPost: (id: string) => request<Post | null>(`/posts/${id}`),
   createPost: (data: Post, options: CreatePostOptions = {}) => {
     const { images = [], team, draftId } = options;
@@ -73,32 +73,40 @@ export const postService = {
   comment: (data: Comment) => post<Comment>("/comments", data),
 };
 export const userService = {
-  getUsers: () => request<User[]>("/users"),
+  getUsers: (signal?: AbortSignal) => request<User[]>("/users", { signal }),
   getUser: (id: string) => request<User | null>(`/users/${id}`),
 };
 export const teamService = {
-  getTeams: () => request<TeamRecruitment[]>("/teams"),
+  getTeams: (signal?: AbortSignal) =>
+    request<TeamRecruitment[]>("/teams", { signal }),
   getTeam: (id: string) => request<TeamRecruitment | null>(`/teams/${id}`),
   createTeam: (team: TeamRecruitment) => post<TeamRecruitment>("/teams", team),
   requestToJoin: (id: string) => post<{ ok: boolean }>(`/teams/${id}/request`),
 };
 export const competitionService = {
-  getCompetitions: () => request<Competition[]>("/competitions"),
+  getCompetitions: (signal?: AbortSignal) =>
+    request<Competition[]>("/competitions", { signal }),
   getCompetition: (id: string) =>
     request<Competition | null>(`/competitions/${id}`),
 };
-export const eventService = { getEvents: () => request<Event[]>("/events") };
+export const eventService = {
+  getEvents: (signal?: AbortSignal) => request<Event[]>("/events", { signal }),
+};
 export const communityService = {
-  getCommunities: () => request<Club[]>("/communities"),
+  getCommunities: (signal?: AbortSignal) =>
+    request<Club[]>("/communities", { signal }),
 };
 export const notificationService = {
-  getNotifications: () => request<Notification[]>("/notifications"),
+  getNotifications: (signal?: AbortSignal) =>
+    request<Notification[]>("/notifications", { signal }),
   read: (id: string) =>
     request<Notification>(`/notifications/${id}/read`, { method: "PATCH" }),
 };
 export const messageService = {
-  getMessages: () => request<Message[]>("/messages"),
-  getConversations: () => request<Conversation[]>("/conversations"),
+  getMessages: (signal?: AbortSignal) =>
+    request<Message[]>("/messages", { signal }),
+  getConversations: (signal?: AbortSignal) =>
+    request<Conversation[]>("/conversations", { signal }),
   createConversation: (conversation: Conversation) =>
     post<Conversation>("/conversations", conversation),
   readConversation: (id: string) =>
@@ -106,9 +114,12 @@ export const messageService = {
   send: (message: Message) => post<Message>("/messages", message),
 };
 export const interactionService = {
-  getBookmarks: () => request<Bookmark[]>("/bookmarks"),
-  getInteractions: () => request<Interaction[]>("/interactions"),
-  getFollows: () => request<Follow[]>("/follows"),
+  getBookmarks: (signal?: AbortSignal) =>
+    request<Bookmark[]>("/bookmarks", { signal }),
+  getInteractions: (signal?: AbortSignal) =>
+    request<Interaction[]>("/interactions", { signal }),
+  getFollows: (signal?: AbortSignal) =>
+    request<Follow[]>("/follows", { signal }),
   saveBookmark: (bookmark: Bookmark) => post<Bookmark>("/bookmarks", bookmark),
   removeBookmark: (kind: Bookmark["kind"], itemId: string) =>
     request<{ ok: boolean }>(`/bookmarks/${kind}/${itemId}`, {

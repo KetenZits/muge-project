@@ -1,15 +1,9 @@
-"use client";
-import { useEffect, useRef, useState } from "react";
+﻿"use client";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
-import {
-  ArrowLeft,
-  ImagePlus,
-  MessageCircle,
-  Search,
-  Send,
-  Smile,
-} from "lucide-react";
+import { ArrowLeft, MessageCircle, Search, Send, Smile } from "lucide-react";
+import { toast } from "sonner";
 import {
   Avatar,
   Button,
@@ -17,12 +11,17 @@ import {
   PageHeader,
   inputClass,
 } from "@/components/ui";
+import { useShallow } from "zustand/react/shallow";
 import { useApp } from "@/stores/app";
 import { relative } from "@/lib/utils";
+import { useUrlState, withReturnTo } from "@/lib/navigation";
 import { motionTiming } from "@/lib/motion/config";
+
+type Drafts = Record<string, string>;
 export function MessagesView() {
   const reducedMotion = useReducedMotion();
   const {
+    ready,
     user,
     users,
     teams,
@@ -31,180 +30,385 @@ export function MessagesView() {
     sendMessage,
     startConversation,
     openConversation,
-  } = useApp();
-  const [selected, setSelected] = useState<string | null>(null);
-  const [query, setQuery] = useState("");
-  const [draft, setDraft] = useState("");
-  const [typing, setTyping] = useState(false);
+  } = useApp(
+    useShallow((state) => ({
+      ready: state.ready,
+      user: state.user,
+      users: state.users,
+      teams: state.teams,
+      conversations: state.conversations,
+      messages: state.messages,
+      sendMessage: state.sendMessage,
+      startConversation: state.startConversation,
+      openConversation: state.openConversation,
+    })),
+  );
+  const [state, setState] = useUrlState({
+    conversation: "",
+    query: "",
+    user: "",
+    invite: "",
+  });
+  const selected = state.conversation || null;
+  const [drafts, setDrafts] = useState<Drafts>({});
+  const draftsRef = useRef<Drafts>({});
+  const [draftUser, setDraftUser] = useState("");
+  const [storageWarning, setStorageWarning] = useState("");
+  const [startError, setStartError] = useState("");
+  const [startRetry, setStartRetry] = useState(0);
+  const [sendErrors, setSendErrors] = useState<Record<string, string>>({});
+  const [sending, setSending] = useState(false);
   const [animatedMessageId, setAnimatedMessageId] = useState<string | null>(
     null,
   );
+  const storageKey = `mu-connect-message-drafts:${user.id}`;
+  const canPersist = useRef(true);
+  const initialized = useRef("");
   const bottom = useRef<HTMLDivElement>(null);
-  const initialized = useRef(false);
   useEffect(() => {
-    if (initialized.current || !conversations.length || !users.length) return;
-    initialized.current = true;
-    const params = new URLSearchParams(location.search);
-    const target = params.get("user");
-    const inviteId = params.get("invite");
-    const invitedTeam = teams.find(
-      (team) => team.id === inviteId && team.leaderId === user.id,
-    );
-    if (invitedTeam) {
-      queueMicrotask(() =>
-        setDraft(
-          `Hi! Would you be interested in joining ${invitedTeam.title}? I'd love to tell you more about the team.`,
+    let active = true;
+    let restored: Drafts = {};
+    let warning = "";
+    canPersist.current = true;
+    try {
+      const raw = localStorage.getItem(storageKey);
+      const value: unknown = raw ? JSON.parse(raw) : {};
+      if (!value || typeof value !== "object" || Array.isArray(value))
+        throw new Error("Invalid drafts");
+      restored = Object.fromEntries(
+        Object.entries(value).filter(
+          (entry): entry is [string, string] => typeof entry[1] === "string",
         ),
       );
+    } catch {
+      canPersist.current = false;
+      warning =
+        "Saved message drafts could not be restored. New drafts will stay in this page until you leave. Allow browser storage and reload to try again.";
     }
-    if (!target) {
-      if (window.innerWidth >= 768 && conversations[0]) {
-        queueMicrotask(() => setSelected(conversations[0].id));
-        void openConversation(conversations[0].id);
+    queueMicrotask(() => {
+      if (!active) return;
+      draftsRef.current = restored;
+      setDrafts(restored);
+      setStorageWarning(warning);
+      setDraftUser(user.id);
+    });
+    return () => {
+      active = false;
+    };
+  }, [storageKey, user.id]);
+  const updateDraft = useCallback(
+    (conversationId: string, value: string) => {
+      const next = { ...draftsRef.current };
+      if (value) next[conversationId] = value;
+      else delete next[conversationId];
+      draftsRef.current = next;
+      setDrafts(next);
+      if (!canPersist.current) return;
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(next));
+        setStorageWarning("");
+      } catch {
+        setStorageWarning(
+          "This draft is still here, but browser storage could not save it. Keep this page open and try again before leaving.",
+        );
       }
+    },
+    [storageKey],
+  );
+  useEffect(() => {
+    if (!ready || !users.length || draftUser !== user.id) return;
+    const key = `${user.id}:${state.user}:${state.invite}:${startRetry}`;
+    if (initialized.current === key) return;
+    initialized.current = key;
+    if (!state.user) {
+      if (!selected && window.innerWidth >= 768 && conversations[0])
+        queueMicrotask(() =>
+          setState({ conversation: conversations[0].id }, { replace: true }),
+        );
       return;
     }
-    void startConversation(target).then((id) => {
-      setSelected(id);
-      void openConversation(id);
-    });
+    void (async () => {
+      try {
+        if (
+          state.user === user.id ||
+          !users.some((person) => person.id === state.user)
+        )
+          throw new Error("Student not found");
+        const id = await startConversation(state.user);
+        if (
+          initialized.current !== key ||
+          window.location.pathname !== "/messages"
+        )
+          return;
+        const invitedTeam = teams.find(
+          (team) => team.id === state.invite && team.leaderId === user.id,
+        );
+        if (invitedTeam && !draftsRef.current[id])
+          updateDraft(
+            id,
+            `Hi! Would you be interested in joining ${invitedTeam.title}? I'd love to tell you more about the team.`,
+          );
+        setState({ conversation: id, user: "", invite: "" }, { replace: true });
+        setStartError("");
+      } catch {
+        if (
+          initialized.current === key &&
+          window.location.pathname === "/messages"
+        )
+          setStartError(
+            "Could not open this conversation. Try again or choose another student from People.",
+          );
+      }
+    })();
   }, [
-    conversations,
+    ready,
     users,
     teams,
+    conversations,
+    draftUser,
     user.id,
+    state.user,
+    state.invite,
+    selected,
+    startRetry,
     startConversation,
-    openConversation,
+    setState,
+    updateDraft,
   ]);
+  useEffect(() => {
+    if (!selected) return;
+    void openConversation(selected).catch(() =>
+      toast.error(
+        "Could not mark this conversation as read. Open it again to retry.",
+      ),
+    );
+  }, [selected, openConversation]);
   useEffect(() => {
     bottom.current?.scrollIntoView({
       behavior: reducedMotion ? "auto" : "smooth",
     });
   }, [messages, selected, reducedMotion]);
   const shown = conversations
-    .filter((x) => {
-      const other = users.find(
-        (u) => x.participantIds.includes(u.id) && u.id !== user.id,
+    .filter((conversation) => {
+      const person = users.find(
+        (item) =>
+          conversation.participantIds.includes(item.id) && item.id !== user.id,
       );
-      return other?.name.toLowerCase().includes(query.toLowerCase());
+      return (
+        conversation.participantIds.includes(user.id) &&
+        person?.name.toLowerCase().includes(state.query.trim().toLowerCase())
+      );
     })
     .sort((first, second) => second.updatedAt.localeCompare(first.updatedAt));
-  const current = conversations.find((x) => x.id === selected);
+  const current = conversations.find(
+    (item) => item.id === selected && item.participantIds.includes(user.id),
+  );
   const other = users.find(
-    (x) => current?.participantIds.includes(x.id) && x.id !== user.id,
+    (person) =>
+      current?.participantIds.includes(person.id) && person.id !== user.id,
   );
   const thread = messages
-    .filter((x) => x.conversationId === selected)
+    .filter((message) => message.conversationId === selected)
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
-  const send = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!draft.trim() || !selected) return;
+  const draft = selected ? (drafts[selected] ?? "") : "";
+  const send = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (
+      !draft.trim() ||
+      !selected ||
+      !current ||
+      sending ||
+      draftUser !== user.id
+    )
+      return;
+    const conversationId = selected;
+    const submitted = draft;
     const id = `msg-${crypto.randomUUID()}`;
-    setAnimatedMessageId(id);
-    await sendMessage({
-      id,
-      conversationId: selected,
-      senderId: user.id,
-      content: draft.trim(),
-      createdAt: new Date().toISOString(),
-    });
-    setDraft("");
-    setTyping(true);
-    setTimeout(() => setTyping(false), 1700);
+    setSending(true);
+    setSendErrors((items) => ({ ...items, [conversationId]: "" }));
+    try {
+      await sendMessage({
+        id,
+        conversationId,
+        senderId: user.id,
+        content: submitted.trim(),
+        createdAt: new Date().toISOString(),
+      });
+      setAnimatedMessageId(id);
+      if (draftsRef.current[conversationId] === submitted)
+        updateDraft(conversationId, "");
+      toast.success("Message saved in your local demo");
+    } catch {
+      setSendErrors((items) => ({
+        ...items,
+        [conversationId]:
+          "Could not save your message. Your draft is still here. Try sending again.",
+      }));
+    } finally {
+      setSending(false);
+    }
   };
   return (
     <div>
       <PageHeader
-        eyebrow="CONVERSATIONS"
         title="Messages"
-        subtitle="Keep the conversation going with people on campus."
+        subtitle="Conversations are saved in this browser. Messages are not delivered to other people or devices."
       />
-      <div className="card flex h-[min(680px,calc(100vh-190px))] min-h-[480px] overflow-hidden">
-        <aside
-          className={`w-full shrink-0 border-r border-[#e9eef4] md:w-[270px] ${selected ? "hidden md:block" : "block"}`}
+      {startError && (
+        <div
+          role="alert"
+          className="mb-4 rounded-xl bg-[#fdf0ef] p-4 text-sm text-red-800"
         >
-          <div className="border-b border-[#e9eef4] p-4">
+          <p>{startError}</p>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="mt-3"
+            onClick={() => setStartRetry((value) => value + 1)}
+          >
+            Try again
+          </Button>
+          <Link href="/people" className="ml-4 font-semibold underline">
+            Find students
+          </Link>
+        </div>
+      )}
+      <div className="card flex h-[min(720px,calc(100dvh-180px))] min-h-[440px] overflow-hidden">
+        <aside
+          className={`h-full w-full shrink-0 flex-col border-r border-[#e5ebf2] md:w-[280px] ${selected ? "hidden md:flex" : "flex"}`}
+        >
+          <div className="border-b border-[#e5ebf2] p-4">
+            <label
+              htmlFor="conversation-search"
+              className="mb-2 block text-sm font-semibold"
+            >
+              Find a conversation
+            </label>
             <div className="relative">
               <Search
-                size={15}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9aa8b6]"
+                size={17}
+                aria-hidden
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#68778c]"
               />
               <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                className={inputClass + " min-h-9 pl-9 text-xs"}
-                placeholder="Search messages"
+                id="conversation-search"
+                type="search"
+                value={state.query}
+                onChange={(event) =>
+                  setState({ query: event.target.value }, { replace: true })
+                }
+                className={inputClass + " pl-10"}
+                placeholder="Search students by name"
               />
             </div>
           </div>
-          <div className="h-[calc(100%-70px)] overflow-y-auto">
-            {shown.map((c) => {
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            {shown.map((conversation) => {
               const person = users.find(
-                (x) => c.participantIds.includes(x.id) && x.id !== user.id,
+                (item) =>
+                  conversation.participantIds.includes(item.id) &&
+                  item.id !== user.id,
               );
               const last = messages
-                .filter((message) => message.conversationId === c.id)
-                .sort((first, second) =>
-                  second.createdAt.localeCompare(first.createdAt),
-                )[0];
+                .filter((message) => message.conversationId === conversation.id)
+                .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
               return (
                 <button
-                  key={c.id}
-                  onClick={() => {
-                    setSelected(c.id);
-                    void openConversation(c.id);
-                  }}
-                  className={`flex w-full items-start gap-3 border-b border-[#f0f3f7] p-4 text-left transition hover:bg-[#f7f9fc] ${selected === c.id ? "bg-[#eef4fc]" : ""}`}
+                  key={conversation.id}
+                  onClick={() =>
+                    setState({
+                      conversation: conversation.id,
+                      user: "",
+                      invite: "",
+                    })
+                  }
+                  aria-pressed={selected === conversation.id}
+                  className={`flex w-full items-start gap-3 border-b border-[#edf1f5] p-4 text-left hover:bg-[#f5f8fc] ${selected === conversation.id ? "bg-[#eaf1fc]" : ""}`}
                 >
                   <Avatar user={person} size="sm" />
                   <span className="min-w-0 flex-1">
-                    <span className="flex justify-between gap-2">
-                      <strong className="truncate text-xs">
+                    <span className="flex flex-wrap justify-between gap-x-2 gap-y-1">
+                      <strong className="text-sm">
                         {person?.name ?? "Student"}
                       </strong>
-                      <small className="shrink-0 text-[10px] text-[#a1afbd]">
-                        {relative(c.updatedAt).replace(" ago", "")}
+                      <small className="text-xs text-[#68778c]">
+                        {relative(conversation.updatedAt)}
                       </small>
                     </span>
-                    <span className="mt-1 block truncate text-xs text-[#8696a8]">
-                      {last?.content ?? "Start a conversation"}
+                    <span className="mt-1 block truncate text-sm text-[#53647c]">
+                      {drafts[conversation.id]
+                        ? `Draft: ${drafts[conversation.id]}`
+                        : (last?.content ?? "Start a conversation")}
                     </span>
+                    {conversation.unread > 0 && (
+                      <span className="mt-1 block text-xs font-semibold text-[#17468c]">
+                        {conversation.unread} unread
+                      </span>
+                    )}
                   </span>
-                  {c.unread > 0 && (
-                    <i className="mt-1 h-2 w-2 rounded-full bg-[#17468c]" />
-                  )}
                 </button>
               );
             })}
+            {!shown.length && (
+              <div className="p-5 text-sm leading-6 text-[#53647c]">
+                <p>
+                  {state.query.trim()
+                    ? `No conversations match “${state.query.trim()}”.`
+                    : "No conversations yet. Find a student to start one in your local demo."}
+                </p>
+                {state.query.trim() ? (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="mt-3"
+                    onClick={() => setState({ query: "" })}
+                  >
+                    Clear search
+                  </Button>
+                ) : (
+                  <Link
+                    href="/people"
+                    className="mt-3 inline-flex min-h-11 items-center font-semibold text-[#17468c]"
+                  >
+                    Find students
+                  </Link>
+                )}
+              </div>
+            )}
           </div>
         </aside>
         <div
-          className={`flex min-w-0 flex-1 flex-col ${selected ? "flex" : "hidden md:flex"}`}
+          className={`min-h-0 min-w-0 flex-1 flex-col ${selected ? "flex" : "hidden md:flex"}`}
         >
           {current && other ? (
             <>
-              <div className="flex items-center gap-3 border-b border-[#e9eef4] px-4 py-3">
+              <div className="flex items-center gap-3 border-b border-[#e5ebf2] px-3 py-3 sm:px-4">
                 <button
-                  onClick={() => setSelected(null)}
-                  className="rounded-lg p-1 text-[#6b7b90] md:hidden"
+                  onClick={() => setState({ conversation: "" })}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[#53647c] md:hidden"
                   aria-label="Back to conversations"
                 >
-                  <ArrowLeft size={19} />
+                  <ArrowLeft size={20} />
                 </button>
                 <Avatar user={other} size="sm" />
-                <span className="flex-1">
+                <div className="min-w-0 flex-1">
                   <Link
-                    href={`/profile/${other.username}`}
-                    className="text-sm font-bold hover:text-[#17468c]"
+                    href={withReturnTo(`/profile/${other.username}`)}
+                    className="break-words text-sm font-bold text-[#17468c]"
                   >
                     {other.name}
                   </Link>
-                  <span className="block text-[11px] text-[#46a27c]">
-                    ● Active recently
-                  </span>
-                </span>
+                  <p className="mt-1 text-xs text-[#68778c]">
+                    Local demo conversation
+                  </p>
+                </div>
               </div>
-              <div className="flex-1 space-y-4 overflow-y-auto bg-[#fbfcfe] p-4 sm:p-6">
+              <div className="min-h-0 flex-1 space-y-4 overflow-y-auto bg-[#f8fafd] p-4 sm:p-6">
+                {!thread.length && (
+                  <p className="py-6 text-center text-sm text-[#53647c]">
+                    Start with an introduction or ask about a shared interest.
+                  </p>
+                )}
                 {thread.map((message) => {
                   const mine = message.senderId === user.id;
                   return (
@@ -223,11 +427,11 @@ export function MessagesView() {
                       className={`flex ${mine ? "justify-end" : "justify-start"}`}
                     >
                       <div
-                        className={`max-w-[78%] rounded-2xl px-4 py-3 text-sm leading-6 ${mine ? "rounded-br-sm bg-[#17468c] text-white" : "rounded-bl-sm border border-[#e8edf3] bg-white text-[#52657a]"}`}
+                        className={`max-w-[85%] break-words rounded-2xl px-4 py-3 text-sm leading-6 ${mine ? "rounded-br-sm bg-[#17468c] text-white" : "rounded-bl-sm border border-[#e5ebf2] bg-white text-[#53647c]"}`}
                       >
-                        {message.content}
+                        <p className="whitespace-pre-wrap">{message.content}</p>
                         <small
-                          className={`mt-1 block text-right text-[10px] ${mine ? "text-[#cbdcf2]" : "text-[#a5b1be]"}`}
+                          className={`mt-1 block text-right text-xs ${mine ? "text-[#dbe8fa]" : "text-[#68778c]"}`}
                         >
                           {new Date(message.createdAt).toLocaleTimeString(
                             "en-US",
@@ -238,49 +442,57 @@ export function MessagesView() {
                     </motion.div>
                   );
                 })}
-                {typing && (
-                  <div className="inline-flex gap-1 rounded-2xl border border-[#e8edf3] bg-white px-4 py-3">
-                    <i className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#a0aebe]" />
-                    <i className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#a0aebe] [animation-delay:150ms]" />
-                    <i className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#a0aebe] [animation-delay:300ms]" />
-                  </div>
-                )}
                 <div ref={bottom} />
               </div>
+              {sendErrors[selected!] && (
+                <p
+                  id="message-send-error"
+                  role="alert"
+                  className="border-t border-[#e5ebf2] px-4 py-3 text-sm text-red-700"
+                >
+                  {sendErrors[selected!]}
+                </p>
+              )}
+              {storageWarning && (
+                <p role="status" className="px-4 py-2 text-sm text-[#8a6820]">
+                  {storageWarning}
+                </p>
+              )}
               <form
                 onSubmit={send}
-                className="flex items-center gap-2 border-t border-[#e9eef4] p-3"
+                className="flex items-center gap-2 border-t border-[#e5ebf2] p-3"
               >
                 <button
                   type="button"
-                  onClick={() => setDraft((x) => x + " 😊")}
-                  className="p-2 text-[#8a9aac]"
-                  aria-label="Add emoji"
+                  disabled={draftUser !== user.id}
+                  onClick={() => updateDraft(selected!, draft + " 🙂")}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[#53647c]"
+                  aria-label="Add smile emoji"
                 >
                   <Smile size={20} />
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setDraft((x) => x + " [image]")}
-                  className="p-2 text-[#8a9aac]"
-                  aria-label="Attach image placeholder"
-                >
-                  <ImagePlus size={20} />
-                </button>
                 <input
                   value={draft}
-                  onChange={(e) => setDraft(e.target.value)}
-                  className={inputClass + " min-h-10"}
-                  placeholder="Write a message..."
-                  aria-label="Message"
+                  onChange={(event) =>
+                    updateDraft(selected!, event.target.value)
+                  }
+                  disabled={draftUser !== user.id}
+                  className={
+                    inputClass + " min-w-0 flex-1 text-base sm:text-sm"
+                  }
+                  placeholder="Write a message…"
+                  aria-label={`Message ${other.name}`}
+                  aria-describedby={
+                    sendErrors[selected!] ? "message-send-error" : undefined
+                  }
                 />
                 <Button
                   type="submit"
-                  size="sm"
-                  disabled={!draft.trim()}
-                  aria-label="Send message"
+                  className="min-h-11 min-w-11 shrink-0"
+                  disabled={!draft.trim() || sending || draftUser !== user.id}
+                  aria-label={sending ? "Saving message" : "Send message"}
                 >
-                  <Send size={17} />
+                  {sending ? "Saving…" : <Send size={18} />}
                 </Button>
               </form>
             </>
@@ -288,8 +500,28 @@ export function MessagesView() {
             <div className="flex h-full items-center justify-center">
               <EmptyState
                 icon={<MessageCircle />}
-                title="Select a conversation"
-                description="Choose a student to continue chatting."
+                title={
+                  selected
+                    ? "Conversation unavailable"
+                    : "Select a conversation"
+                }
+                description={
+                  selected
+                    ? "Choose another conversation or find a student to start one."
+                    : "Choose a student to continue a local demo conversation."
+                }
+                action={
+                  selected ? (
+                    <Button
+                      variant="secondary"
+                      onClick={() =>
+                        setState({ conversation: "", user: "", invite: "" })
+                      }
+                    >
+                      Back to conversations
+                    </Button>
+                  ) : undefined
+                }
               />
             </div>
           )}

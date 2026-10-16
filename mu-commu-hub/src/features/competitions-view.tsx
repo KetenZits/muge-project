@@ -1,77 +1,108 @@
-"use client";
-import { useState } from "react";
+﻿"use client";
 import Link from "next/link";
 import { ArrowRight, Trophy } from "lucide-react";
-import { EmptyState, PageHeader, Tag } from "@/components/ui";
+import { Button, EmptyState, PageHeader } from "@/components/ui";
 import { CompetitionCard } from "@/components/shared/cards";
+import { useShallow } from "zustand/react/shallow";
 import { useApp } from "@/stores/app";
+import { useUrlState, withReturnTo } from "@/lib/navigation";
+import { deadline } from "@/lib/utils";
 import { Segmented, SearchInput } from "./shared-controls";
 
+const defaults = { query: "", status: "All" };
+const statuses = ["All", "Open", "Closing Soon", "Upcoming"];
+
 export function CompetitionsView() {
-  const { competitions } = useApp();
-  const [query, setQuery] = useState("");
-  const [status, setStatus] = useState("All");
-  const list = competitions.filter(
-    (x) =>
-      x.title.toLowerCase().includes(query.toLowerCase()) &&
-      (status === "All" || x.status === status),
+  const { competitions } = useApp(
+    useShallow((state) => ({ competitions: state.competitions })),
   );
+  const [filters, setFilters] = useUrlState(defaults);
+  const status = statuses.includes(filters.status) ? filters.status : "All";
+  const list = competitions.filter(
+    (competition) =>
+      [
+        competition.title,
+        competition.description,
+        ...competition.categories,
+        ...competition.skills,
+      ]
+        .join(" ")
+        .toLowerCase()
+        .includes(filters.query.trim().toLowerCase()) &&
+      (status === "All" || competition.status === status),
+  );
+  const featured =
+    !filters.query && status === "All"
+      ? list.find(
+          (competition) =>
+            competition.featured && deadline(competition.deadline) !== "Closed",
+        )
+      : undefined;
   return (
     <div>
       <PageHeader
-        eyebrow="OPPORTUNITIES"
-        title="Competitions worth joining"
-        subtitle="Explore challenges, meet teammates, and make your mark."
+        title="Competitions"
+        subtitle="Compare challenges, check deadlines, and find teammates. Sample opportunities in your local demo."
       />
-      <div className="card mb-5 p-4">
+      <div className="mb-6 space-y-3">
         <SearchInput
-          value={query}
-          onChange={setQuery}
-          placeholder="Search competitions..."
+          value={filters.query}
+          onChange={(query) => setFilters({ query }, { replace: true })}
+          placeholder="Search challenges, skills, or topics..."
+          label="Search competitions"
         />
-        <div className="mt-4">
-          <Segmented
-            options={["All", "Open", "Closing Soon", "Upcoming"]}
-            value={status}
-            setValue={setStatus}
-          />
-        </div>
+        <Segmented
+          options={statuses}
+          value={status}
+          setValue={(value) => setFilters({ status: value })}
+          label="Competition status"
+        />
       </div>
-      {competitions[0] && (
+      {featured && (
         <Link
-          href={`/competitions/${competitions[0].id}`}
-          className="relative mb-6 block overflow-hidden rounded-[22px] bg-[#17468c] p-6 text-white sm:p-8"
+          href={withReturnTo("/competitions/" + featured.id)}
+          className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-[var(--section-tint)] p-5"
         >
-          <div className="absolute -right-10 -top-15 h-56 w-56 rounded-full border-[42px] border-[#fac33420]" />
-          <div className="relative max-w-md">
-            <Tag tone="gold">FEATURED CHALLENGE</Tag>
-            <h2 className="mt-4 text-2xl font-bold">{competitions[0].title}</h2>
-            <p className="mt-2 text-sm leading-6 text-[#d6e4f7]">
-              {competitions[0].description}
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-[var(--section-accent)]">
+              Featured · {deadline(featured.deadline)}
             </p>
-            <span className="mt-5 inline-flex items-center gap-1 text-sm font-bold text-[#fac334]">
-              Explore challenge <ArrowRight size={16} />
-            </span>
+            <h2 className="mt-1 text-lg font-bold">{featured.title}</h2>
+            <p className="mt-1 text-sm text-muted">
+              {featured.teamSize} · {featured.location}
+            </p>
           </div>
+          <span className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[#17468c]">
+            Explore challenge <ArrowRight size={16} />
+          </span>
         </Link>
       )}
-      <div className="mb-4 flex justify-between">
-        <h2 className="section-title">All competitions</h2>
-        <span className="text-xs text-[#8c9bab]">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <h2 className="section-heading">
+          {filters.query || status !== "All"
+            ? "Matching challenges"
+            : "All challenges"}
+        </h2>
+        <p className="text-sm text-muted" role="status">
           {list.length} opportunities
-        </span>
+        </p>
       </div>
       {list.length ? (
         <div className="grid gap-4 md:grid-cols-2">
-          {list.map((x) => (
-            <CompetitionCard key={x.id} competition={x} />
+          {list.map((competition) => (
+            <CompetitionCard key={competition.id} competition={competition} />
           ))}
         </div>
       ) : (
         <EmptyState
           icon={<Trophy />}
-          title="No competitions found"
-          description="Try another name or status."
+          title="No competitions match"
+          description="Try a broader topic or another status."
+          action={
+            <Button variant="secondary" onClick={() => setFilters(defaults)}>
+              Reset filters
+            </Button>
+          }
         />
       )}
     </div>

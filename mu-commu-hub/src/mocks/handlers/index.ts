@@ -42,22 +42,30 @@ async function postsWithLocalComments(): Promise<Post[]> {
     db.posts.toArray(),
     db.comments.toArray(),
   ]);
-  return [...localPosts, ...posts].map((post) => ({
-    ...post,
-    comments:
-      post.comments +
-      localComments.filter((comment) => comment.postId === post.id).length,
-  }));
+  const commentCounts = new Map<string, number>();
+  for (const comment of localComments)
+    commentCounts.set(
+      comment.postId,
+      (commentCounts.get(comment.postId) ?? 0) + 1,
+    );
+  const localIds = new Set(localPosts.map((post) => post.id));
+  return [...localPosts, ...posts.filter((post) => !localIds.has(post.id))].map(
+    (post) => ({
+      ...post,
+      comments: post.comments + (commentCounts.get(post.id) ?? 0),
+    }),
+  );
 }
 export const handlers = [
   http.get("/api/posts", async () => json(await postsWithLocalComments())),
-  http.get("/api/posts/:id", async ({ params }) =>
-    json(
-      (await postsWithLocalComments()).find(
-        (post) => post.id === id(params.id),
-      ) ?? null,
-    ),
-  ),
+  http.get("/api/posts/:id", async ({ params }) => {
+    const key = id(params.id);
+    const post =
+      (await db.posts.get(key)) ?? posts.find((post) => post.id === key);
+    if (!post) return json(null);
+    const count = await db.comments.where("postId").equals(key).count();
+    return json({ ...post, comments: post.comments + count });
+  }),
   http.post("/api/posts", async ({ request }) => {
     try {
       if (
@@ -115,9 +123,11 @@ export const handlers = [
       users.find((u) => u.id === params.id || u.username === params.id) ?? null,
     ),
   ),
-  http.get("/api/teams", async () =>
-    json([...(await db.teams.toArray()), ...teams]),
-  ),
+  http.get("/api/teams", async () => {
+    const local = await db.teams.toArray();
+    const ids = new Set(local.map((team) => team.id));
+    return json([...local, ...teams.filter((team) => !ids.has(team.id))]);
+  }),
   http.get("/api/teams/:id", async ({ params }) =>
     json(
       (await db.teams.get(id(params.id))) ??
@@ -152,8 +162,12 @@ export const handlers = [
   http.get("/api/communities", () => json(clubs)),
   http.get("/api/notifications", async () => {
     const updates = await db.notifications.toArray();
+    const byId = new Map(updates.map((item) => [item.id, item]));
     return json(
-      notifications.map((n) => updates.find((x) => x.id === n.id) ?? n),
+      notifications.map((n) => ({
+        ...n,
+        read: byId.get(n.id)?.read ?? n.read,
+      })),
     );
   }),
   http.patch("/api/notifications/:id/read", async ({ params }) => {
@@ -184,11 +198,10 @@ export const handlers = [
   }),
   http.get("/api/conversations", async () => {
     const local = await db.conversations.toArray();
+    const localIds = new Set(local.map((item) => item.id));
     return json([
       ...local,
-      ...conversations.filter(
-        (seed) => !local.some((item) => item.id === seed.id),
-      ),
+      ...conversations.filter((seed) => !localIds.has(seed.id)),
     ]);
   }),
   http.post("/api/conversations", async ({ request }) => {

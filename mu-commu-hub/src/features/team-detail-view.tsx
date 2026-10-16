@@ -1,16 +1,14 @@
-"use client";
+﻿"use client";
+import { useState } from "react";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  Bookmark,
-  Check,
-  Clock3,
-  MapPin,
-  Users,
-} from "lucide-react";
+import { toast } from "sonner";
+import { Bookmark, Clock3, MapPin, Users } from "lucide-react";
 import { Avatar, Button, EmptyState, Tag } from "@/components/ui";
 import { deadline, shortDate } from "@/lib/utils";
+import { useShallow } from "zustand/react/shallow";
 import { useApp } from "@/stores/app";
+import { BackLink } from "@/components/shared/back-link";
+import { withReturnTo } from "@/lib/navigation";
 
 export function TeamDetailView({ id }: { id: string }) {
   const {
@@ -22,7 +20,20 @@ export function TeamDetailView({ id }: { id: string }) {
     requestTeam,
     bookmarks,
     toggleBookmark,
-  } = useApp();
+  } = useApp(
+    useShallow((state) => ({
+      user: state.user,
+      teams: state.teams,
+      users: state.users,
+      competitions: state.competitions,
+      interactions: state.interactions,
+      requestTeam: state.requestTeam,
+      bookmarks: state.bookmarks,
+      toggleBookmark: state.toggleBookmark,
+    })),
+  );
+  const [pending, setPending] = useState(false);
+  const [actionError, setActionError] = useState("");
   const team = teams.find((x) => x.id === id);
   if (!team)
     return (
@@ -42,14 +53,30 @@ export function TeamDetailView({ id }: { id: string }) {
   const listedMembers = (team.memberIds ?? [team.leaderId])
     .map((memberId) => users.find((person) => person.id === memberId))
     .filter((person) => person !== undefined);
+  const handleRequest = async () => {
+    if (pending || ownTeam || (!requested && (closed || full))) return;
+    setPending(true);
+    setActionError("");
+    try {
+      await requestTeam(id);
+      toast.success(
+        requested
+          ? "Request withdrawn on this device"
+          : "Join request saved on this device",
+      );
+    } catch {
+      setActionError(
+        requested
+          ? "Could not withdraw your request. Try again."
+          : "Could not save your request. Try again.",
+      );
+    } finally {
+      setPending(false);
+    }
+  };
   return (
     <div>
-      <Link
-        href="/teams"
-        className="mb-5 inline-flex items-center gap-1 text-xs font-semibold text-[#71839a] hover:text-[#17468c]"
-      >
-        <ArrowLeft size={14} /> Back to teams
-      </Link>
+      <BackLink fallback="/teams" />
       <div className="card overflow-hidden">
         <div className="relative bg-[#17468c] p-6 text-white sm:p-8">
           <div className="absolute -right-8 -top-15 h-46 w-46 rounded-full border-[36px] border-white/8" />
@@ -80,19 +107,24 @@ export function TeamDetailView({ id }: { id: string }) {
         <div className="p-6 sm:p-8">
           <div className="flex flex-wrap gap-2">
             <Button
-              onClick={() => requestTeam(id)}
-              disabled={requested || ownTeam || closed || full}
+              onClick={handleRequest}
+              disabled={pending || ownTeam || (!requested && (closed || full))}
+              aria-pressed={requested}
             >
-              {ownTeam ? (
+              {pending ? (
+                requested ? (
+                  "Withdrawing…"
+                ) : (
+                  "Saving request…"
+                )
+              ) : ownTeam ? (
                 "Your team"
+              ) : requested ? (
+                "Withdraw request"
               ) : closed ? (
                 "Applications closed"
               ) : full ? (
                 "Team full"
-              ) : requested ? (
-                <>
-                  <Check size={16} /> Request sent
-                </>
               ) : (
                 <>
                   <Users size={16} /> Request to join
@@ -101,22 +133,41 @@ export function TeamDetailView({ id }: { id: string }) {
             </Button>
             <Button
               variant="secondary"
-              onClick={() => toggleBookmark("teams", id)}
+              aria-pressed={saved}
+              onClick={async () => {
+                try {
+                  await toggleBookmark("teams", id);
+                } catch {
+                  toast.error("Could not update saved team. Try again.");
+                }
+              }}
             >
               <Bookmark size={16} fill={saved ? "currentColor" : "none"} />
               {saved ? "Saved" : "Save team"}
             </Button>
           </div>
+          {!ownTeam && (
+            <p className="mt-3 text-sm leading-6 text-[#53647c]" role="status">
+              {requested
+                ? "Your join request is saved on this device. You can withdraw it at any time. The team leader has not been contacted."
+                : "Join requests are saved in this local demo. They do not contact the team leader."}
+            </p>
+          )}
+          {actionError && (
+            <p role="alert" className="mt-2 text-sm text-red-700">
+              {actionError}
+            </p>
+          )}
           <div className="mt-8 grid gap-8 md:grid-cols-[1fr_230px]">
             <div>
               <h2 className="section-title">About the project</h2>
-              <p className="mt-3 text-sm leading-7 text-[#67798e]">
+              <p className="mt-3 text-sm leading-7 text-[#68778c]">
                 {team.description}
               </p>
               {team.objectives && team.objectives.length > 0 && (
                 <>
                   <h2 className="section-title mt-8">Objectives</h2>
-                  <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-[#67798e]">
+                  <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-[#68778c]">
                     {team.objectives.map((objective) => (
                       <li key={objective}>{objective}</li>
                     ))}
@@ -172,14 +223,14 @@ export function TeamDetailView({ id }: { id: string }) {
                   style={{ width: `${(team.members / team.capacity) * 100}%` }}
                 />
               </div>
-              <p className="mt-2 text-xs text-[#8797a9]">
+              <p className="mt-2 text-xs text-[#68778c]">
                 {team.members} of {team.capacity} places filled
               </p>
               <div className="my-4 border-t border-[#e3eaf2]" />
               <p className="text-xs font-semibold">Team leader</p>
               {leader && (
                 <Link
-                  href={`/profile/${leader.username}`}
+                  href={withReturnTo(`/profile/${leader.username}`)}
                   className="mt-3 flex items-center gap-2 text-xs text-[#17468c]"
                 >
                   <Avatar user={leader} size="sm" />
@@ -191,30 +242,38 @@ export function TeamDetailView({ id }: { id: string }) {
                 {listedMembers.map((member) => (
                   <Link
                     key={member.id}
-                    href={`/profile/${member.username}`}
+                    href={withReturnTo(`/profile/${member.username}`)}
                     className="flex items-center gap-2 text-xs text-[#17468c]"
                   >
                     <Avatar user={member} size="sm" /> {member.name}
                   </Link>
                 ))}
                 {team.members > listedMembers.length && (
-                  <p className="text-xs text-[#8797a9]">
+                  <p className="text-xs text-[#68778c]">
                     {team.members - listedMembers.length} other members not
                     listed
                   </p>
                 )}
               </div>
               {team.faculty && (
-                <p className="mt-5 text-xs text-[#74859a]">
+                <p className="mt-5 text-xs text-[#68778c]">
                   <b>Faculty requirement:</b> {team.faculty}
                 </p>
               )}
               <p className="mt-5 text-xs font-semibold">Contact</p>
-              <p className="mt-2 text-xs text-[#74859a]">
+              <p className="mt-2 text-xs text-[#68778c]">
                 {team.contactMethod ?? "Message the team leader"}
               </p>
+              {leader && !ownTeam && (
+                <Link
+                  href={withReturnTo(`/messages?user=${leader.id}`)}
+                  className="mt-2 inline-flex min-h-11 items-center text-sm font-semibold text-[#17468c]"
+                >
+                  Message leader
+                </Link>
+              )}
               <p className="mt-5 text-xs font-semibold">Application deadline</p>
-              <p className="mt-2 text-xs text-[#74859a]">
+              <p className="mt-2 text-xs text-[#68778c]">
                 {shortDate(team.deadline)}
               </p>
             </aside>

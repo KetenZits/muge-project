@@ -1,46 +1,23 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Toaster } from "sonner";
 import { useApp } from "@/stores/app";
-let workerPromise: Promise<unknown> | null = null;
 export function ClientProviders({ children }: { children: React.ReactNode }) {
-  const [started, setStarted] = useState(false);
+  const ready = useApp((s) => s.ready);
+  const sessionStatus = useApp((s) => s.sessionStatus);
+  const initializeSession = useApp((s) => s.initializeSession);
   const load = useApp((s) => s.load);
   useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        if (!workerPromise)
-          workerPromise = import("@/mocks/browser").then(({ worker }) =>
-            worker.start({
-              onUnhandledRequest: "bypass",
-              serviceWorker: { url: "/mockServiceWorker.js" },
-            }),
-          );
-        await workerPromise;
-        if (active) {
-          await load();
-          setStarted(true);
-        }
-      } catch (error) {
-        console.error("Mock API startup failed", error);
-        if (active) {
-          useApp.setState({
-            ready: true,
-            error:
-              error instanceof Error ? error.message : "Mock API unavailable",
-          });
-          setStarted(true);
-        }
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, [load]);
+    initializeSession();
+    // Both operations belong to the application store, not this effect's
+    // lifetime. load() shares its in-flight work across Strict Mode replays.
+    void load();
+  }, [initializeSession, load]);
   return (
     <>
-      <div data-mock-ready={started}>{children}</div>
+      <div data-mock-ready={ready} data-session-status={sessionStatus}>
+        {children}
+      </div>
       <Toaster position="top-right" richColors closeButton />
     </>
   );

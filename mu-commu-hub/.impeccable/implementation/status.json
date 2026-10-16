@@ -1,0 +1,222 @@
+{
+  "date": "2026-10-15",
+  "findings": [
+    {
+      "id": "MU-01",
+      "severity": "P1",
+      "status": "implemented",
+      "description": "Complete mobile navigation; Profile and My Activity are distinct."
+    },
+    {
+      "id": "MU-02",
+      "severity": "P1",
+      "status": "implemented",
+      "description": "URL-backed search and filters; contextual View all and global-search handoffs."
+    },
+    {
+      "id": "MU-03",
+      "severity": "P1",
+      "status": "implemented",
+      "description": "Visible-scope result counts, explanatory empty states, reset, and matching alternatives."
+    },
+    {
+      "id": "MU-04",
+      "severity": "P1",
+      "status": "implemented",
+      "description": "Readable supporting text, placeholders, upload guidance, and stronger contrast."
+    },
+    {
+      "id": "MU-05",
+      "severity": "P1",
+      "status": "implemented",
+      "description": "Named search inputs, explicit pressed/current states, consistent view switches, visible keyboard focus."
+    },
+    {
+      "id": "MU-06",
+      "severity": "P1",
+      "status": "implemented",
+      "description": "Publishing, requests, membership, messages, notifications, and sample members describe local demo effects."
+    },
+    {
+      "id": "MU-07",
+      "severity": "P2",
+      "status": "implemented",
+      "description": "Progressive filters retain all capabilities, applied refinements, reset, and counts."
+    },
+    {
+      "id": "MU-08",
+      "severity": "P2",
+      "status": "implemented",
+      "description": "Home leads into the feed with one prominent creation entry per viewport."
+    },
+    {
+      "id": "MU-09",
+      "severity": "P2",
+      "status": "implemented",
+      "description": "Distinct decision hierarchy for posts, teams, competitions, people, and communities; fewer nested surfaces."
+    },
+    {
+      "id": "MU-10",
+      "severity": "P2",
+      "status": "implemented",
+      "description": "Recruit teammates opens the existing Team composer and safely restores any prior draft."
+    },
+    {
+      "id": "MU-11",
+      "severity": "P2",
+      "status": "implemented",
+      "description": "Featured competition collapses during filtering; result context stays consistent."
+    },
+    {
+      "id": "MU-12",
+      "severity": "P2",
+      "status": "implemented",
+      "description": "Community descriptions and existing related discussions lead; explicit Join/Leave and sample membership labels."
+    },
+    {
+      "id": "MU-13",
+      "severity": "P2",
+      "status": "implemented",
+      "description": "Five profile sections, canonical bio/skills/interests, concrete shared factors, and accurately labeled led teams."
+    },
+    {
+      "id": "MU-14",
+      "severity": "P2",
+      "status": "implemented",
+      "description": "Responsive dialog width fixed; desktop composer uses 42rem with mobile scrolling and sticky completion actions."
+    },
+    {
+      "id": "MU-15",
+      "severity": "P2",
+      "status": "implemented",
+      "description": "Safe contextual return links preserve originating query/filter state and direct-link fallbacks."
+    },
+    {
+      "id": "MU-16",
+      "severity": "P2",
+      "status": "implemented",
+      "description": "All posts replaces unimplemented For You; shared factors lead and retained relevance scores are explained."
+    },
+    {
+      "id": "MU-17",
+      "severity": "P2",
+      "status": "implemented",
+      "description": "44px shared/icon targets, larger uploader controls, forgiving mobile navigation, and focus indicators."
+    },
+    {
+      "id": "MU-18",
+      "severity": "P2",
+      "status": "implemented",
+      "description": "Consistent awaited request states, withdrawal, explicit Going/Cancel RSVP, and local error/success feedback."
+    },
+    {
+      "id": "MU-19",
+      "severity": "P2",
+      "status": "implemented",
+      "description": "Per-user/per-thread persisted message drafts; no fake typing/presence or image placeholders; search recovery."
+    },
+    {
+      "id": "MU-20",
+      "severity": "P2",
+      "status": "implemented",
+      "description": "Notification destinations, saved-category URL/counts, My Posts handoff, Following labels, and selected-event URLs."
+    },
+    {
+      "id": "MU-21",
+      "severity": "P2",
+      "status": "implemented",
+      "description": "Visible 3-interest/1-skill minimums with no maximum; returning login retains profile and onboarding completion."
+    },
+    {
+      "id": "MU-22",
+      "severity": "P2",
+      "status": "implemented",
+      "description": "Two-character comment rule matches enabled state, inline guidance/errors, and preserves unsent input."
+    }
+  ],
+  "modifiedFiles": [
+    ".impeccable/design.json",
+    "DESIGN.md",
+    "package.json",
+    "scripts/discovery-performance.mjs",
+    "scripts/discovery-regressions.mjs",
+    "scripts/image-attachments.mjs",
+    "scripts/interaction-smoke.mjs",
+    "scripts/motion-smoke.mjs",
+    "scripts/persistence-regressions.mjs",
+    "scripts/smoke.mjs",
+    "scripts/ui-performance.mjs",
+    "scripts/ui-regressions.mjs",
+    "src/app/globals.css",
+    "src/components/events/event-calendar.tsx",
+    "src/components/layout/app-shell.tsx",
+    "src/components/layout/navigation.tsx",
+    "src/components/layout/right-rail.tsx",
+    "src/components/layout/search-palette.tsx",
+    "src/components/posts/create-post-modal.tsx",
+    "src/components/posts/post-image-grid.tsx",
+    "src/components/posts/post-image-uploader.tsx",
+    "src/components/shared/back-link.tsx",
+    "src/components/shared/cards/club-card.tsx",
+    "src/components/shared/cards/competition-card.tsx",
+    "src/components/shared/cards/event-card.tsx",
+    "src/components/shared/cards/person-card.tsx",
+    "src/components/shared/cards/post-card.tsx",
+    "src/components/shared/cards/team-card.tsx",
+    "src/components/ui/dialog.tsx",
+    "src/components/ui/error-state.tsx",
+    "src/components/ui/index.tsx",
+    "src/features/auth-views.tsx",
+    "src/features/communities-view.tsx",
+    "src/features/community-detail-view.tsx",
+    "src/features/competition-detail-view.tsx",
+    "src/features/competitions-view.tsx",
+    "src/features/discover-view.tsx",
+    "src/features/events-view.tsx",
+    "src/features/home-view.tsx",
+    "src/features/landing-view.tsx",
+    "src/features/me-view.tsx",
+    "src/features/messages-view.tsx",
+    "src/features/notifications-view.tsx",
+    "src/features/people-view.tsx",
+    "src/features/post-detail-view.tsx",
+    "src/features/profile-view.tsx",
+    "src/features/saved-view.tsx",
+    "src/features/shared-controls.tsx",
+    "src/features/team-detail-view.tsx",
+    "src/features/teams-view.tsx",
+    "src/lib/demo-profile.ts",
+    "src/lib/discovery.ts",
+    "src/lib/mock/notifications.ts",
+    "src/lib/mock/users.ts",
+    "src/lib/navigation.ts",
+    "src/mocks/handlers/index.ts",
+    "src/stores/app.ts",
+    "src/types/notification.ts",
+    "src/types/user.ts"
+  ],
+  "validation": {
+    "uiChecks": 15,
+    "responsiveCombinations": 35,
+    "preservationChecks": 6,
+    "static": [
+      "typecheck",
+      "lint",
+      "build",
+      "git diff --check"
+    ],
+    "tests": [
+      "test:smoke",
+      "test:interactions",
+      "test:images",
+      "test:motion",
+      "test:ui",
+      "test:persistence",
+      "test:discovery"
+    ]
+  },
+  "limitations": [
+    "Headless Chromium only; physical devices, mobile keyboards, Safari/Firefox, screen readers, and real zoom unverified.",
+    "Development reload timing and synthetic filter measurements are not production Core Web Vitals."
+  ]
+}

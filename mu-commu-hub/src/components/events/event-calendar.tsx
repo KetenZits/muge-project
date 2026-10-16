@@ -67,7 +67,7 @@ export function EventCalendar({ events }: { events: Event[] }) {
             </Button>
           </div>
         </div>
-        <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-bold uppercase tracking-wide text-[#8a9aac] sm:text-xs">
+        <div className="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-[var(--text-muted)]">
           {WEEKDAYS.map((day) => (
             <span key={day}>{day}</span>
           ))}

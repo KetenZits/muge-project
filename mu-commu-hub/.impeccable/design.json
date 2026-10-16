@@ -1,0 +1,673 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-15T08:27:42.837Z",
+  "title": "Design System: MU Connect",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "University Blue",
+        "tonalRamp": [
+          "oklch(0.15 0.1271 258.75)",
+          "oklch(0.26 0.1271 258.75)",
+          "oklch(0.37 0.1271 258.75)",
+          "oklch(0.48 0.1271 258.75)",
+          "oklch(0.59 0.1271 258.75)",
+          "oklch(0.70 0.1271 258.75)",
+          "oklch(0.83 0.1271 258.75)",
+          "oklch(0.95 0.1271 258.75)"
+        ]
+      },
+      "primary-hover": {
+        "role": "primary",
+        "displayName": "Deep University Blue",
+        "tonalRamp": [
+          "oklch(0.15 0.1125 259.26)",
+          "oklch(0.26 0.1125 259.26)",
+          "oklch(0.37 0.1125 259.26)",
+          "oklch(0.48 0.1125 259.26)",
+          "oklch(0.59 0.1125 259.26)",
+          "oklch(0.70 0.1125 259.26)",
+          "oklch(0.83 0.1125 259.26)",
+          "oklch(0.95 0.1125 259.26)"
+        ]
+      },
+      "gold": {
+        "role": "secondary",
+        "displayName": "University Gold",
+        "tonalRamp": [
+          "oklch(0.15 0.1089 84.88)",
+          "oklch(0.26 0.1089 84.88)",
+          "oklch(0.37 0.1089 84.88)",
+          "oklch(0.48 0.1089 84.88)",
+          "oklch(0.59 0.1089 84.88)",
+          "oklch(0.70 0.1089 84.88)",
+          "oklch(0.83 0.1089 84.88)",
+          "oklch(0.95 0.1089 84.88)"
+        ]
+      },
+      "yellow": {
+        "role": "tertiary",
+        "displayName": "Warm Yellow",
+        "tonalRamp": [
+          "oklch(0.15 0.1592 85.88)",
+          "oklch(0.26 0.1592 85.88)",
+          "oklch(0.37 0.1592 85.88)",
+          "oklch(0.48 0.1592 85.88)",
+          "oklch(0.59 0.1592 85.88)",
+          "oklch(0.70 0.1592 85.88)",
+          "oklch(0.83 0.1592 85.88)",
+          "oklch(0.95 0.1592 85.88)"
+        ]
+      },
+      "yellow-hover": {
+        "role": "tertiary",
+        "displayName": "Deep Warm Yellow",
+        "tonalRamp": [
+          "oklch(0.15 0.1581 84.99)",
+          "oklch(0.26 0.1581 84.99)",
+          "oklch(0.37 0.1581 84.99)",
+          "oklch(0.48 0.1581 84.99)",
+          "oklch(0.59 0.1581 84.99)",
+          "oklch(0.70 0.1581 84.99)",
+          "oklch(0.83 0.1581 84.99)",
+          "oklch(0.95 0.1581 84.99)"
+        ]
+      },
+      "on-yellow": {
+        "role": "neutral",
+        "displayName": "Warm Brown Ink",
+        "tonalRamp": [
+          "oklch(0.15 0.0651 84.54)",
+          "oklch(0.26 0.0651 84.54)",
+          "oklch(0.37 0.0651 84.54)",
+          "oklch(0.48 0.0651 84.54)",
+          "oklch(0.59 0.0651 84.54)",
+          "oklch(0.70 0.0651 84.54)",
+          "oklch(0.83 0.0651 84.54)",
+          "oklch(0.95 0.0651 84.54)"
+        ]
+      },
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Cool Canvas",
+        "tonalRamp": [
+          "oklch(0.15 0.0062 255.47)",
+          "oklch(0.26 0.0062 255.47)",
+          "oklch(0.37 0.0062 255.47)",
+          "oklch(0.48 0.0062 255.47)",
+          "oklch(0.59 0.0062 255.47)",
+          "oklch(0.70 0.0062 255.47)",
+          "oklch(0.83 0.0062 255.47)",
+          "oklch(0.95 0.0062 255.47)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "White Surface",
+        "tonalRamp": [
+          "oklch(0.15 0.0000 89.88)",
+          "oklch(0.26 0.0000 89.88)",
+          "oklch(0.37 0.0000 89.88)",
+          "oklch(0.48 0.0000 89.88)",
+          "oklch(0.59 0.0000 89.88)",
+          "oklch(0.70 0.0000 89.88)",
+          "oklch(0.83 0.0000 89.88)",
+          "oklch(0.95 0.0000 89.88)"
+        ]
+      },
+      "surface-soft": {
+        "role": "neutral",
+        "displayName": "Soft Inset Surface",
+        "tonalRamp": [
+          "oklch(0.15 0.0045 258.32)",
+          "oklch(0.26 0.0045 258.32)",
+          "oklch(0.37 0.0045 258.32)",
+          "oklch(0.48 0.0045 258.32)",
+          "oklch(0.59 0.0045 258.32)",
+          "oklch(0.70 0.0045 258.32)",
+          "oklch(0.83 0.0045 258.32)",
+          "oklch(0.95 0.0045 258.32)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Navy Ink",
+        "tonalRamp": [
+          "oklch(0.15 0.0462 257.85)",
+          "oklch(0.26 0.0462 257.85)",
+          "oklch(0.37 0.0462 257.85)",
+          "oklch(0.48 0.0462 257.85)",
+          "oklch(0.59 0.0462 257.85)",
+          "oklch(0.70 0.0462 257.85)",
+          "oklch(0.83 0.0462 257.85)",
+          "oklch(0.95 0.0462 257.85)"
+        ]
+      },
+      "muted-text": {
+        "role": "neutral",
+        "displayName": "Slate Text",
+        "tonalRamp": [
+          "oklch(0.15 0.0372 256.81)",
+          "oklch(0.26 0.0372 256.81)",
+          "oklch(0.37 0.0372 256.81)",
+          "oklch(0.48 0.0372 256.81)",
+          "oklch(0.59 0.0372 256.81)",
+          "oklch(0.70 0.0372 256.81)",
+          "oklch(0.83 0.0372 256.81)",
+          "oklch(0.95 0.0372 256.81)"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Quiet Divider",
+        "tonalRamp": [
+          "oklch(0.15 0.0115 252.09)",
+          "oklch(0.26 0.0115 252.09)",
+          "oklch(0.37 0.0115 252.09)",
+          "oklch(0.48 0.0115 252.09)",
+          "oklch(0.59 0.0115 252.09)",
+          "oklch(0.70 0.0115 252.09)",
+          "oklch(0.83 0.0115 252.09)",
+          "oklch(0.95 0.0115 252.09)"
+        ]
+      },
+      "input-border": {
+        "role": "neutral",
+        "displayName": "Field Border",
+        "tonalRamp": [
+          "oklch(0.15 0.0167 250.85)",
+          "oklch(0.26 0.0167 250.85)",
+          "oklch(0.37 0.0167 250.85)",
+          "oklch(0.48 0.0167 250.85)",
+          "oklch(0.59 0.0167 250.85)",
+          "oklch(0.70 0.0167 250.85)",
+          "oklch(0.83 0.0167 250.85)",
+          "oklch(0.95 0.0167 250.85)"
+        ]
+      },
+      "input-placeholder": {
+        "role": "neutral",
+        "displayName": "Placeholder Slate",
+        "tonalRamp": [
+          "oklch(0.15 0.0306 254.73)",
+          "oklch(0.26 0.0306 254.73)",
+          "oklch(0.37 0.0306 254.73)",
+          "oklch(0.48 0.0306 254.73)",
+          "oklch(0.59 0.0306 254.73)",
+          "oklch(0.70 0.0306 254.73)",
+          "oklch(0.83 0.0306 254.73)",
+          "oklch(0.95 0.0306 254.73)"
+        ]
+      },
+      "primary-tint": {
+        "role": "primary",
+        "displayName": "Pale University Blue",
+        "tonalRamp": [
+          "oklch(0.15 0.0166 259.42)",
+          "oklch(0.26 0.0166 259.42)",
+          "oklch(0.37 0.0166 259.42)",
+          "oklch(0.48 0.0166 259.42)",
+          "oklch(0.59 0.0166 259.42)",
+          "oklch(0.70 0.0166 259.42)",
+          "oklch(0.83 0.0166 259.42)",
+          "oklch(0.95 0.0166 259.42)"
+        ]
+      },
+      "gold-tint": {
+        "role": "secondary",
+        "displayName": "Pale Gold",
+        "tonalRamp": [
+          "oklch(0.15 0.0339 92.27)",
+          "oklch(0.26 0.0339 92.27)",
+          "oklch(0.37 0.0339 92.27)",
+          "oklch(0.48 0.0339 92.27)",
+          "oklch(0.59 0.0339 92.27)",
+          "oklch(0.70 0.0339 92.27)",
+          "oklch(0.83 0.0339 92.27)",
+          "oklch(0.95 0.0339 92.27)"
+        ]
+      },
+      "gold-ink": {
+        "role": "secondary",
+        "displayName": "Deep Gold Ink",
+        "tonalRamp": [
+          "oklch(0.15 0.0970 82.20)",
+          "oklch(0.26 0.0970 82.20)",
+          "oklch(0.37 0.0970 82.20)",
+          "oklch(0.48 0.0970 82.20)",
+          "oklch(0.59 0.0970 82.20)",
+          "oklch(0.70 0.0970 82.20)",
+          "oklch(0.83 0.0970 82.20)",
+          "oklch(0.95 0.0970 82.20)"
+        ]
+      },
+      "chip-surface": {
+        "role": "neutral",
+        "displayName": "Neutral Chip Surface",
+        "tonalRamp": [
+          "oklch(0.15 0.0079 253.85)",
+          "oklch(0.26 0.0079 253.85)",
+          "oklch(0.37 0.0079 253.85)",
+          "oklch(0.48 0.0079 253.85)",
+          "oklch(0.59 0.0079 253.85)",
+          "oklch(0.70 0.0079 253.85)",
+          "oklch(0.83 0.0079 253.85)",
+          "oklch(0.95 0.0079 253.85)"
+        ]
+      },
+      "chip-ink": {
+        "role": "neutral",
+        "displayName": "Neutral Chip Ink",
+        "tonalRamp": [
+          "oklch(0.15 0.0438 257.02)",
+          "oklch(0.26 0.0438 257.02)",
+          "oklch(0.37 0.0438 257.02)",
+          "oklch(0.48 0.0438 257.02)",
+          "oklch(0.59 0.0438 257.02)",
+          "oklch(0.70 0.0438 257.02)",
+          "oklch(0.83 0.0438 257.02)",
+          "oklch(0.95 0.0438 257.02)"
+        ]
+      },
+      "success": {
+        "role": "tertiary",
+        "displayName": "Success Green",
+        "tonalRamp": [
+          "oklch(0.15 0.1054 162.64)",
+          "oklch(0.26 0.1054 162.64)",
+          "oklch(0.37 0.1054 162.64)",
+          "oklch(0.48 0.1054 162.64)",
+          "oklch(0.59 0.1054 162.64)",
+          "oklch(0.70 0.1054 162.64)",
+          "oklch(0.83 0.1054 162.64)",
+          "oklch(0.95 0.1054 162.64)"
+        ]
+      },
+      "success-tint": {
+        "role": "tertiary",
+        "displayName": "Pale Success Green",
+        "tonalRamp": [
+          "oklch(0.15 0.0174 164.66)",
+          "oklch(0.26 0.0174 164.66)",
+          "oklch(0.37 0.0174 164.66)",
+          "oklch(0.48 0.0174 164.66)",
+          "oklch(0.59 0.0174 164.66)",
+          "oklch(0.70 0.0174 164.66)",
+          "oklch(0.83 0.0174 164.66)",
+          "oklch(0.95 0.0174 164.66)"
+        ]
+      },
+      "rose": {
+        "role": "tertiary",
+        "displayName": "Status Rose",
+        "tonalRamp": [
+          "oklch(0.15 0.1251 25.28)",
+          "oklch(0.26 0.1251 25.28)",
+          "oklch(0.37 0.1251 25.28)",
+          "oklch(0.48 0.1251 25.28)",
+          "oklch(0.59 0.1251 25.28)",
+          "oklch(0.70 0.1251 25.28)",
+          "oklch(0.83 0.1251 25.28)",
+          "oklch(0.95 0.1251 25.28)"
+        ]
+      },
+      "rose-tint": {
+        "role": "tertiary",
+        "displayName": "Pale Status Rose",
+        "tonalRamp": [
+          "oklch(0.15 0.0141 22.76)",
+          "oklch(0.26 0.0141 22.76)",
+          "oklch(0.37 0.0141 22.76)",
+          "oklch(0.48 0.0141 22.76)",
+          "oklch(0.59 0.0141 22.76)",
+          "oklch(0.70 0.0141 22.76)",
+          "oklch(0.83 0.0141 22.76)",
+          "oklch(0.95 0.0141 22.76)"
+        ]
+      },
+      "error": {
+        "role": "tertiary",
+        "displayName": "Validation Red",
+        "tonalRamp": [
+          "oklch(0.15 0.2450 27.32)",
+          "oklch(0.26 0.2450 27.32)",
+          "oklch(0.37 0.2450 27.32)",
+          "oklch(0.48 0.2450 27.32)",
+          "oklch(0.59 0.2450 27.32)",
+          "oklch(0.70 0.2450 27.32)",
+          "oklch(0.83 0.2450 27.32)",
+          "oklch(0.95 0.2450 27.32)"
+        ]
+      },
+      "discover": {
+        "role": "tertiary",
+        "displayName": "Discover section accent"
+      },
+      "discover-tint": {
+        "role": "neutral",
+        "displayName": "Discover section tint"
+      },
+      "teams": {
+        "role": "tertiary",
+        "displayName": "Teams section accent"
+      },
+      "teams-tint": {
+        "role": "neutral",
+        "displayName": "Teams section tint"
+      },
+      "competitions": {
+        "role": "tertiary",
+        "displayName": "Competitions section accent"
+      },
+      "competitions-tint": {
+        "role": "neutral",
+        "displayName": "Competitions section tint"
+      },
+      "communities": {
+        "role": "tertiary",
+        "displayName": "Communities section accent"
+      },
+      "communities-tint": {
+        "role": "neutral",
+        "displayName": "Communities section tint"
+      },
+      "events": {
+        "role": "tertiary",
+        "displayName": "Events section accent"
+      },
+      "events-tint": {
+        "role": "neutral",
+        "displayName": "Events section tint"
+      },
+      "messages": {
+        "role": "tertiary",
+        "displayName": "Messages section accent"
+      },
+      "messages-tint": {
+        "role": "neutral",
+        "displayName": "Messages section tint"
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Application page titles."
+      },
+      "headline-compact": {
+        "displayName": "Headline Compact",
+        "purpose": "Page titles below 768px."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Section headings; component titles retain local variants."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Base document text."
+      },
+      "body-small": {
+        "displayName": "Body Small",
+        "purpose": "Routine UI text and controls."
+      },
+      "body-relaxed": {
+        "displayName": "Body Relaxed",
+        "purpose": "Longer post descriptions."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Action and field labels."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Compact supporting text; not approval of smaller pale metadata."
+      },
+      "thai": {
+        "displayName": "Thai",
+        "purpose": "Dedicated Thai family override; sizing comes from the content role."
+      }
+    },
+    "shadows": [
+      {
+        "name": "primary-action",
+        "value": "0 4px 12px #17468c20",
+        "purpose": "Application primary button."
+      },
+      {
+        "name": "landing-card-hover",
+        "value": "0 12px 30px #17468c12",
+        "purpose": "Existing fine-pointer landing card hover."
+      },
+      {
+        "name": "landing-action-hover",
+        "value": "0 8px 22px #17468c25",
+        "purpose": "Existing landing link-button hover."
+      },
+      {
+        "name": "mobile-create",
+        "value": "0 7px 18px #17468c55",
+        "purpose": "Raised mobile create action."
+      },
+      {
+        "name": "popover",
+        "value": "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
+        "purpose": "Notification popover."
+      },
+      {
+        "name": "modal",
+        "value": "0 25px 50px -12px rgb(0 0 0 / 0.25)",
+        "purpose": "Application modal wrapper."
+      }
+    ],
+    "motion": [
+      {
+        "name": "fast",
+        "value": "160ms",
+        "purpose": "Compact feedback and fades; --motion-fast."
+      },
+      {
+        "name": "normal",
+        "value": "280ms",
+        "purpose": "Page and dialog entry; --motion-normal."
+      },
+      {
+        "name": "large",
+        "value": "550ms",
+        "purpose": "Longer reveals; --motion-large."
+      },
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Shared source easing; --motion-ease-out."
+      },
+      {
+        "name": "button-transition",
+        "value": "200ms",
+        "purpose": "Application Button wrapper duration."
+      },
+      {
+        "name": "soft-spring",
+        "value": "stiffness: 260; damping: 30",
+        "purpose": "Motion spring configuration for moving selection indicators; not CSS easing syntax."
+      },
+      {
+        "name": "quick-spring",
+        "value": "stiffness: 420; damping: 30",
+        "purpose": "Motion spring configuration for small feedback; not CSS easing syntax."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      }
+    ],
+    "sectionAccents": {
+      "home": {
+        "foreground": "#17468C",
+        "background": "#EAF1FC"
+      },
+      "discover": {
+        "foreground": "#4845A5",
+        "background": "#EFEFFB"
+      },
+      "teams": {
+        "foreground": "#75409A",
+        "background": "#F5EEF9"
+      },
+      "competitions": {
+        "foreground": "#805D15",
+        "background": "#FBF3DA"
+      },
+      "communities": {
+        "foreground": "#146D67",
+        "background": "#E8F5F2"
+      },
+      "events": {
+        "foreground": "#A34337",
+        "background": "#FDF0EC"
+      },
+      "messages": {
+        "foreground": "#146A91",
+        "background": "#EAF5FC"
+      }
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Application Button wrapper, medium size; existing hover, keyboard focus, pressed, and disabled treatments.",
+      "html": "<button type=\"button\" class=\"ds-button-primary\">Create post</button>",
+      "css": ".ds-button-primary{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 16px;border:1px solid transparent;border-radius:calc(var(--radius,.9rem)*1.4);font:600 14px/20px Inter, Kanit, Arial, sans-serif;text-decoration:none;white-space:nowrap;cursor:pointer;transition:background-color 200ms,color 200ms,transform 200ms,box-shadow 200ms;background:var(--blue,#17468c);color:#fff;box-shadow:0 4px 12px #17468c20;}.ds-button-primary:hover{background:#0f3672;}.ds-button-primary:focus-visible{outline:3px solid var(--blue,#17468c);outline-offset:2px;border-color:var(--blue,#17468c);box-shadow:0 0 0 3px #17468c80}.ds-button-primary:active{transform:translateY(1px) scale(.98)}.ds-button-primary:disabled{pointer-events:none;opacity:.5}@media(prefers-reduced-motion:reduce){.ds-button-primary{transition-duration:.01ms}.ds-button-primary:active{transform:none}}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Application Button wrapper, medium size; existing hover, keyboard focus, pressed, and disabled treatments.",
+      "html": "<button type=\"button\" class=\"ds-button-secondary\">View team</button>",
+      "css": ".ds-button-secondary{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 16px;border:1px solid transparent;border-radius:calc(var(--radius,.9rem)*1.4);font:600 14px/20px Inter, Kanit, Arial, sans-serif;text-decoration:none;white-space:nowrap;cursor:pointer;transition:background-color 200ms,color 200ms,transform 200ms,box-shadow 200ms;background:#fff;color:var(--blue,#17468c);border-color:#dce5ef;}.ds-button-secondary:hover{background:var(--soft,#f5f8fc);color:var(--blue,#17468c);}.ds-button-secondary:focus-visible{outline:3px solid var(--blue,#17468c);outline-offset:2px;border-color:var(--blue,#17468c);box-shadow:0 0 0 3px #17468c80}.ds-button-secondary:active{transform:translateY(1px) scale(.98)}.ds-button-secondary:disabled{pointer-events:none;opacity:.5}@media(prefers-reduced-motion:reduce){.ds-button-secondary{transition-duration:.01ms}.ds-button-secondary:active{transform:none}}"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Application Button wrapper, medium size; existing hover, keyboard focus, pressed, and disabled treatments.",
+      "html": "<button type=\"button\" class=\"ds-button-ghost\">Cancel</button>",
+      "css": ".ds-button-ghost{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 16px;border:1px solid transparent;border-radius:calc(var(--radius,.9rem)*1.4);font:600 14px/20px Inter, Kanit, Arial, sans-serif;text-decoration:none;white-space:nowrap;cursor:pointer;transition:background-color 200ms,color 200ms,transform 200ms,box-shadow 200ms;background:transparent;color:#60728a;}.ds-button-ghost:hover{background:#eef3f9;color:var(--blue,#17468c);}.ds-button-ghost:focus-visible{outline:3px solid var(--blue,#17468c);outline-offset:2px;border-color:var(--blue,#17468c);box-shadow:0 0 0 3px #17468c80}.ds-button-ghost:active{transform:translateY(1px) scale(.98)}.ds-button-ghost:disabled{pointer-events:none;opacity:.5}@media(prefers-reduced-motion:reduce){.ds-button-ghost{transition-duration:.01ms}.ds-button-ghost:active{transform:none}}"
+    },
+    {
+      "name": "Gold Button",
+      "kind": "button",
+      "refersTo": "button-gold",
+      "description": "Application Button wrapper, medium size; existing hover, keyboard focus, pressed, and disabled treatments.",
+      "html": "<button type=\"button\" class=\"ds-button-gold\">Create a post</button>",
+      "css": ".ds-button-gold{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 16px;border:1px solid transparent;border-radius:calc(var(--radius,.9rem)*1.4);font:600 14px/20px Inter, Kanit, Arial, sans-serif;text-decoration:none;white-space:nowrap;cursor:pointer;transition:background-color 200ms,color 200ms,transform 200ms,box-shadow 200ms;background:var(--yellow,#fac334);color:#4c390c;}.ds-button-gold:hover{background:#eeb622;}.ds-button-gold:focus-visible{outline:3px solid var(--blue,#17468c);outline-offset:2px;border-color:var(--blue,#17468c);box-shadow:0 0 0 3px #17468c80}.ds-button-gold:active{transform:translateY(1px) scale(.98)}.ds-button-gold:disabled{pointer-events:none;opacity:.5}@media(prefers-reduced-motion:reduce){.ds-button-gold{transition-duration:.01ms}.ds-button-gold:active{transform:none}}"
+    },
+    {
+      "name": "Labeled Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Application Field and inputClass, rather than the generated Input's smaller neutral defaults.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">University email</span><input class=\"ds-field-input\" type=\"email\" placeholder=\"you@university.ac.th\"></label>",
+      "css": ".ds-field{display:block;font-family:Inter, Kanit, Arial, sans-serif;color:var(--ink,#17263c)}.ds-field-label{display:block;margin-bottom:8px;font-size:14px;line-height:20px;font-weight:600;color:#33445c}.ds-field-input{width:100%;min-height:44px;padding:0 16px;border:1px solid #8091a5;border-radius:calc(var(--radius,.9rem)*1.4);background:#fff;color:var(--ink,#17263c);font:400 14px/20px Inter, Kanit, Arial, sans-serif;outline:none;transition:border-color 150ms,box-shadow 150ms}.ds-field-input::placeholder{color:#617187}.ds-field-input:focus{border-color:var(--blue,#17468c);box-shadow:0 0 0 3px #17468c20}.ds-field-input:focus-visible{outline:3px solid var(--blue,#17468c);outline-offset:2px}.ds-field-error{display:block;margin-top:4px;font-size:12px;line-height:16px;color:oklch(.577 .245 27.325)}@media(prefers-reduced-motion:reduce){.ds-field-input{transition-duration:.01ms}}"
+    },
+    {
+      "name": "Domain Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Existing white bordered domain card with responsive padding and the shared hover lift.",
+      "html": "<article class=\"ds-domain-card\"><h3 class=\"ds-card-title\"><a class=\"ds-card-link\" href=\"#team\">Find teammates</a></h3><p class=\"ds-card-copy\">Meet students with the skills and interests your next project needs.</p></article>",
+      "css": ".ds-domain-card{padding:20px;border:1px solid var(--line,#e5ebf2);border-radius:20px;background:#fff;color:var(--ink,#17263c);font-family:Inter, Kanit, Arial, sans-serif;transition:transform var(--motion-fast,160ms) var(--motion-ease-out,cubic-bezier(.22,1,.36,1))}.ds-domain-card:hover{transform:translateY(-3px)}.ds-card-title{margin:0;font-size:18px;line-height:28px;font-weight:700;letter-spacing:-.025em}.ds-card-link{color:inherit;text-decoration:none}.ds-card-link:hover{color:var(--blue,#17468c)}.ds-card-link:focus-visible{outline:3px solid var(--blue,#17468c);outline-offset:2px}.ds-card-copy{margin:12px 0 0;color:#66778c;font-size:13px;line-height:24px}@media(min-width:640px){.ds-domain-card{padding:24px}}@media(prefers-reduced-motion:reduce){.ds-domain-card{transition-duration:.01ms}.ds-domain-card:hover{transform:none}}"
+    },
+    {
+      "name": "Topic and Status Chips",
+      "kind": "chip",
+      "refersTo": "chip-blue",
+      "description": "Standalone topic links and the established semantic chip palette; application Tag additionally inherits Badge sizing.",
+      "html": "<div class=\"ds-chip-row\"><a class=\"ds-chip ds-chip-blue\" href=\"#ai\">#AI</a><span class=\"ds-chip ds-chip-neutral\">React</span><span class=\"ds-chip ds-chip-gold\">Competition</span><span class=\"ds-chip ds-chip-green\">Open</span><span class=\"ds-chip ds-chip-rose\">Status</span></div>",
+      "css": ".ds-chip-row{display:flex;flex-wrap:wrap;gap:8px;font-family:Inter, Kanit, Arial, sans-serif}.ds-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:999px;font-size:12px;line-height:16px;font-weight:600;max-width:100%;white-space:normal;overflow-wrap:anywhere;text-decoration:none}.ds-chip-neutral{background:#f0f4f9;color:#53647c}.ds-chip-blue{background:#eaf1fc;color:var(--blue,#17468c)}.ds-chip-gold{background:#fbf3da;color:#765514}.ds-chip-green{background:#e8f6ef;color:#19694b}.ds-chip-rose{background:#fdf0ef;color:#9b443e}a.ds-chip-blue:hover{background:#dceafb}a.ds-chip:focus-visible{outline:3px solid var(--blue,#17468c);outline-offset:2px}"
+    },
+    {
+      "name": "Desktop Navigation",
+      "kind": "nav",
+      "refersTo": "nav-item-active",
+      "description": "Sidebar link rows with explicit current-page semantics, tinted active state, and keyboard focus.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Design preview navigation\"><a class=\"ds-nav-link\" href=\"#home\" aria-current=\"page\">Home</a><a class=\"ds-nav-link\" href=\"#discover\">Discover</a></nav>",
+      "css": ".ds-nav{display:grid;gap:4px;font-family:Inter, Kanit, Arial, sans-serif}.ds-nav-link{display:flex;align-items:center;gap:12px;min-height:44px;padding:0 12px;border-radius:calc(var(--radius,.9rem)*1.4);color:#617187;font-size:14px;line-height:19.5px;font-weight:600;text-decoration:none;transition:background-color 150ms,color 150ms}.ds-nav-link[aria-current=page]{background:#eaf1fc;color:var(--blue,#17468c)}.ds-nav-link:hover{background:var(--soft,#f5f8fc);color:var(--blue,#17468c)}.ds-nav-link[aria-current=page]:hover{background:#eaf1fc}.ds-nav-link:focus-visible{outline:3px solid var(--blue,#17468c);outline-offset:2px}@media(prefers-reduced-motion:reduce){.ds-nav-link{transition-duration:.01ms}}"
+    },
+    {
+      "name": "Segmented View Selector",
+      "kind": "custom",
+      "refersTo": "segmented-active",
+      "description": "Existing feed-view selector; the static preview exposes the selected state without recreating application logic.",
+      "html": "<div class=\"ds-segmented\"><button type=\"button\" class=\"ds-segment\" aria-pressed=\"true\">All posts</button><button type=\"button\" class=\"ds-segment\" aria-pressed=\"false\">Following</button><button type=\"button\" class=\"ds-segment\" aria-pressed=\"false\">Latest</button></div>",
+      "css": ".ds-segmented{display:flex;max-width:100%;gap:4px;overflow-x:auto;padding:4px;border:1px solid #e5ecf3;border-radius:calc(var(--radius,.9rem)*1.4);background:#fff;font-family:Inter, Kanit, Arial, sans-serif}.ds-segment{min-height:44px;flex-shrink:0;padding:8px 16px;border:0;border-radius:var(--radius,.9rem);background:transparent;color:#617187;font:600 14px/20px Inter, Kanit, Arial, sans-serif;cursor:pointer;transition:background-color 150ms,color 150ms,transform 160ms}.ds-segment[aria-pressed=true]{background:var(--blue,#17468c);color:#fff}.ds-segment[aria-pressed=false]:hover{background:#f4f7fb}.ds-segment:focus-visible{outline:3px solid var(--blue,#17468c);outline-offset:2px}.ds-segment:active{transform:scale(.97)}@media(prefers-reduced-motion:reduce){.ds-segment{transition-duration:.01ms}.ds-segment:active{transform:none}}"
+    },
+    {
+      "name": "Initials Avatar",
+      "kind": "custom",
+      "refersTo": "avatar",
+      "description": "Medium application avatar; user-specific background colors and other existing sizes remain data/component choices.",
+      "html": "<span class=\"ds-avatar\" role=\"img\" aria-label=\"Tester\">T</span>",
+      "css": ".ds-avatar{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border:2px solid #fff;border-radius:50%;overflow:hidden;background:#e8edf3;color:var(--blue,#17468c);font:700 12px/16px Inter, Kanit, Arial, sans-serif;flex-shrink:0}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Campus Commons",
+    "overview": "The Campus Commons is clear, welcoming, and purposeful: a shared space where students can scan people, conversations, and opportunities without a competing visual spectacle. University Blue provides a stable anchor; Gold and warm yellow add warmth, while white surfaces and a cool canvas keep the interface approachable.\n\nComponents are approachable and restrained: soft corners, clear states, and quiet surfaces. Depth comes from tonal layers with selective soft lift. Dense information belongs inside a readable hierarchy, with spacing and alignment doing the organizing before another container is added. These descriptions name the existing interface; they do not authorize a replacement visual world.",
+    "keyCharacteristics": [
+      "University Blue and Gold remain the identity anchors.",
+      "White content surfaces sit on a cool, pale canvas.",
+      "Rounded controls and fine borders provide a consistent, approachable form language.",
+      "Semantic tints and explicit labels distinguish categories and states.",
+      "Short transitions, reduced-motion alternatives, and responsive navigation support everyday use."
+    ],
+    "rules": [
+      {
+        "name": "The Brand Anchor Rule",
+        "body": "Use University Blue for core actions and active navigation. Keep Gold and warm yellow in their established accent roles; semantic status colors support meaning rather than replacing the brand.",
+        "section": "colors"
+      },
+      {
+        "name": "The Script Support Rule",
+        "body": "Keep the locally bundled Inter and Kanit families available together. Preserve Thai text support whenever typography changes.",
+        "section": "typography"
+      },
+      {
+        "name": "The Selective Lift Rule",
+        "body": "Organize ordinary content through surface tone, borders, and spacing. Reserve stronger shadows for existing action emphasis and overlays.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do reuse the application wrappers and domain components before reaching for unmodified library defaults.",
+      "Do retain University Blue and Gold while using semantic tints with readable text or icons.",
+      "Do simplify grouping through spacing, headings, and alignment before adding another card.",
+      "Do preserve keyboard focus, explicit labels, selected-state semantics, and reduced-motion behavior.",
+      "Do check actual text contrast and rendering performance when refining existing screens.",
+      "Do respect the customized radius scale, responsive navigation, and bottom-navigation clearance."
+    ],
+    "donts": [
+      "Don't replace the existing interface or its brand during a documentation or narrow refinement task.",
+      "Don't use color alone to communicate a category, selection, error, or status.",
+      "Don't treat small, pale metadata or decorative uppercase labels as approved defaults for new content.",
+      "Don't promote the inherited dialog width interaction or incomplete dark styles into system-wide rules.",
+      "Don't add unnecessary nested cards, heavy resting shadows, or persistent decorative motion to ordinary app content."
+    ]
+  }
+}

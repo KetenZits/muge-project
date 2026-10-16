@@ -1,0 +1,11 @@
+{
+  "passed": [
+    "Neutral demo identity retains one stable u0 seed",
+    "Untouched legacy identity migrates without changing any IndexedDB row or image bytes",
+    "Recruiting restores the existing draft without silently changing its category",
+    "Customized legacy profiles, selections, and existing local content are preserved",
+    "Returning demo login respects onboarding completion and customized profile/drafts",
+    "Onboarding enforces its visible minimums while preserving selections"
+  ],
+  "preservation": "All pre-existing IndexedDB records and image Blob bytes compared before/after in an isolated context; local message drafts retained."
+}

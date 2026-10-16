@@ -1,91 +1,124 @@
-"use client";
+﻿"use client";
+import { useState } from "react";
 import Link from "next/link";
-import { CalendarDays, Plus, Sparkles } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Check, Plus } from "lucide-react";
+import { toast } from "sonner";
 import { Avatar } from "@/components/ui";
+import { useShallow } from "zustand/react/shallow";
 import { useApp } from "@/stores/app";
+import { withReturnTo } from "@/lib/navigation";
 
 export function RightRail() {
-  const users = useApp((s) => s.users);
-  const events = useApp((s) => s.events);
-  const following = useApp((s) => s.following);
-  const toggleFollow = useApp((s) => s.toggleFollow);
+  const pathname = usePathname();
+  const { users, events, following, toggleFollow } = useApp(
+    useShallow((state) => ({
+      users: state.users,
+      events: state.events,
+      following: state.following,
+      toggleFollow: state.toggleFollow,
+    })),
+  );
+  const [pending, setPending] = useState<string | null>(null);
+  if (pathname !== "/home") return null;
+  const follow = async (id: string) => {
+    setPending(id);
+    try {
+      await toggleFollow(id);
+    } catch {
+      toast.error("Could not save this follow. Please try again.");
+    } finally {
+      setPending(null);
+    }
+  };
   return (
-    <aside className="hidden w-[270px] shrink-0 space-y-5 xl:block">
-      <div className="card p-5">
-        <div className="mb-4 flex items-center justify-between">
-          <strong className="text-sm">Trending topics</strong>
-          <Sparkles size={16} className="text-[#a5812d]" />
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {["#Hackathon", "#AI", "#Startup", "#WebDev", "#Cybersecurity"].map(
-            (x) => (
+    <aside
+      className="hidden w-[250px] shrink-0 space-y-6 border-l border-[#e5ebf2] pl-6 xl:block"
+      aria-label="Explore campus"
+    >
+      <section>
+        <h2 className="text-sm font-bold">Explore a topic</h2>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {["Hackathon", "AI", "Startup", "WebDev", "Cybersecurity"].map(
+            (topic) => (
               <Link
-                key={x}
-                href={`/discover?q=${encodeURIComponent(x.slice(1))}`}
-                className="chip blue hover:bg-[#dceafb]"
+                key={topic}
+                href={"/discover?q=" + encodeURIComponent(topic)}
+                className="inline-flex min-h-11 items-center rounded-xl bg-[#eaf1fc] px-3 text-xs font-semibold text-[#17468c]"
               >
-                {x}
+                #{topic}
               </Link>
             ),
           )}
         </div>
-      </div>
-      <div className="card p-5">
-        <div className="mb-4 flex items-center justify-between">
-          <strong className="text-sm">People to meet</strong>
-          <Link href="/people" className="text-xs font-bold text-[#17468c]">
+      </section>
+      <section className="border-t border-[#e5ebf2] pt-5">
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-sm font-bold">People to explore</h2>
+          <Link
+            href="/people"
+            className="inline-flex min-h-11 items-center text-xs font-semibold text-[#17468c]"
+          >
             See all
           </Link>
         </div>
-        <div className="space-y-4">
-          {users.slice(1, 4).map((user) => (
-            <div key={user.id} className="flex items-center gap-2">
-              <Avatar user={user} size="sm" />
+        <div className="mt-2 space-y-3">
+          {users.slice(1, 4).map((person) => (
+            <div key={person.id} className="flex items-center gap-2">
+              <Avatar user={person} size="sm" />
               <div className="min-w-0 flex-1">
                 <Link
-                  href={`/profile/${user.username}`}
-                  className="block truncate text-xs font-semibold hover:text-[#17468c]"
+                  href={withReturnTo("/profile/" + person.username)}
+                  className="block truncate text-sm font-semibold hover:text-[#17468c]"
                 >
-                  {user.name}
+                  {person.name}
                 </Link>
-                <span className="text-[11px] text-[#8b9aab]">{user.major}</span>
+                <p className="truncate text-xs text-muted">{person.major}</p>
               </div>
               <button
-                onClick={() => toggleFollow(user.id)}
-                className="text-[#17468c]"
-                aria-label={following.includes(user.id) ? "Unfollow" : "Follow"}
+                onClick={() => void follow(person.id)}
+                disabled={pending !== null}
+                className="icon-button shrink-0"
+                aria-label={
+                  (following.includes(person.id) ? "Unfollow " : "Follow ") +
+                  person.name
+                }
+                aria-pressed={following.includes(person.id)}
               >
-                {following.includes(user.id) ? "✓" : <Plus size={17} />}
+                {following.includes(person.id) ? (
+                  <Check size={17} />
+                ) : (
+                  <Plus size={17} />
+                )}
               </button>
             </div>
           ))}
         </div>
-      </div>
-      <div className="card p-5">
-        <div className="mb-3 flex items-center justify-between">
-          <strong className="text-sm">Coming up</strong>
-          <CalendarDays size={16} className="text-[#a5812d]" />
+      </section>
+      <section className="border-t border-[#e5ebf2] pt-5">
+        <h2 className="text-sm font-bold">Sample events</h2>
+        <div className="mt-2 divide-y divide-[#e5ebf2]">
+          {events.slice(0, 2).map((event) => (
+            <Link
+              key={event.id}
+              href={"/events?event=" + encodeURIComponent(event.id)}
+              className="block py-3"
+            >
+              <span className="text-sm font-semibold">{event.title}</span>
+              <span className="mt-1 block text-xs leading-5 text-muted">
+                {new Date(event.date).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                })}{" "}
+                · {event.location}
+              </span>
+            </Link>
+          ))}
         </div>
-        {events.slice(0, 2).map((e) => (
-          <Link
-            href="/events"
-            key={e.id}
-            className="block border-t border-[#edf1f5] py-3 first:border-0"
-          >
-            <span className="text-xs font-semibold">{e.title}</span>
-            <span className="mt-1 block text-[11px] text-[#8b9aab]">
-              {new Date(e.date).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-              })}{" "}
-              · {e.location}
-            </span>
-          </Link>
-        ))}
-      </div>
-      <p className="px-2 text-[11px] leading-5 text-[#a0acb9]">
-        MU Connect is an independent frontend prototype. Not an official
-        university service.
+      </section>
+      <p className="border-t border-[#e5ebf2] pt-4 text-xs leading-5 text-muted">
+        Independent local demo. Sample people and opportunities; activity stays
+        in this browser. Not an official university service.
       </p>
     </aside>
   );

@@ -19,7 +19,10 @@ export function Reveal({
   return (
     <motion.div
       className={className}
-      initial={reducedMotion ? false : { opacity: 0, y }}
+      // The first render must match the server, where motion preferences are
+      // unknown. Reduced motion reveals immediately, including offscreen copy.
+      initial={{ opacity: 0, y }}
+      animate={reducedMotion ? { opacity: 1, y: 0 } : undefined}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.15 }}
       transition={{

@@ -1,8 +1,7 @@
-"use client";
+﻿"use client";
 import Link from "next/link";
 import { toast } from "sonner";
 import {
-  ArrowLeft,
   ArrowRight,
   Bookmark,
   CalendarDays,
@@ -15,10 +14,20 @@ import {
 import { Button, EmptyState, Tag } from "@/components/ui";
 import { TeamCard } from "@/components/shared/cards";
 import { deadline, shortDate } from "@/lib/utils";
+import { useShallow } from "zustand/react/shallow";
 import { useApp } from "@/stores/app";
+import { BackLink } from "@/components/shared/back-link";
+import { withReturnTo } from "@/lib/navigation";
 
 export function CompetitionDetailView({ id }: { id: string }) {
-  const { competitions, teams, bookmarks, toggleBookmark } = useApp();
+  const { competitions, teams, bookmarks, toggleBookmark } = useApp(
+    useShallow((state) => ({
+      competitions: state.competitions,
+      teams: state.teams,
+      bookmarks: state.bookmarks,
+      toggleBookmark: state.toggleBookmark,
+    })),
+  );
   const competition = competitions.find((x) => x.id === id);
   if (!competition)
     return (
@@ -32,12 +41,7 @@ export function CompetitionDetailView({ id }: { id: string }) {
   const recommended = teams.filter((x) => x.competitionId === id);
   return (
     <div>
-      <Link
-        href="/competitions"
-        className="mb-5 inline-flex items-center gap-1 text-xs font-semibold text-[#71839a] hover:text-[#17468c]"
-      >
-        <ArrowLeft size={14} /> Back to competitions
-      </Link>
+      <BackLink fallback="/competitions" />
       <div className="relative overflow-hidden rounded-[24px] bg-[#17468c] p-7 text-white sm:p-10">
         <div className="absolute -right-10 -top-22 h-72 w-72 rounded-full border-[50px] border-[#fac33420]" />
         <div className="relative max-w-xl">
@@ -54,14 +58,20 @@ export function CompetitionDetailView({ id }: { id: string }) {
             {competition.description}
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
-            <Link href={`/teams?competition=${id}`}>
-              <Button variant="gold">
+            <Button asChild variant="gold">
+              <Link href={withReturnTo(`/teams?competition=${id}`)}>
                 Find teammates <ArrowRight size={16} />
-              </Button>
-            </Link>
+              </Link>
+            </Button>
             <Button
               variant="secondary"
-              onClick={() => toggleBookmark("competitions", id)}
+              onClick={async () => {
+                try {
+                  await toggleBookmark("competitions", id);
+                } catch {
+                  toast.error("Could not update saved competition. Try again.");
+                }
+              }}
               aria-pressed={saved}
             >
               <Bookmark size={16} fill={saved ? "currentColor" : "none"} />
@@ -70,8 +80,14 @@ export function CompetitionDetailView({ id }: { id: string }) {
             <Button
               variant="secondary"
               onClick={async () => {
-                await navigator.clipboard.writeText(location.href);
-                toast.success("Competition link copied");
+                try {
+                  await navigator.clipboard.writeText(location.href);
+                  toast.success("Competition link copied");
+                } catch {
+                  toast.error(
+                    "Could not copy the link. Copy the page address from your browser.",
+                  );
+                }
               }}
             >
               <Share2 size={16} /> Share
@@ -88,7 +104,7 @@ export function CompetitionDetailView({ id }: { id: string }) {
         ].map(([Icon, label, value]) => (
           <div key={String(label)} className="card p-4">
             <Icon size={18} className="text-[#17468c]" />
-            <p className="mt-3 text-xs text-[#8e9dae]">{String(label)}</p>
+            <p className="mt-3 text-xs text-[#68778c]">{String(label)}</p>
             <p className="mt-1 text-sm font-bold">{String(value)}</p>
           </div>
         ))}
@@ -96,11 +112,11 @@ export function CompetitionDetailView({ id }: { id: string }) {
       <div className="grid gap-6 md:grid-cols-[1fr_230px]">
         <div className="card p-6">
           <h2 className="section-title">About the challenge</h2>
-          <p className="mt-3 text-sm leading-7 text-[#6a7a8e]">
+          <p className="mt-3 text-sm leading-7 text-[#68778c]">
             {competition.description}
           </p>
           <h2 className="section-title mt-8">Requirements</h2>
-          <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-[#6a7a8e]">
+          <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-[#68778c]">
             {(competition.requirements ?? []).map((requirement) => (
               <li key={requirement}>{requirement}</li>
             ))}
@@ -110,14 +126,14 @@ export function CompetitionDetailView({ id }: { id: string }) {
             <p>
               <b>Registration closes</b>
               <br />
-              <span className="text-[#8595a7]">
+              <span className="text-[#68778c]">
                 {shortDate(competition.deadline)}
               </span>
             </p>
             <p>
               <b>Competition day</b>
               <br />
-              <span className="text-[#8595a7]">
+              <span className="text-[#68778c]">
                 {shortDate(competition.date)}
               </span>
             </p>
@@ -133,22 +149,25 @@ export function CompetitionDetailView({ id }: { id: string }) {
         </div>
         <div className="soft-card h-fit p-5">
           <h3 className="text-sm font-bold">Who can join?</h3>
-          <p className="mt-3 text-xs leading-5 text-[#718196]">
+          <p className="mt-3 text-xs leading-5 text-[#68778c]">
             {competition.eligibility ?? "Current university students."}
           </p>
-          <p className="mt-3 text-xs leading-5 text-[#718196]">
+          <p className="mt-3 text-xs leading-5 text-[#68778c]">
             Team size: {competition.teamSize}
           </p>
           <div className="my-4 border-t border-[#e4ebf3]" />
           <h3 className="text-sm font-bold">Need a team?</h3>
-          <p className="mt-2 text-xs leading-5 text-[#718196]">
+          <p className="mt-2 text-xs leading-5 text-[#68778c]">
             Meet students recruiting for this challenge.
           </p>
-          <Link href={`/teams?competition=${id}`} className="mt-4 block">
-            <Button size="sm" className="w-full">
+          <Button asChild size="sm" className="w-full">
+            <Link
+              href={withReturnTo(`/teams?competition=${id}`)}
+              className="mt-4 block"
+            >
               Explore teams
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
       </div>
       <section className="mt-8">

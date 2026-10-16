@@ -21,6 +21,7 @@ export function Button({
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: "primary" | "secondary" | "ghost" | "gold";
   size?: "sm" | "md" | "lg";
+  asChild?: boolean;
 }) {
   return (
     <ShadcnButton
@@ -36,10 +37,10 @@ export function Button({
       className={cn(
         "rounded-xl font-semibold transition-all duration-200 active:scale-[.98]",
         size === "sm"
-          ? "min-h-9 px-3 text-xs"
+          ? "min-h-11 px-3 text-sm"
           : size === "lg"
             ? "min-h-12 px-6 text-sm"
-            : "min-h-10 px-4 text-sm",
+            : "min-h-11 px-4 text-sm",
         variant === "primary"
           ? "bg-[#17468c] text-white hover:bg-[#0f3672] shadow-[0_4px_12px_#17468c20]"
           : variant === "secondary"
@@ -96,13 +97,15 @@ export function Field({
       </span>
       {children}
       {error && (
-        <span className="mt-1 block text-xs text-red-600">{error}</span>
+        <span role="alert" className="mt-1 block text-sm text-red-700">
+          {error}
+        </span>
       )}
     </label>
   );
 }
 export const inputClass =
-  "w-full min-h-11 rounded-xl border border-[#dae3ed] bg-white px-4 text-sm text-[#17263c] outline-none transition focus:border-[#17468c] focus:ring-3 focus:ring-[#17468c20] placeholder:text-[#9aa8ba]";
+  "w-full min-h-11 rounded-xl border border-[var(--input-border)] bg-white px-4 text-sm text-[#17263c] outline-none transition focus:border-[#17468c] focus:ring-3 focus:ring-[#17468c20] placeholder:text-[#617187]";
 export function Modal({
   open,
   onOpenChange,
@@ -122,15 +125,15 @@ export function Modal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={cn(
-          "max-h-[92vh] w-[calc(100%-24px)] max-w-xl overflow-y-auto rounded-[22px] border border-[#dce5ef] bg-white p-6 shadow-2xl sm:p-8",
+          "max-h-[92dvh] w-[calc(100%-24px)] max-w-xl overflow-y-auto overscroll-contain rounded-[22px] border border-[#dce5ef] bg-white p-5 shadow-2xl sm:max-w-xl sm:p-8",
           className,
         )}
       >
-        <DialogHeader className="mb-4">
+        <DialogHeader className="mb-4 pr-8">
           <DialogTitle className="text-xl font-bold tracking-tight">
             {title}
           </DialogTitle>
-          <DialogDescription className="text-sm text-[#718096]">
+          <DialogDescription className="text-sm text-[#617187]">
             {description ?? title}
           </DialogDescription>
         </DialogHeader>
@@ -156,7 +159,7 @@ export function EmptyState({
         {icon}
       </div>
       <h3 className="text-lg font-bold">{title}</h3>
-      <p className="mt-2 max-w-sm text-sm leading-6 text-[#718096]">
+      <p className="mt-2 max-w-sm text-sm leading-6 text-[var(--text-muted)]">
         {description}
       </p>
       {action && <div className="mt-5">{action}</div>}
@@ -164,7 +167,6 @@ export function EmptyState({
   );
 }
 export function PageHeader({
-  eyebrow,
   title,
   subtitle,
   action,
@@ -177,12 +179,7 @@ export function PageHeader({
   return (
     <header className="mb-7 flex flex-wrap items-end justify-between gap-4">
       <div>
-        {eyebrow && (
-          <p className="mb-2 text-xs font-bold uppercase tracking-[.16em] text-[#a5812d]">
-            {eyebrow}
-          </p>
-        )}
-        <h1 className="page-title">{title}</h1>
+        <h1 className="page-title section-heading">{title}</h1>
         {subtitle && <p className="page-subtitle">{subtitle}</p>}
       </div>
       {action}
@@ -199,7 +196,7 @@ export function Tag({
   return (
     <Badge
       variant="secondary"
-      className={cn("chip", tone !== "neutral" && tone)}
+      className={cn("chip h-auto", tone !== "neutral" && tone)}
     >
       {children}
     </Badge>

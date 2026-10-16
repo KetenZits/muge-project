@@ -1,100 +1,182 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { Bell, Heart, Trophy, Users } from "lucide-react";
+import Link from "next/link";
+import { Bell, Heart, Trophy, Users, ArrowRight } from "lucide-react";
+import { toast } from "sonner";
 import { Button, EmptyState, PageHeader } from "@/components/ui";
+import { useShallow } from "zustand/react/shallow";
 import { useApp } from "@/stores/app";
-import { motionTiming } from "@/lib/motion/config";
+import { safeReturnTo, useUrlState, withReturnTo } from "@/lib/navigation";
 import { Segmented } from "./shared-controls";
 
+const categories = [
+  "All",
+  "Mentions",
+  "Teams",
+  "Follows",
+  "Competitions",
+  "System",
+];
 export function NotificationsView() {
-  const reducedMotion = useReducedMotion();
-  const { notifications, markRead, markAllRead } = useApp();
-  const [tab, setTab] = useState("All");
-  const list = notifications.filter((n) => tab === "All" || n.category === tab);
+  const { notifications, markRead, markAllRead } = useApp(
+    useShallow((state) => ({
+      notifications: state.notifications,
+      markRead: state.markRead,
+      markAllRead: state.markAllRead,
+    })),
+  );
+  const [state, setState] = useUrlState({ tab: "All" });
+  const tab = categories.includes(state.tab) ? state.tab : "All";
+  const [pending, setPending] = useState<string[]>([]);
+  const [allPending, setAllPending] = useState(false);
+  const list = notifications.filter(
+    (notification) => tab === "All" || notification.category === tab,
+  );
+  const unread = notifications.filter(
+    (notification) => !notification.read,
+  ).length;
+  const read = async (id: string) => {
+    if (pending.includes(id)) return;
+    setPending((items) => [...items, id]);
+    try {
+      await markRead(id);
+    } catch {
+      toast.error("Could not mark this update as read. Try again.");
+    } finally {
+      setPending((items) => items.filter((item) => item !== id));
+    }
+  };
   return (
     <div>
       <PageHeader
-        eyebrow="STAY IN THE LOOP"
         title="Notifications"
-        subtitle="The latest activity around your community."
+        subtitle={`${unread} unread local demo updates. Open an update or mark it as read.`}
         action={
-          <Button variant="secondary" size="sm" onClick={markAllRead}>
-            Mark all as read
+          <Button
+            variant="secondary"
+            size="sm"
+            disabled={!unread || allPending}
+            onClick={async () => {
+              setAllPending(true);
+              try {
+                await markAllRead();
+              } catch {
+                toast.error("Could not mark all updates as read. Try again.");
+              } finally {
+                setAllPending(false);
+              }
+            }}
+          >
+            {allPending ? "Saving…" : "Mark all as read"}
           </Button>
         }
       />
       <div className="mb-5">
         <Segmented
-          options={[
-            "All",
-            "Mentions",
-            "Teams",
-            "Follows",
-            "Competitions",
-            "System",
-          ]}
+          options={categories}
           value={tab}
-          setValue={setTab}
+          setValue={(value) => setState({ tab: value })}
         />
       </div>
       {list.length ? (
-        <div className="card overflow-hidden">
-          {list.map((n) => (
-            <button
-              key={n.id}
-              onClick={() => markRead(n.id)}
-              className={`flex w-full items-start gap-4 border-b border-[#edf1f5] p-4 text-left transition-colors duration-200 last:border-0 hover:bg-[#f8fafc] sm:p-5 ${!n.read ? "bg-[#f6f9fd]" : ""}`}
-            >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#eaf1fc] text-[#17468c]">
-                {n.category === "Teams" ? (
-                  <Users size={18} />
-                ) : n.category === "Follows" ? (
-                  <Heart size={18} />
-                ) : n.category === "Competitions" ? (
-                  <Trophy size={18} />
-                ) : (
-                  <Bell size={18} />
-                )}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="flex items-center gap-2 text-sm font-bold">
-                  {n.title}
-                  <AnimatePresence initial={false}>
-                    {!n.read && (
-                      <motion.i
-                        key="unread"
-                        className="h-2 w-2 shrink-0 rounded-full bg-[#17468c]"
-                        initial={reducedMotion ? false : { scale: 0 }}
-                        animate={{ scale: 1 }}
-                        exit={{ scale: 0 }}
-                        transition={{
-                          duration: reducedMotion ? 0 : motionTiming.fast,
-                        }}
-                      />
+        <div className="divide-y divide-[#e5ebf2] border-y border-[#e5ebf2]">
+          {list.map((notification) => {
+            const href = safeReturnTo(notification.href, "");
+            return (
+              <article
+                key={notification.id}
+                className={`flex items-start gap-3 p-4 sm:gap-4 sm:p-5 ${notification.read ? "" : "bg-[#eaf1fc]/50"}`}
+              >
+                <span
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#eaf1fc] text-[#17468c]"
+                  aria-hidden
+                >
+                  {notification.category === "Teams" ? (
+                    <Users size={20} />
+                  ) : notification.category === "Follows" ? (
+                    <Heart size={20} />
+                  ) : notification.category === "Competitions" ? (
+                    <Trophy size={20} />
+                  ) : (
+                    <Bell size={20} />
+                  )}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="text-sm font-bold">{notification.title}</h2>
+                    {!notification.read && (
+                      <span className="text-xs font-semibold text-[#17468c]">
+                        Unread
+                      </span>
                     )}
-                  </AnimatePresence>
-                </span>
-                <span className="mt-1 block text-xs leading-5 text-[#76879b]">
-                  {n.body}
-                </span>
-                <span className="mt-2 block text-[11px] text-[#a1afbd]">
-                  {new Date(n.createdAt).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    hour: "numeric",
-                    minute: "2-digit",
-                  })}
-                </span>
-              </span>
-            </button>
-          ))}
+                  </div>
+                  <p className="mt-1 text-sm leading-6 text-[#53647c]">
+                    {notification.body}
+                  </p>
+                  <p className="mt-2 text-xs text-[#68778c]">
+                    {new Date(notification.createdAt).toLocaleDateString(
+                      "en-US",
+                      {
+                        month: "short",
+                        day: "numeric",
+                        hour: "numeric",
+                        minute: "2-digit",
+                      },
+                    )}
+                  </p>
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    {href && (
+                      <Link
+                        href={withReturnTo(href)}
+                        onClick={() => {
+                          if (!notification.read) void read(notification.id);
+                        }}
+                        className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[#17468c]"
+                      >
+                        Open update <ArrowRight size={16} />
+                      </Link>
+                    )}
+                    {!notification.read && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={
+                          allPending || pending.includes(notification.id)
+                        }
+                        onClick={() => read(notification.id)}
+                      >
+                        {pending.includes(notification.id)
+                          ? "Saving…"
+                          : "Mark as read"}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </article>
+            );
+          })}
         </div>
       ) : (
         <EmptyState
           icon={<Bell />}
-          title="You're all caught up"
-          description="Updates about your teams, friends, and competitions will show here."
+          title={
+            tab === "All" ? "No updates yet" : `No ${tab.toLowerCase()} updates`
+          }
+          description={
+            tab === "All"
+              ? "Local demo activity will appear here when available."
+              : "Choose All to see updates in the other categories."
+          }
+          action={
+            tab !== "All" ? (
+              <Button
+                variant="secondary"
+                onClick={() => setState({ tab: "All" })}
+              >
+                View all updates
+              </Button>
+            ) : undefined
+          }
         />
       )}
     </div>

@@ -72,34 +72,38 @@ export function filterPeople(
   filters: PeopleFilters,
 ): User[] {
   const query = filters.query.trim().toLowerCase();
-  return users
-    .filter(
-      (person) =>
-        person.id !== current.id &&
-        (!query ||
-          [
-            person.name,
-            person.faculty,
-            person.major,
-            ...person.skills,
-            ...person.interests,
-          ]
-            .join(" ")
-            .toLowerCase()
-            .includes(query)) &&
-        (!filters.faculty || person.faculty === filters.faculty) &&
-        (!filters.major || person.major === filters.major) &&
-        (!filters.year || person.year === Number(filters.year)) &&
-        (!filters.skill || person.skills.includes(filters.skill)) &&
-        (!filters.interest || person.interests.includes(filters.interest)) &&
-        (!filters.availability ||
-          person.availability.includes(filters.availability)),
-    )
-    .sort((first, second) =>
-      filters.sort === "Name"
-        ? first.name.localeCompare(second.name)
-        : peopleMatchScore(current, second) - peopleMatchScore(current, first),
+  const matched = users.filter(
+    (person) =>
+      person.id !== current.id &&
+      (!query ||
+        [
+          person.name,
+          person.faculty,
+          person.major,
+          ...person.skills,
+          ...person.interests,
+        ]
+          .join(" ")
+          .toLowerCase()
+          .includes(query)) &&
+      (!filters.faculty || person.faculty === filters.faculty) &&
+      (!filters.major || person.major === filters.major) &&
+      (!filters.year || person.year === Number(filters.year)) &&
+      (!filters.skill || person.skills.includes(filters.skill)) &&
+      (!filters.interest || person.interests.includes(filters.interest)) &&
+      (!filters.availability ||
+        person.availability.includes(filters.availability)),
+  );
+  if (filters.sort === "Name")
+    return matched.sort((first, second) =>
+      first.name.localeCompare(second.name),
     );
+  const scores = new Map(
+    matched.map((person) => [person, peopleMatchScore(current, person)]),
+  );
+  return matched.sort(
+    (first, second) => scores.get(second)! - scores.get(first)!,
+  );
 }
 
 export function teamMatchScore(
@@ -135,63 +139,67 @@ export function filterTeams(
   const cutoff = deadlineDays
     ? new Date(now.getTime() + deadlineDays * 86_400_000).getTime()
     : null;
+  const usersById = new Map(users.map((person) => [person.id, person]));
+  const competitionsById = new Map(
+    competitions.map((competition) => [competition.id, competition]),
+  );
 
-  return teams
-    .filter((team) => {
-      const leader = users.find((user) => user.id === team.leaderId);
-      const competition = competitions.find(
-        (item) => item.id === team.competitionId,
-      );
-      return (
-        (!query ||
-          [
-            team.title,
-            team.description,
-            competition?.title ?? "",
-            ...team.skills,
-            ...team.roles.map((role) => role.name),
-          ]
-            .join(" ")
-            .toLowerCase()
-            .includes(query)) &&
-        (!filters.competitionId ||
-          team.competitionId === filters.competitionId) &&
-        (!filters.role ||
-          team.roles.some(
-            (role) => !role.filled && role.name === filters.role,
-          )) &&
-        (!filters.skill || team.skills.includes(filters.skill)) &&
-        (!filters.faculty ||
-          (team.faculty || leader?.faculty) === filters.faculty) &&
-        (!filters.mode || team.mode === filters.mode) &&
-        (!cutoff ||
-          (new Date(team.deadline).getTime() >= now.getTime() &&
-            new Date(team.deadline).getTime() <= cutoff))
-      );
-    })
-    .sort((first, second) => {
-      if (filters.sort === "Newest") {
-        return second.createdAt.localeCompare(first.createdAt);
-      }
-      if (filters.sort === "Deadline soon") {
-        return first.deadline.localeCompare(second.deadline);
-      }
-      if (filters.sort === "Most active") {
-        return second.members - first.members;
-      }
-      const firstLeader = users.find((user) => user.id === first.leaderId);
-      const secondLeader = users.find((user) => user.id === second.leaderId);
-      const firstCompetition = competitions.find(
-        (item) => item.id === first.competitionId,
-      );
-      const secondCompetition = competitions.find(
-        (item) => item.id === second.competitionId,
-      );
-      return (
-        teamMatchScore(second, current, secondLeader, secondCompetition) -
-        teamMatchScore(first, current, firstLeader, firstCompetition)
-      );
-    });
+  const matched = teams.filter((team) => {
+    const leader = usersById.get(team.leaderId);
+    const competition = competitionsById.get(team.competitionId ?? "");
+    return (
+      (!query ||
+        [
+          team.title,
+          team.description,
+          competition?.title ?? "",
+          ...team.skills,
+          ...team.roles.map((role) => role.name),
+        ]
+          .join(" ")
+          .toLowerCase()
+          .includes(query)) &&
+      (!filters.competitionId ||
+        team.competitionId === filters.competitionId) &&
+      (!filters.role ||
+        team.roles.some(
+          (role) => !role.filled && role.name === filters.role,
+        )) &&
+      (!filters.skill || team.skills.includes(filters.skill)) &&
+      (!filters.faculty ||
+        (team.faculty || leader?.faculty) === filters.faculty) &&
+      (!filters.mode || team.mode === filters.mode) &&
+      (!cutoff ||
+        (new Date(team.deadline).getTime() >= now.getTime() &&
+          new Date(team.deadline).getTime() <= cutoff))
+    );
+  });
+  const scores =
+    filters.sort === "Recommended"
+      ? new Map(
+          matched.map((team) => [
+            team,
+            teamMatchScore(
+              team,
+              current,
+              usersById.get(team.leaderId),
+              competitionsById.get(team.competitionId ?? ""),
+            ),
+          ]),
+        )
+      : null;
+  return matched.sort((first, second) => {
+    if (filters.sort === "Newest") {
+      return second.createdAt.localeCompare(first.createdAt);
+    }
+    if (filters.sort === "Deadline soon") {
+      return first.deadline.localeCompare(second.deadline);
+    }
+    if (filters.sort === "Most active") {
+      return second.members - first.members;
+    }
+    return (scores?.get(second) ?? 0) - (scores?.get(first) ?? 0);
+  });
 }
 
 export function discoverResults(
@@ -200,12 +208,16 @@ export function discoverResults(
   filters: DiscoverFilters,
 ) {
   const query = filters.query.trim().toLowerCase();
+  const usersById = new Map(data.users.map((person) => [person.id, person]));
+  const competitionsById = new Map(
+    data.competitions.map((competition) => [competition.id, competition]),
+  );
   const people = filterPeople(data.users, current, {
     ...filters,
     sort: "Best match",
   });
   const authorMatches = (authorId: string) => {
-    const author = data.users.find((person) => person.id === authorId);
+    const author = usersById.get(authorId);
     return (
       (!filters.faculty || author?.faculty === filters.faculty) &&
       (!filters.major || author?.major === filters.major) &&
@@ -248,8 +260,8 @@ export function discoverResults(
       !filters.year &&
       !filters.availability &&
       (!filters.interest ||
-        data.competitions
-          .find((competition) => competition.id === team.competitionId)
+        competitionsById
+          .get(team.competitionId ?? "")
           ?.categories.includes(filters.interest)),
   );
   const broadResultsAllowed =

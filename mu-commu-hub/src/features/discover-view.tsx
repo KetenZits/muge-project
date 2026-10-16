@@ -1,8 +1,7 @@
-"use client";
-import { useState } from "react";
+﻿"use client";
 import Link from "next/link";
-import { Search, Sparkles, Trophy, Users } from "lucide-react";
-import { EmptyState, PageHeader, inputClass } from "@/components/ui";
+import { Check, Search } from "lucide-react";
+import { Button, EmptyState, PageHeader, inputClass } from "@/components/ui";
 import {
   ClubCard,
   CompetitionCard,
@@ -11,310 +10,447 @@ import {
   PostCard,
   TeamCard,
 } from "@/components/shared/cards";
+import { useShallow } from "zustand/react/shallow";
 import { useApp } from "@/stores/app";
 import { discoverResults, trendingSkills } from "@/lib/discovery";
 import type { DiscoverFilters } from "@/lib/discovery";
-import { SearchInput, SectionHead } from "./shared-controls";
+import { useUrlState } from "@/lib/navigation";
+import {
+  AppliedFilters,
+  FilterDisclosure,
+  SearchInput,
+  SectionHead,
+} from "./shared-controls";
+
+const defaults = {
+  query: "",
+  scope: "All",
+  faculty: "",
+  major: "",
+  year: "",
+  skill: "",
+  interest: "",
+  category: "",
+  availability: "",
+  mode: "",
+  limit: "12",
+};
+const scopes = [
+  "All",
+  "People",
+  "Teams",
+  "Posts",
+  "Competitions",
+  "Events",
+  "Communities",
+] as const;
+type Scope = (typeof scopes)[number];
+type Refinement = Exclude<keyof DiscoverFilters, "query">;
+const allowed: Record<Scope, Refinement[]> = {
+  All: [
+    "faculty",
+    "major",
+    "year",
+    "skill",
+    "interest",
+    "category",
+    "availability",
+    "mode",
+  ],
+  People: ["faculty", "major", "year", "skill", "interest", "availability"],
+  Teams: ["faculty", "skill", "interest", "mode"],
+  Posts: [
+    "faculty",
+    "major",
+    "year",
+    "skill",
+    "interest",
+    "category",
+    "availability",
+  ],
+  Competitions: ["skill", "interest"],
+  Events: [],
+  Communities: ["interest"],
+};
+const primary: Record<Scope, Refinement[]> = {
+  All: ["skill", "interest"],
+  People: ["skill", "interest"],
+  Teams: ["skill", "mode"],
+  Posts: ["skill", "category"],
+  Competitions: ["skill", "interest"],
+  Events: [],
+  Communities: ["interest"],
+};
 
 export function DiscoverView() {
-  const { user, users, posts, teams, competitions, events, clubs } = useApp();
-  const [filters, setFilters] = useState<DiscoverFilters>({
-    query: "",
-    faculty: "",
-    major: "",
-    year: "",
-    skill: "",
-    interest: "",
-    category: "",
-    availability: "",
-    mode: "",
-  });
-  const [filter, setFilter] = useState("All");
-  const update = <K extends keyof DiscoverFilters>(
-    key: K,
-    value: DiscoverFilters[K],
-  ) => setFilters((current) => ({ ...current, [key]: value }));
-  const options = (values: string[]) => [...new Set(values)].sort();
-  const {
-    people,
-    posts: foundPosts,
-    teams: foundTeams,
-    competitions: foundCompetitions,
-    events: foundEvents,
-    clubs: foundClubs,
-  } = discoverResults(
+  const { user, users, posts, teams, competitions, events, clubs } = useApp(
+    useShallow((state) => ({
+      user: state.user,
+      users: state.users,
+      posts: state.posts,
+      teams: state.teams,
+      competitions: state.competitions,
+      events: state.events,
+      clubs: state.clubs,
+    })),
+  );
+  const [state, setState] = useUrlState(defaults);
+  const scope: Scope = scopes.includes(state.scope as Scope)
+    ? (state.scope as Scope)
+    : "All";
+  const filters: DiscoverFilters = {
+    ...state,
+    mode: ["Online", "On-site", "Hybrid"].includes(state.mode)
+      ? (state.mode as DiscoverFilters["mode"])
+      : "",
+  };
+  const results = discoverResults(
     { users, posts, teams, competitions, events, clubs },
     user,
     filters,
   );
-  const filtered = Object.values(filters).some(Boolean);
-  const show = (name: string) => filter === "All" || filter === name;
+  const counts: Record<Scope, number> = {
+    All: 0,
+    People: results.people.length,
+    Teams: results.teams.length,
+    Posts: results.posts.length,
+    Competitions: results.competitions.length,
+    Events: results.events.length,
+    Communities: results.clubs.length,
+  };
+  counts.All = scopes.slice(1).reduce((sum, item) => sum + counts[item], 0);
+  const options = (values: string[]) => [...new Set(values)].sort();
+  const fields: {
+    key: Refinement;
+    label: string;
+    empty: string;
+    values: string[];
+  }[] = [
+    {
+      key: "faculty",
+      label: "Faculty",
+      empty: "All faculties",
+      values: options(users.map((person) => person.faculty)),
+    },
+    {
+      key: "major",
+      label: "Major",
+      empty: "All majors",
+      values: options(users.map((person) => person.major)),
+    },
+    {
+      key: "year",
+      label: "Year",
+      empty: "All years",
+      values: options(users.map((person) => String(person.year))),
+    },
+    {
+      key: "skill",
+      label: "Skill",
+      empty: "All skills",
+      values: options(users.flatMap((person) => person.skills)),
+    },
+    {
+      key: "interest",
+      label: "Interest",
+      empty: "All interests",
+      values: options(users.flatMap((person) => person.interests)),
+    },
+    {
+      key: "category",
+      label: "Post category",
+      empty: "All post categories",
+      values: options(posts.map((post) => post.category)),
+    },
+    {
+      key: "availability",
+      label: "Open to",
+      empty: "Any availability",
+      values: options(users.flatMap((person) => person.availability)),
+    },
+    {
+      key: "mode",
+      label: "Work mode",
+      empty: "Any work mode",
+      values: ["Online", "On-site", "Hybrid"],
+    },
+  ];
+  const advancedFields = fields.filter(
+    (field) =>
+      allowed[scope].includes(field.key) && !primary[scope].includes(field.key),
+  );
+  const applied = fields
+    .filter((field) => state[field.key])
+    .map((field) => ({
+      label: field.label + ": " + state[field.key],
+      onRemove: () => setState({ [field.key]: "" }),
+    }));
+  const filtered = Object.entries(state).some(
+    ([key, value]) => key !== "scope" && key !== "limit" && Boolean(value),
+  );
+  const reset = () => setState({ ...defaults, scope });
+  const chooseScope = (next: Scope) =>
+    setState((current) => {
+      const update: Partial<typeof defaults> = { scope: next, limit: "12" };
+      for (const field of fields)
+        if (!allowed[next].includes(field.key)) update[field.key] = "";
+      return { ...current, ...update };
+    });
+  const scopeHref = (next: Scope) => {
+    const params = new URLSearchParams();
+    Object.entries({ ...state, scope: next }).forEach(([key, value]) => {
+      if (value && value !== defaults[key as keyof typeof defaults])
+        params.set(key === "query" ? "q" : key, value);
+    });
+    return "/discover?" + params.toString();
+  };
+  const fieldControl = (field: (typeof fields)[number]) => (
+    <label key={field.key} className="block text-sm font-medium">
+      {field.label}
+      <select
+        value={state[field.key]}
+        onChange={(event) => setState({ [field.key]: event.target.value })}
+        className={inputClass + " mt-2"}
+      >
+        <option value="">{field.empty}</option>
+        {field.values.map((value) => (
+          <option key={value} value={value}>
+            {field.key === "year" ? "Year " + value : value}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+  const head = (title: string, category: Scope) =>
+    scope === "All" ? (
+      <SectionHead title={title} href={scopeHref(category)} />
+    ) : (
+      <h2 className="section-heading mb-4">{title}</h2>
+    );
+  const show = (category: Scope) => scope === "All" || scope === category;
+  const limit =
+    scope === "All"
+      ? 2
+      : Math.max(12, Math.min(1000, Number(state.limit) || 12));
+  const alternatives = scopes.filter(
+    (item) => item !== "All" && item !== scope && counts[item] > 0,
+  );
   return (
     <div>
       <PageHeader
-        eyebrow="EXPLORE CAMPUS"
-        title="Discover your community"
-        subtitle="People, ideas, and opportunities worth finding."
+        title="Discover"
+        subtitle="Find people, team roles, and campus opportunities by what matters to you."
       />
-      <div className="card mb-5 p-4 sm:p-5">
+      <div className="mb-6">
         <SearchInput
-          value={filters.query}
-          onChange={(value) => update("query", value)}
-          placeholder="Search people, skills, teams, competitions..."
+          value={state.query}
+          onChange={(query) => setState({ query }, { replace: true })}
+          placeholder="Search names, skills, teams, or topics..."
+          label="Search campus"
         />
-        <div className="mt-4 flex flex-wrap gap-2">
-          {[
-            "All",
-            "People",
-            "Posts",
-            "Teams",
-            "Competitions",
-            "Events",
-            "Communities",
-          ].map((x) => (
+        <div
+          className="mt-3 flex max-w-full gap-2 overflow-x-auto pb-1"
+          role="group"
+          aria-label="Result type"
+        >
+          {scopes.map((item) => (
             <button
-              key={x}
-              onClick={() => setFilter(x)}
-              className={`rounded-full px-3 py-1.5 text-xs font-semibold ${filter === x ? "bg-[#17468c] text-white" : "bg-[#f0f4f9] text-[#718399] hover:bg-[#e7eef7]"}`}
+              key={item}
+              type="button"
+              aria-pressed={scope === item}
+              onClick={() => chooseScope(item)}
+              className={
+                "min-h-11 shrink-0 rounded-xl px-3 text-sm font-semibold " +
+                (scope === item
+                  ? "bg-[#17468c] text-white"
+                  : "bg-white text-[#68778c] hover:bg-[#eaf1fc]")
+              }
             >
-              {x}
+              {item} <span className="ml-1 tabular-nums">{counts[item]}</span>
+              {scope === item && (
+                <Check size={14} className="ml-2 inline" aria-hidden="true" />
+              )}
             </button>
           ))}
         </div>
-        <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-          <select
-            value={filters.faculty}
-            onChange={(event) => update("faculty", event.target.value)}
-            className={inputClass}
-            aria-label="Filter by faculty"
-          >
-            <option value="">All faculties</option>
-            {options(users.map((person) => person.faculty)).map((value) => (
-              <option key={value}>{value}</option>
-            ))}
-          </select>
-          <select
-            value={filters.major}
-            onChange={(event) => update("major", event.target.value)}
-            className={inputClass}
-            aria-label="Filter by major"
-          >
-            <option value="">All majors</option>
-            {options(users.map((person) => person.major)).map((value) => (
-              <option key={value}>{value}</option>
-            ))}
-          </select>
-          <select
-            value={filters.year}
-            onChange={(event) => update("year", event.target.value)}
-            className={inputClass}
-            aria-label="Filter by year"
-          >
-            <option value="">All years</option>
-            {options(users.map((person) => String(person.year))).map(
-              (value) => (
-                <option key={value} value={value}>
-                  Year {value}
-                </option>
-              ),
-            )}
-          </select>
-          <select
-            value={filters.skill}
-            onChange={(event) => update("skill", event.target.value)}
-            className={inputClass}
-            aria-label="Filter by skill"
-          >
-            <option value="">All skills</option>
-            {options(users.flatMap((person) => person.skills)).map((value) => (
-              <option key={value}>{value}</option>
-            ))}
-          </select>
-          <select
-            value={filters.interest}
-            onChange={(event) => update("interest", event.target.value)}
-            className={inputClass}
-            aria-label="Filter by interest"
-          >
-            <option value="">All interests</option>
-            {options(users.flatMap((person) => person.interests)).map(
-              (value) => (
-                <option key={value}>{value}</option>
-              ),
-            )}
-          </select>
-          <select
-            value={filters.category}
-            onChange={(event) => update("category", event.target.value)}
-            className={inputClass}
-            aria-label="Filter by post category"
-          >
-            <option value="">All post categories</option>
-            {options(posts.map((post) => post.category)).map((value) => (
-              <option key={value}>{value}</option>
-            ))}
-          </select>
-          <select
-            value={filters.availability}
-            onChange={(event) => update("availability", event.target.value)}
-            className={inputClass}
-            aria-label="Filter by availability"
-          >
-            <option value="">Any availability</option>
-            {options(users.flatMap((person) => person.availability)).map(
-              (value) => (
-                <option key={value}>{value}</option>
-              ),
-            )}
-          </select>
-          <select
-            value={filters.mode}
-            onChange={(event) =>
-              update("mode", event.target.value as DiscoverFilters["mode"])
+        {primary[scope].length > 0 && (
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            {primary[scope]
+              .map((key) => fields.find((field) => field.key === key))
+              .filter((field) => field !== undefined)
+              .map(fieldControl)}
+          </div>
+        )}
+        {advancedFields.length > 0 && (
+          <FilterDisclosure
+            count={
+              advancedFields.filter((field) => Boolean(state[field.key])).length
             }
-            className={inputClass}
-            aria-label="Filter by work mode"
           >
-            <option value="">All work modes</option>
-            <option>Online</option>
-            <option>On-site</option>
-            <option>Hybrid</option>
-          </select>
-        </div>
+            {advancedFields.map(fieldControl)}
+          </FilterDisclosure>
+        )}
+        <AppliedFilters
+          items={[
+            ...(state.query
+              ? [
+                  {
+                    label: "Search: " + state.query,
+                    onRemove: () => setState({ query: "" }),
+                  },
+                ]
+              : []),
+            ...applied,
+          ]}
+          onReset={reset}
+        />
       </div>
-      {!filtered && (
-        <div className="mb-7 grid gap-4 sm:grid-cols-3">
-          <Link
-            href="/people"
-            className="soft-card p-5 transition hover:border-[#b9cce3]"
-          >
-            <Users className="mb-3 text-[#17468c]" size={23} />
-            <strong className="block text-sm">Find your people</strong>
-            <p className="mt-1 text-xs text-[#8494a7]">
-              Connect through shared interests
-            </p>
-          </Link>
-          <Link
-            href="/teams"
-            className="soft-card p-5 transition hover:border-[#b9cce3]"
-          >
-            <Sparkles className="mb-3 text-[#a5812d]" size={23} />
-            <strong className="block text-sm">Join a team</strong>
-            <p className="mt-1 text-xs text-[#8494a7]">
-              Build something together
-            </p>
-          </Link>
-          <Link
-            href="/competitions"
-            className="soft-card p-5 transition hover:border-[#b9cce3]"
-          >
-            <Trophy className="mb-3 text-[#17468c]" size={23} />
-            <strong className="block text-sm">Take on a challenge</strong>
-            <p className="mt-1 text-xs text-[#8494a7]">
-              Explore open competitions
-            </p>
-          </Link>
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-muted" role="status">
+          {counts[scope]}{" "}
+          {scope === "All"
+            ? "results across campus"
+            : scope.toLowerCase() + " found"}
+          {scope === "All" && counts.All > 0 && " · previews below"}
+        </p>
+        <Link
+          href="/teams"
+          className="inline-flex min-h-11 items-center text-sm font-semibold text-[#17468c]"
+        >
+          Open Team Finder →
+        </Link>
+      </div>
+      {counts[scope] === 0 ? (
+        <EmptyState
+          icon={<Search />}
+          title={
+            "No " +
+            (scope === "All" ? "results" : scope.toLowerCase()) +
+            " match"
+          }
+          description={
+            alternatives.length
+              ? "Other result types have matches. Switch below, or clear your refinements."
+              : "Try a broader topic or reset your search."
+          }
+          action={
+            <div className="flex flex-wrap justify-center gap-2">
+              <Button variant="secondary" onClick={reset}>
+                Reset filters
+              </Button>
+              {alternatives.slice(0, 3).map((item) => (
+                <Button
+                  key={item}
+                  variant="ghost"
+                  onClick={() => chooseScope(item)}
+                >
+                  {item} ({counts[item]})
+                </Button>
+              ))}
+            </div>
+          }
+        />
+      ) : (
+        <div className="space-y-8">
+          {show("People") && counts.People > 0 && (
+            <section>
+              {head(
+                filtered ? "People" : "People with shared interests",
+                "People",
+              )}
+              <div className="grid gap-4 md:grid-cols-2">
+                {results.people.slice(0, limit).map((person) => (
+                  <PersonCard key={person.id} person={person} />
+                ))}
+              </div>
+            </section>
+          )}
+          {show("Teams") && counts.Teams > 0 && (
+            <section>
+              {head("Teams with open roles", "Teams")}
+              <div className="space-y-4">
+                {results.teams.slice(0, limit).map((team) => (
+                  <TeamCard key={team.id} team={team} />
+                ))}
+              </div>
+            </section>
+          )}
+          {show("Posts") && counts.Posts > 0 && (
+            <section>
+              {head("Conversations", "Posts")}
+              <div className="space-y-4">
+                {results.posts.slice(0, limit).map((post) => (
+                  <PostCard key={post.id} post={post} />
+                ))}
+              </div>
+            </section>
+          )}
+          {show("Competitions") && counts.Competitions > 0 && (
+            <section>
+              {head("Competitions", "Competitions")}
+              <div className="grid gap-4 md:grid-cols-2">
+                {results.competitions.slice(0, limit).map((competition) => (
+                  <CompetitionCard
+                    key={competition.id}
+                    competition={competition}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+          {show("Events") && counts.Events > 0 && (
+            <section>
+              {head("Sample events", "Events")}
+              <div className="space-y-4">
+                {results.events.slice(0, limit).map((event) => (
+                  <EventCard key={event.id} event={event} />
+                ))}
+              </div>
+            </section>
+          )}
+          {show("Communities") && counts.Communities > 0 && (
+            <section>
+              {head("Communities", "Communities")}
+              <div className="grid gap-4 md:grid-cols-2">
+                {results.clubs.slice(0, limit).map((club) => (
+                  <ClubCard key={club.id} club={club} />
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       )}
-      {!filtered && (
-        <section className="mb-7">
-          <h2 className="section-title mb-3">Trending skills</h2>
-          <div className="flex flex-wrap gap-2">
+      {scope !== "All" && counts[scope] > limit && (
+        <div className="mt-6 text-center">
+          <Button
+            variant="secondary"
+            onClick={() =>
+              setState({ limit: String(limit + 12) }, { replace: true })
+            }
+          >
+            Show more {scope.toLowerCase()}
+          </Button>
+        </div>
+      )}
+      {!filtered && scope === "All" && (
+        <details className="mt-8 border-t border-[#e5ebf2] pt-4">
+          <summary className="min-h-11 cursor-pointer text-sm font-semibold text-[#17468c]">
+            Explore skills in the sample community
+          </summary>
+          <div className="mt-3 flex flex-wrap gap-2">
             {trendingSkills(users).map((skill) => (
               <button
                 key={skill}
-                onClick={() => update("skill", skill)}
-                className="rounded-full border border-[#dbe5f0] bg-white px-3 py-1.5 text-xs font-semibold text-[#17468c] hover:bg-[#eef4fc]"
+                type="button"
+                onClick={() => setState({ skill, scope: "People" })}
+                className="min-h-11 rounded-xl bg-[#eaf1fc] px-3 text-sm font-semibold text-[#17468c]"
               >
-                #{skill}
+                {skill}
               </button>
             ))}
           </div>
-        </section>
+        </details>
       )}
-      <div className="space-y-8">
-        {show("People") && people.length > 0 && (
-          <section>
-            <SectionHead
-              title={filtered ? "People" : "Students with similar interests"}
-              href="/people"
-            />
-            <div className="grid gap-4 md:grid-cols-2">
-              {people.slice(0, 4).map((x) => (
-                <PersonCard key={x.id} person={x} />
-              ))}
-            </div>
-          </section>
-        )}
-        {show("Teams") && foundTeams.length > 0 && (
-          <section>
-            <SectionHead title="Recommended teams" href="/teams" />
-            <div className="grid gap-4 md:grid-cols-2">
-              {foundTeams.slice(0, 4).map((x) => (
-                <TeamCard key={x.id} team={x} />
-              ))}
-            </div>
-          </section>
-        )}
-        {show("Posts") && foundPosts.length > 0 && (
-          <section>
-            <SectionHead title="Conversations" href="/home" />
-            <div className="space-y-4">
-              {foundPosts.slice(0, 4).map((x) => (
-                <PostCard key={x.id} post={x} />
-              ))}
-            </div>
-          </section>
-        )}
-        {show("Competitions") && foundCompetitions.length > 0 && (
-          <section>
-            <SectionHead title="Competitions" href="/competitions" />
-            <div className="grid gap-4 md:grid-cols-2">
-              {foundCompetitions.slice(0, 4).map((x) => (
-                <CompetitionCard key={x.id} competition={x} />
-              ))}
-            </div>
-          </section>
-        )}
-        {show("Events") && foundEvents.length > 0 && (
-          <section>
-            <SectionHead title="Upcoming events" href="/events" />
-            <div className="grid gap-4">
-              {foundEvents.slice(0, 3).map((x) => (
-                <EventCard key={x.id} event={x} />
-              ))}
-            </div>
-          </section>
-        )}
-        {show("Communities") && foundClubs.length > 0 && (
-          <section>
-            <SectionHead
-              title={filtered ? "Communities" : "Popular communities"}
-              href="/communities"
-            />
-            <div className="grid gap-4 md:grid-cols-2">
-              {foundClubs.slice(0, 4).map((x) => (
-                <ClubCard key={x.id} club={x} />
-              ))}
-            </div>
-          </section>
-        )}
-        {filtered &&
-          ![
-            people,
-            foundPosts,
-            foundTeams,
-            foundCompetitions,
-            foundEvents,
-            foundClubs,
-          ].some((x) => x.length > 0) && (
-            <EmptyState
-              icon={<Search />}
-              title="No results found"
-              description="Try a broader topic or a different skill."
-            />
-          )}
-      </div>
     </div>
   );
 }

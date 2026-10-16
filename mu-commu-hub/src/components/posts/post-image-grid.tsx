@@ -67,7 +67,7 @@ export function PostImageGrid({ post }: { post: Post }) {
         ))}
       </div>
       {error && (
-        <p role="status" className="mt-2 text-xs text-[#718096]">
+        <p role="status" className="mt-2 text-xs text-[var(--text-muted)]">
           Photos could not be read from this browser&apos;s storage. Refresh to
           try again.
         </p>

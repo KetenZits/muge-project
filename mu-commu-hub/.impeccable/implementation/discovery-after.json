@@ -1,0 +1,15 @@
+{
+  "environment": "Node performance.now; current local seed data; seven rounds; median per filter-and-sort call. The 100x case is synthetic, not browser interaction latency.",
+  "measurements": [
+    {
+      "teams": 15,
+      "medianMsPerFilter": 0.0153,
+      "resultCount": 15
+    },
+    {
+      "teams": 1500,
+      "medianMsPerFilter": 1.4817,
+      "resultCount": 1500
+    }
+  ]
+}

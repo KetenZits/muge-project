@@ -7,7 +7,7 @@ const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 const errors = [];
 page.on("pageerror", (error) => errors.push(error.message));
 await page.goto("http://localhost:3000/home");
-await page.getByRole("heading", { name: /Your next idea/ }).waitFor();
+await page.getByRole("heading", { name: "Campus conversations" }).waitFor();
 await page.getByRole("button", { name: "Create post" }).first().click();
 const dialog = page.getByRole("dialog");
 await dialog
@@ -74,16 +74,16 @@ console.log("recruitment appears in Team Finder");
 await page
   .locator("article")
   .filter({ hasText: "Campus map makers" })
-  .getByRole("button", { name: "Save team" })
+  .getByRole("button", { name: /^Save team / })
   .click();
 await page.goto("http://localhost:3000/saved");
-await page.getByRole("button", { name: "Teams", exact: true }).click();
+await page.getByRole("button", { name: /^Teams(?:\s|$)/ }).click();
 await page.getByText("Campus map makers").first().waitFor();
 console.log("team bookmark persists");
 await page.goto("http://localhost:3000/teams/t1");
 await page.getByRole("button", { name: "Request to join" }).click();
 await page.reload();
-await page.getByRole("button", { name: "Request sent" }).waitFor();
+await page.getByRole("button", { name: "Withdraw request" }).waitFor();
 console.log("team request persists");
 await page.goto("http://localhost:3000/people");
 await page.getByPlaceholder("Name, skill, or interest").fill("Pimchanok");
@@ -95,9 +95,9 @@ await page.reload();
 await page.getByPlaceholder("Name, skill, or interest").fill("Pimchanok");
 await person.getByRole("button", { name: "Following" }).waitFor();
 console.log("follow persists");
-await person.getByRole("button", { name: "Message" }).click();
+await person.getByRole("link", { name: "Message", exact: true }).click();
 await page
-  .getByRole("textbox", { name: "Message", exact: true })
+  .getByRole("textbox", { name: /^Message / })
   .fill("Would you like to collaborate on a campus project this week?");
 await page.getByRole("button", { name: "Send message" }).click();
 await page.reload();
@@ -146,7 +146,7 @@ if (
   errors.push("Recruitment draft did not restore its fields");
 }
 console.log("recruitment draft persists");
-await page.goto("http://localhost:3000/profile/thanapon.dev");
+await page.goto("http://localhost:3000/profile/tester");
 await page.locator("[data-mock-ready=true]").waitFor();
 await page.getByRole("button", { name: "Edit profile" }).click();
 await page

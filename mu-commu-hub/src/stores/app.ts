@@ -9,6 +9,7 @@ import type {
   Message,
   Notification,
   Post,
+  PostCategory,
   TeamRecruitment,
   User,
 } from "@/types";
@@ -27,7 +28,12 @@ import {
 } from "@/lib/api/client";
 import { demoUser } from "@/lib/mock/data";
 import { eventFromPost } from "@/lib/events";
+import { restoreDemoProfile } from "@/lib/demo-profile";
+import { startMockApi } from "@/lib/demo-startup";
+import { openDemoDatabase } from "@/lib/db";
 interface AppState {
+  sessionStatus: "initializing" | "ready" | "error";
+  sessionError: string | null;
   ready: boolean;
   error: string | null;
   user: User;
@@ -45,10 +51,13 @@ interface AppState {
   following: string[];
   joinedClubs: string[];
   createOpen: boolean;
+  composerCategory: PostCategory;
   searchOpen: boolean;
+  initializeSession: () => void;
   load: () => Promise<void>;
   setUser: (user: User) => void;
   setCreateOpen: (v: boolean) => void;
+  openComposer: (category?: PostCategory) => void;
   setSearchOpen: (v: boolean) => void;
   createPost: (post: Post, options?: CreatePostOptions) => Promise<void>;
   createTeam: (team: TeamRecruitment) => Promise<void>;
@@ -66,7 +75,10 @@ interface AppState {
   openConversation: (id: string) => Promise<void>;
   updateProfile: (user: User) => void;
 }
+let loadPromise: Promise<void> | null = null;
 export const useApp = create<AppState>((set, get) => ({
+  sessionStatus: "initializing",
+  sessionError: null,
   ready: false,
   error: null,
   user: demoUser,
@@ -84,9 +96,42 @@ export const useApp = create<AppState>((set, get) => ({
   following: [],
   joinedClubs: [],
   createOpen: false,
+  composerCategory: "General",
   searchOpen: false,
-  load: async () => {
+  initializeSession: () => {
+    if (get().sessionStatus === "ready") return;
     try {
+      const { user, migrated } = restoreDemoProfile(
+        localStorage.getItem("mu-connect-user"),
+      );
+      if (migrated)
+        localStorage.setItem("mu-connect-user", JSON.stringify(user));
+      set((state) => ({
+        user,
+        users: state.users.map((person) =>
+          person.id === user.id ? user : person,
+        ),
+        sessionStatus: "ready",
+        sessionError: null,
+      }));
+    } catch {
+      set({
+        sessionStatus: "error",
+        sessionError:
+          "Your saved demo profile could not be restored. Allow browser storage for this site, then try again. Your saved profile has not been replaced.",
+      });
+    }
+  },
+  load: () => {
+    if (loadPromise) return loadPromise;
+    set({ ready: false, error: null });
+    const controller = new AbortController();
+    loadPromise = (async () => {
+      await startMockApi();
+      // Open once before requests start so blocked upgrades have a recoverable
+      // failure path instead of suspending every IndexedDB-backed handler.
+      await openDemoDatabase();
+      const signal = controller.signal;
       const [
         users,
         posts,
@@ -101,27 +146,25 @@ export const useApp = create<AppState>((set, get) => ({
         interactions,
         follows,
       ] = await Promise.all([
-        userService.getUsers(),
-        postService.getPosts(),
-        teamService.getTeams(),
-        competitionService.getCompetitions(),
-        eventService.getEvents(),
-        communityService.getCommunities(),
-        notificationService.getNotifications(),
-        messageService.getConversations(),
-        messageService.getMessages(),
-        interactionService.getBookmarks(),
-        interactionService.getInteractions(),
-        interactionService.getFollows(),
+        userService.getUsers(signal),
+        postService.getPosts(signal),
+        teamService.getTeams(signal),
+        competitionService.getCompetitions(signal),
+        eventService.getEvents(signal),
+        communityService.getCommunities(signal),
+        notificationService.getNotifications(signal),
+        messageService.getConversations(signal),
+        messageService.getMessages(signal),
+        interactionService.getBookmarks(signal),
+        interactionService.getInteractions(signal),
+        interactionService.getFollows(signal),
       ]);
-      const stored = localStorage.getItem("mu-connect-user");
-      const user = stored
-        ? { ...demoUser, ...(JSON.parse(stored) as Partial<User>) }
-        : demoUser;
+      // The user may have entered the demo or edited their profile while data
+      // was loading. Never restore an older snapshot over those newer actions.
+      const user = get().user;
       set({
         ready: true,
         error: null,
-        user,
         users: users.map((u) => (u.id === user.id ? user : u)),
         posts,
         teams,
@@ -138,13 +181,19 @@ export const useApp = create<AppState>((set, get) => ({
           .filter((i) => i.kind === "join")
           .map((i) => i.itemId),
       });
-    } catch (error) {
-      set({
-        error:
-          error instanceof Error ? error.message : "Could not load the demo",
-        ready: true,
+    })()
+      .catch((error: unknown) => {
+        controller.abort();
+        set({
+          error:
+            error instanceof Error ? error.message : "Could not load the demo",
+          ready: true,
+        });
+      })
+      .finally(() => {
+        loadPromise = null;
       });
-    }
+    return loadPromise;
   },
   setUser: (user) => {
     localStorage.setItem("mu-connect-user", JSON.stringify(user));
@@ -162,7 +211,10 @@ export const useApp = create<AppState>((set, get) => ({
       users: s.users.map((u) => (u.id === user.id ? user : u)),
     }));
   },
-  setCreateOpen: (createOpen) => set({ createOpen }),
+  setCreateOpen: (createOpen) =>
+    set({ createOpen, composerCategory: "General" }),
+  openComposer: (composerCategory = "General") =>
+    set({ createOpen: true, composerCategory }),
   setSearchOpen: (searchOpen) => set({ searchOpen }),
   createPost: async (post, options) => {
     const saved = await postService.createPost(post, options);
@@ -254,10 +306,14 @@ export const useApp = create<AppState>((set, get) => ({
     }
   },
   requestTeam: async (id) => {
-    if (
-      get().interactions.some((item) => item.id === `teamRequest:${id}`) ||
-      get().teams.find((team) => team.id === id)?.leaderId === get().user.id
-    ) {
+    if (get().teams.find((team) => team.id === id)?.leaderId === get().user.id)
+      return;
+    const key = `teamRequest:${id}`;
+    if (get().interactions.some((item) => item.id === key)) {
+      await interactionService.removeInteraction("teamRequest", id);
+      set((state) => ({
+        interactions: state.interactions.filter((item) => item.id !== key),
+      }));
       return;
     }
     await teamService.requestToJoin(id);
@@ -269,7 +325,12 @@ export const useApp = create<AppState>((set, get) => ({
     }));
   },
   rsvp: async (id) => {
-    if (get().interactions.some((item) => item.id === `eventRsvp:${id}`)) {
+    const key = `eventRsvp:${id}`;
+    if (get().interactions.some((item) => item.id === key)) {
+      await interactionService.removeInteraction("eventRsvp", id);
+      set((state) => ({
+        interactions: state.interactions.filter((item) => item.id !== key),
+      }));
       return;
     }
     const item = {

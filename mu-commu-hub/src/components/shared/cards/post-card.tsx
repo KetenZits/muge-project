@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+import { useState } from "react";
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import { toast } from "sonner";
@@ -13,6 +14,7 @@ import {
 } from "lucide-react";
 import { Avatar, Tag } from "@/components/ui";
 import { deadline, relative, shortDate } from "@/lib/utils";
+import { withReturnTo } from "@/lib/navigation";
 import { motionTiming } from "@/lib/motion/config";
 import { useCardMotion } from "@/lib/motion/use-card-motion";
 import { useApp } from "@/stores/app";
@@ -26,97 +28,133 @@ export function PostCard({
   post: Post;
   entranceDelay?: number;
 }) {
-  const cardMotion = useCardMotion({ reveal: true, delay: entranceDelay });
+  const cardMotion = useCardMotion({ delay: entranceDelay });
   const reducedMotion = useReducedMotion();
-  const { users, user, bookmarks, interactions, toggleLike, toggleBookmark } =
-    useApp();
-  const author = users.find((x) => x.id === post.authorId) ?? user;
-  const liked = interactions.some((x) => x.id === `like:${post.id}`);
-  const saved = bookmarks.some((x) => x.id === `posts:${post.id}`);
-  const team = useApp((s) => s.teams.find((t) => t.id === post.recruitmentId));
+  const author = useApp(
+    (state) =>
+      state.users.find((person) => person.id === post.authorId) ?? state.user,
+  );
+  const liked = useApp((state) =>
+    state.interactions.some((item) => item.id === "like:" + post.id),
+  );
+  const saved = useApp((state) =>
+    state.bookmarks.some((item) => item.id === "posts:" + post.id),
+  );
+  const toggleLike = useApp((state) => state.toggleLike);
+  const toggleBookmark = useApp((state) => state.toggleBookmark);
+  const [liking, setLiking] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const team = useApp((state) =>
+    state.teams.find((item) => item.id === post.recruitmentId),
+  );
+  const like = async () => {
+    setLiking(true);
+    try {
+      await toggleLike(post.id);
+    } catch {
+      toast.error("Could not save this like. Please try again.");
+    } finally {
+      setLiking(false);
+    }
+  };
+  const bookmark = async () => {
+    setSaving(true);
+    try {
+      await toggleBookmark("posts", post.id);
+    } catch {
+      toast.error("Could not save this bookmark. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
   const share = async () => {
-    await navigator.clipboard.writeText(`${location.origin}/posts/${post.id}`);
-    toast.success("Post link copied");
+    try {
+      await navigator.clipboard.writeText(
+        location.origin + "/posts/" + post.id,
+      );
+      toast.success("Post link copied");
+    } catch {
+      toast.error("Could not copy the link. Copy the page address instead.");
+    }
   };
   return (
-    <motion.article {...cardMotion} className="card overflow-hidden p-5 sm:p-6">
+    <motion.article
+      {...cardMotion}
+      className="card min-w-0 overflow-hidden p-5 sm:p-6"
+    >
       <div className="flex items-start gap-3">
-        <Link href={`/profile/${author.username}`}>
+        <Link
+          href={withReturnTo("/profile/" + author.username)}
+          aria-label={author.name + " profile"}
+        >
           <Avatar user={author} />
         </Link>
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <Link
-              href={`/profile/${author.username}`}
-              className="text-sm font-bold hover:text-[#17468c]"
-            >
-              {author.name}
-            </Link>
-            <span className="text-[11px] text-[#9aabba]">
-              · {relative(post.createdAt)}
-            </span>
-          </div>
-          <p className="mt-0.5 text-xs text-[#8c9aaa]">
-            {author.faculty} · {author.major} · Year {author.year}
+          <Link
+            href={withReturnTo("/profile/" + author.username)}
+            className="text-sm font-semibold hover:text-[#17468c]"
+          >
+            {author.name}
+          </Link>
+          <p className="mt-1 text-xs leading-5 text-muted">
+            {author.faculty} · Year {author.year}
+            <span className="hidden sm:inline"> · {author.major}</span>
+          </p>
+          <p className="text-xs leading-5 text-muted">
+            {relative(post.createdAt)}
           </p>
         </div>
-        <Tag
-          tone={
-            post.category === "Competition"
-              ? "gold"
-              : post.category === "Team"
-                ? "blue"
-                : "neutral"
-          }
-        >
-          {post.category === "Team" ? "Looking for team" : post.category}
-        </Tag>
+        <span className="max-w-[35%] rounded-lg bg-[#f0f4f9] px-2 py-1 text-xs font-semibold leading-5 text-[#53647c]">
+          {post.category === "Team" ? "Recruiting" : post.category}
+        </span>
       </div>
-      <Link href={`/posts/${post.id}`} className="group mt-5 block">
-        <h3 className="text-[17px] font-bold leading-snug tracking-tight group-hover:text-[#17468c]">
-          {post.title}
+      <Link
+        href={withReturnTo("/posts/" + post.id)}
+        className="group mt-4 block"
+      >
+        <h3 className="text-lg font-bold leading-snug tracking-tight group-hover:text-[#17468c]">
+          {post.title || "Photos from campus"}
         </h3>
-        <p className="line-clamp-3 mt-2 text-[13px] leading-6 text-[#66778c]">
-          {post.content}
-        </p>
+        {post.content && (
+          <p className="mt-2 line-clamp-3 text-sm leading-6 text-[#53647c]">
+            {post.content}
+          </p>
+        )}
       </Link>
       {post.eventDate && (
-        <div className="mt-4 flex flex-wrap gap-4 rounded-xl bg-[#f8fafd] px-4 py-3 text-xs text-[#17468c]">
+        <div className="mt-4 flex flex-wrap gap-3 text-sm text-[#17468c]">
           <span>
-            <CalendarDays size={14} className="mr-1 inline" />
+            <CalendarDays size={15} className="mr-1 inline" />
             {shortDate(post.eventDate)} · {post.eventTime}
           </span>
           <span>
-            <MapPin size={14} className="mr-1 inline" />
+            <MapPin size={15} className="mr-1 inline" />
             {post.eventLocation}
           </span>
         </div>
       )}
       {team && (
         <Link
-          href={`/teams/${team.id}`}
-          className="mt-4 block rounded-xl border border-[#e7edf4] bg-[#f8fafd] px-4 py-3"
+          href={withReturnTo("/teams/" + team.id)}
+          className="mt-4 block border-y border-[#e5ebf2] py-3"
         >
-          <span className="flex flex-wrap items-center justify-between gap-2">
-            <span className="text-xs font-semibold text-[#17468c]">
-              <Users size={14} className="mr-1 inline" /> {team.members}/
-              {team.capacity} members ·{" "}
-              {team.roles.filter((role) => !role.filled).length} open roles
-            </span>
-            <span className="text-xs text-[#a5812d]">
-              {deadline(team.deadline)} →
-            </span>
-          </span>
-          <span className="mt-2 block text-xs text-[#687a90]">
-            Looking for:{" "}
+          <p className="text-sm font-semibold text-[#17468c]">
+            <Users size={15} className="mr-1 inline" />
+            Open roles:{" "}
             {team.roles
               .filter((role) => !role.filled)
               .map((role) => role.name)
               .join(", ") || "No open roles"}
-          </span>
-          <span className="mt-1 block text-xs text-[#8b9aac]">
-            {team.mode} · {team.location}
-          </span>
+          </p>
+          <div className="mt-2 flex flex-wrap justify-between gap-2 text-xs leading-5 text-muted">
+            <span>
+              {team.members}/{team.capacity} members · {team.mode} ·{" "}
+              {team.location}
+            </span>
+            <span className="font-semibold text-[#8a6820]">
+              {deadline(team.deadline)} →
+            </span>
+          </div>
         </Link>
       )}
       <div className="mt-4 flex flex-wrap gap-1.5">
@@ -125,51 +163,52 @@ export function PostCard({
         ))}
       </div>
       <PostImageGrid post={post} />
-      <div className="mt-5 flex items-center gap-1 border-t border-[#edf1f5] pt-4">
+      <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-[#e5ebf2] pt-3">
         <button
-          onClick={() => toggleLike(post.id)}
-          className={`flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold transition active:scale-95 ${liked ? "text-[#d95e6d]" : "text-[#8392a3] hover:bg-[#f7f9fc] hover:text-[#17468c]"}`}
+          onClick={() => void like()}
+          disabled={liking}
+          className={
+            "inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-xl px-3 text-sm font-semibold hover:bg-[#f5f8fc] " +
+            (liked ? "text-[#a94354]" : "text-[#68778c]")
+          }
           aria-label={liked ? "Unlike post" : "Like post"}
           aria-pressed={liked}
         >
           <motion.span
             key={liked ? "liked" : "not-liked"}
-            initial={reducedMotion ? false : { scale: 0.72 }}
+            initial={reducedMotion ? false : { scale: 0.85 }}
             animate={{ scale: 1 }}
             transition={motionTiming.quickSpring}
           >
-            <Heart size={17} fill={liked ? "currentColor" : "none"} />
+            <Heart size={18} fill={liked ? "currentColor" : "none"} />
           </motion.span>
           {post.likes + (liked ? 1 : 0)}
         </button>
         <Link
-          href={`/posts/${post.id}`}
-          className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold text-[#8392a3] hover:bg-[#f7f9fc] hover:text-[#17468c]"
+          href={withReturnTo("/posts/" + post.id)}
+          className="inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-xl px-3 text-sm font-semibold text-muted hover:bg-[#f5f8fc]"
+          aria-label={
+            post.comments + " comments on " + (post.title || "photo post")
+          }
         >
-          <MessageCircle size={17} />
+          <MessageCircle size={18} />
           {post.comments}
         </Link>
         <button
-          onClick={() => toggleBookmark("posts", post.id)}
-          className={`ml-auto rounded-lg p-2 transition active:scale-90 ${saved ? "text-[#17468c]" : "text-[#8392a3] hover:text-[#17468c]"}`}
+          onClick={() => void bookmark()}
+          disabled={saving}
+          className="icon-button ml-auto"
           aria-label={saved ? "Remove bookmark" : "Save post"}
           aria-pressed={saved}
         >
-          <motion.span
-            key={saved ? "saved" : "not-saved"}
-            initial={reducedMotion ? false : { scale: 0.72 }}
-            animate={{ scale: 1 }}
-            transition={motionTiming.quickSpring}
-          >
-            <Bookmark size={17} fill={saved ? "currentColor" : "none"} />
-          </motion.span>
+          <Bookmark size={18} fill={saved ? "currentColor" : "none"} />
         </button>
         <button
-          onClick={share}
-          className="rounded-lg p-2 text-[#8392a3] hover:text-[#17468c]"
+          onClick={() => void share()}
+          className="icon-button"
           aria-label="Share post"
         >
-          <Share2 size={17} />
+          <Share2 size={18} />
         </button>
       </div>
     </motion.article>

@@ -1,42 +1,56 @@
-"use client";
-import { useState } from "react";
+﻿"use client";
 import { LayoutGrid } from "lucide-react";
-import { EmptyState, PageHeader } from "@/components/ui";
+import { Button, EmptyState, PageHeader } from "@/components/ui";
 import { ClubCard } from "@/components/shared/cards";
+import { useShallow } from "zustand/react/shallow";
 import { useApp } from "@/stores/app";
+import { useUrlState } from "@/lib/navigation";
 import { SearchInput } from "./shared-controls";
 
+const defaults = { query: "" };
+
 export function CommunitiesView() {
-  const { clubs } = useApp();
-  const [query, setQuery] = useState("");
-  const list = clubs.filter((x) =>
-    `${x.name} ${x.tags.join(" ")}`.toLowerCase().includes(query.toLowerCase()),
+  const { clubs } = useApp(useShallow((state) => ({ clubs: state.clubs })));
+  const [filters, setFilters] = useUrlState(defaults);
+  const list = clubs.filter((club) =>
+    [club.name, club.description, ...club.tags]
+      .join(" ")
+      .toLowerCase()
+      .includes(filters.query.trim().toLowerCase()),
   );
   return (
     <div>
       <PageHeader
-        eyebrow="FIND YOUR CIRCLE"
-        title="Communities on campus"
-        subtitle="Explore interest spaces where conversations turn into friendships and projects."
+        title="Communities"
+        subtitle="Find a subject you care about and explore related conversations. Joining is saved in this browser."
       />
       <div className="mb-5">
         <SearchInput
-          value={query}
-          onChange={setQuery}
-          placeholder="Find a community or topic..."
+          value={filters.query}
+          onChange={(query) => setFilters({ query }, { replace: true })}
+          placeholder="Search a community or topic..."
+          label="Search communities"
         />
       </div>
+      <p className="mb-4 text-sm text-muted" role="status">
+        {list.length} sample communities
+      </p>
       {list.length ? (
         <div className="grid gap-4 md:grid-cols-2">
-          {list.map((x) => (
-            <ClubCard key={x.id} club={x} />
+          {list.map((club) => (
+            <ClubCard key={club.id} club={club} />
           ))}
         </div>
       ) : (
         <EmptyState
           icon={<LayoutGrid />}
-          title="No communities found"
-          description="Try another interest or topic."
+          title="No communities match"
+          description="Try a different interest or explore all sample communities."
+          action={
+            <Button variant="secondary" onClick={() => setFilters(defaults)}>
+              Clear search
+            </Button>
+          }
         />
       )}
     </div>

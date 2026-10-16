@@ -1,0 +1,198 @@
+{
+  "passed": [
+    "Discover URL search, View all, and Back/Forward preserve scope",
+    "Selected empty categories explain zero matches and suggest matching categories",
+    "Team detail returns to the originating filters",
+    "Recruit entry reuses a wide existing composer in Team mode",
+    "Comment validation matches the enabled state and preserves invalid text",
+    "Message drafts stay with their conversations across navigation and reloads",
+    "Team requests persist and can be explicitly withdrawn",
+    "Filtered competitions and requested profile panels match their URLs",
+    "Saved honors an explicit category and defaults to an existing saved collection",
+    "Event handoffs identify the selected event and RSVPs persist and reverse",
+    "Notifications open real sample destinations with a contextual return",
+    "Keyboard search covers students beyond the former preview cutoff",
+    "Rendered primary links, captions, placeholders, and field boundaries meet their tested contrast targets",
+    "Mobile navigation exposes primary and secondary destinations with distinct profile/activity links",
+    "Seven core surfaces and the composer fit all five requested viewport widths"
+  ],
+  "responsive": [
+    {
+      "width": 375,
+      "route": "home",
+      "overflow": false
+    },
+    {
+      "width": 375,
+      "route": "discover",
+      "overflow": false
+    },
+    {
+      "width": 375,
+      "route": "teams",
+      "overflow": false
+    },
+    {
+      "width": 375,
+      "route": "competitions",
+      "overflow": false
+    },
+    {
+      "width": 375,
+      "route": "communities",
+      "overflow": false
+    },
+    {
+      "width": 375,
+      "route": "profile/tester",
+      "overflow": false
+    },
+    {
+      "width": 375,
+      "route": "messages",
+      "overflow": false
+    },
+    {
+      "width": 430,
+      "route": "home",
+      "overflow": false
+    },
+    {
+      "width": 430,
+      "route": "discover",
+      "overflow": false
+    },
+    {
+      "width": 430,
+      "route": "teams",
+      "overflow": false
+    },
+    {
+      "width": 430,
+      "route": "competitions",
+      "overflow": false
+    },
+    {
+      "width": 430,
+      "route": "communities",
+      "overflow": false
+    },
+    {
+      "width": 430,
+      "route": "profile/tester",
+      "overflow": false
+    },
+    {
+      "width": 430,
+      "route": "messages",
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "route": "home",
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "route": "discover",
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "route": "teams",
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "route": "competitions",
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "route": "communities",
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "route": "profile/tester",
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "route": "messages",
+      "overflow": false
+    },
+    {
+      "width": 1024,
+      "route": "home",
+      "overflow": false
+    },
+    {
+      "width": 1024,
+      "route": "discover",
+      "overflow": false
+    },
+    {
+      "width": 1024,
+      "route": "teams",
+      "overflow": false
+    },
+    {
+      "width": 1024,
+      "route": "competitions",
+      "overflow": false
+    },
+    {
+      "width": 1024,
+      "route": "communities",
+      "overflow": false
+    },
+    {
+      "width": 1024,
+      "route": "profile/tester",
+      "overflow": false
+    },
+    {
+      "width": 1024,
+      "route": "messages",
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "route": "home",
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "route": "discover",
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "route": "teams",
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "route": "competitions",
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "route": "communities",
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "route": "profile/tester",
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "route": "messages",
+      "overflow": false
+    }
+  ],
+  "browserErrors": [],
+  "environment": "Headless Chrome viewport emulation with reduced motion; physical devices and assistive technology are unverified."
+}

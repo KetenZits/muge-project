@@ -8,21 +8,24 @@ export const notifications: Notification[] = Array.from(
       ["Teams", "Follows", "Mentions", "Competitions", "System"] as const
     )[i % 5],
     title: [
-      "New team invitation",
-      "You have a new follower",
-      "You were mentioned",
-      "Deadline coming up",
-      "Welcome to MU Connect",
+      "Sample team invitation",
+      "Sample follower notification",
+      "Sample discussion mention",
+      "Sample competition reminder",
+      "Welcome to your local demo",
     ][i % 5],
     body: [
-      "Pimchanok invited you to join AI Study Companion.",
-      "Nicha started following your projects.",
-      "Someone mentioned you in a discussion.",
-      "Campus AI Challenge closes soon.",
-      "Make your profile shine and find your people.",
+      "Explore AI Study Companion in this demo. No invitation was delivered.",
+      "Explore a sample student profile. Follows are stored on this device.",
+      "Open a sample discussion. This is an example notification.",
+      "Review the Campus AI Challenge sample and its deadline.",
+      "Your posts, requests, and messages stay in this browser.",
     ][i % 5],
     createdAt: new Date(Date.now() - i * 1900000).toISOString(),
     read: i > 4,
     userId: `u${(i % 39) + 1}`,
+    href: ["/teams/t1", "/people", "/posts/p1", "/competitions/c1", "/me"][
+      i % 5
+    ],
   }),
 );

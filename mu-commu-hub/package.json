@@ -11,7 +11,11 @@
     "test:smoke": "node scripts/smoke.mjs",
     "test:interactions": "node scripts/interaction-smoke.mjs",
     "test:images": "node scripts/image-attachments.mjs",
-    "test:motion": "node scripts/motion-smoke.mjs"
+    "test:motion": "node scripts/motion-smoke.mjs",
+    "test:ui": "node scripts/ui-regressions.mjs",
+    "test:persistence": "node scripts/persistence-regressions.mjs",
+    "test:discovery": "node scripts/discovery-regressions.mjs",
+    "test:auth": "node scripts/auth-store-regressions.mjs && node scripts/auth-regressions.mjs"
   },
   "dependencies": {
     "@faker-js/faker": "^10.6.0",

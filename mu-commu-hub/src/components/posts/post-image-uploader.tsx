@@ -91,7 +91,7 @@ export function PostImageUploader({
   const fileDrag = (event: React.DragEvent) =>
     event.dataTransfer.types.includes("Files");
   const actionClass =
-    "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[#17468c] hover:bg-[#eaf1fc] disabled:cursor-default disabled:opacity-30";
+    "flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[#17468c] hover:bg-[#eaf1fc] disabled:cursor-default disabled:opacity-30";
   return (
     <section
       aria-labelledby={`${inputId}-heading`}
@@ -104,9 +104,11 @@ export function PostImageUploader({
           className="text-sm font-semibold text-[#33445c]"
         >
           Photos{" "}
-          <span className="text-xs font-normal text-[#8b9aac]">(optional)</span>
+          <span className="text-xs font-normal text-[var(--text-muted)]">
+            (optional)
+          </span>
         </h3>
-        <span className="text-xs font-medium tabular-nums text-[#718096]">
+        <span className="text-xs font-medium tabular-nums text-[var(--text-muted)]">
           {images.length} / 5 photos
         </span>
       </div>
@@ -176,7 +178,7 @@ export function PostImageUploader({
           </p>
           <p
             id={`${inputId}-help`}
-            className="mt-1 text-[11px] leading-4 text-[#8291a5]"
+            className="mt-1 text-xs leading-5 text-[var(--text-muted)]"
           >
             JPG, PNG, WebP · Up to 5 photos · 8 MB each
           </p>
@@ -246,11 +248,11 @@ export function PostImageUploader({
                         setMessages([]);
                         setAnnouncement(`${image.fileName} removed.`);
                       }}
-                      className="absolute right-1.5 top-1.5 flex h-8 w-8 items-center justify-center rounded-full bg-[#0d234c]/80 text-white shadow-sm hover:bg-[#17468c] disabled:opacity-40"
+                      className="absolute right-1.5 top-1.5 flex h-11 w-11 items-center justify-center rounded-full bg-[#0d234c]/80 text-white shadow-sm hover:bg-[#17468c] disabled:opacity-40"
                     >
                       <X size={16} />
                     </button>
-                    <span className="absolute bottom-1.5 left-1.5 rounded-md bg-white/95 px-1.5 py-0.5 text-[10px] font-semibold text-[#17468c]">
+                    <span className="absolute bottom-1.5 left-1.5 rounded-md bg-white/95 px-1.5 py-0.5 text-xs font-semibold text-[#17468c]">
                       {index + 1}
                     </span>
                   </div>
@@ -298,7 +300,7 @@ export function PostImageUploader({
               ))}
             </AnimatePresence>
           </ol>
-          <p className="mt-2 text-[11px] text-[#8291a5]">
+          <p className="mt-2 text-xs leading-5 text-[var(--text-muted)]">
             Drag the grip or use the arrows to reorder. The first photo leads
             your gallery.
           </p>
@@ -315,7 +317,7 @@ export function PostImageUploader({
           ))}
         </div>
       )}
-      <p className="mt-2 text-[11px] leading-5 text-[#8291a5]">
+      <p className="mt-2 text-xs leading-5 text-[var(--text-muted)]">
         Photos are saved locally in this browser. They aren&apos;t shared across
         devices or with other users.
       </p>

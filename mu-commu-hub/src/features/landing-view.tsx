@@ -98,7 +98,7 @@ export default function LandingView() {
               </div>
               <div className="mt-6 flex items-center gap-4 sm:mt-9">
                 <div className="flex -space-x-2">
-                  {["TC", "PS", "NW", "SK"].map((x, i) => (
+                  {["T", "PS", "NW", "SK"].map((x, i) => (
                     <span
                       key={x}
                       className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white text-xs font-bold text-[#17468c]"
