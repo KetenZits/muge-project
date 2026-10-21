@@ -15,7 +15,8 @@
     "test:ui": "node scripts/ui-regressions.mjs",
     "test:persistence": "node scripts/persistence-regressions.mjs",
     "test:discovery": "node scripts/discovery-regressions.mjs",
-    "test:auth": "node scripts/auth-store-regressions.mjs && node scripts/auth-regressions.mjs"
+    "test:auth": "node scripts/auth-store-regressions.mjs && node scripts/auth-regressions.mjs",
+    "generate:doc": "node scripts/generate-doc.mjs"
   },
   "dependencies": {
     "@faker-js/faker": "^10.6.0",
