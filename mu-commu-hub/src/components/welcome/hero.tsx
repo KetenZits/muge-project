@@ -5,9 +5,8 @@ import Image from "next/image";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import SplitText from "@/components/SplitText";
-import GradientText from "@/components/GradientText";
 import { welcomeCollage } from "@/data/welcome";
+import WelcomeWordmark from "./welcome-wordmark";
 
 const LightRays = dynamic(() => import("@/components/LightRays"), { ssr: false });
 const Galaxy = dynamic(() => import("@/components/Galaxy"), { ssr: false });
@@ -18,7 +17,6 @@ export default function Hero() {
   const root = useRef<HTMLElement>(null);
   const [reduced, setReduced] = useState(false);
   const [wide, setWide] = useState(false);
-  const [headlineReady, setHeadlineReady] = useState(false);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -91,10 +89,7 @@ export default function Hero() {
         </div>
         <div className="welcome-hero-copy">
           <span className="welcome-eyebrow"><i /> THE NEXT CHAPTER STARTS HERE</span>
-          <div className={`welcome-wordmark-stack ${headlineReady ? "is-ready" : ""}`}>
-            <SplitText text="MU CONNECT" tag="h1" className="welcome-wordmark" trigger="load" effect="rise" splitType="chars" delay={70} duration={1.15} from={{ opacity: 0, y: 68, filter: "blur(12px)" }} to={{ opacity: 1, y: 0, filter: "blur(0px)" }} onLetterAnimationComplete={() => setHeadlineReady(true)} />
-            <span className="welcome-wordmark-sheen" aria-hidden="true"><GradientText colors={["#0d2e58", "#1b5da8", "#7db8ed", "#164d91"]} animationSpeed={12} scale={2.8} variant="linear" yoyo className="welcome-wordmark-gradient">MU CONNECT</GradientText></span>
-          </div>
+          <WelcomeWordmark reduced={reduced} />
           <p>Meet the people who make your next idea possible.</p>
           <span className="welcome-scroll-hint"><span /> SCROLL TO EXPLORE</span>
         </div>

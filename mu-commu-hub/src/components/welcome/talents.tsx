@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useIsPresent } from "motion/react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -9,6 +9,16 @@ import SplitText from "@/components/SplitText";
 import { welcomeTalents, type WelcomeTalent } from "@/data/welcome";
 
 gsap.registerPlugin(ScrollTrigger);
+
+const INTRO_END = 0.115;
+const SECOND_PROFILE_START = 0.195;
+const PROFILE_STEP = 0.15;
+
+function categoryForProgress(progress: number) {
+  return progress < SECOND_PROFILE_START
+    ? 0
+    : Math.min(welcomeTalents.length - 1, 1 + Math.floor((progress - SECOND_PROFILE_START) / PROFILE_STEP));
+}
 
 function TalentCard({ talent, reduced }: { talent: WelcomeTalent; reduced: boolean }) {
   const isPresent = useIsPresent();
@@ -40,6 +50,8 @@ function TalentCard({ talent, reduced }: { talent: WelcomeTalent; reduced: boole
 export default function Talents() {
   const root = useRef<HTMLElement>(null);
   const nav = useRef<HTMLElement>(null);
+  const layout = useRef<HTMLDivElement>(null);
+  const cardAnchor = useRef<HTMLDivElement>(null);
   const tabs = useRef<HTMLDivElement>(null);
   const activeRef = useRef(0);
   const [active, setActive] = useState(0);
@@ -56,45 +68,61 @@ export default function Talents() {
     return () => { wide.removeEventListener("change", sync); motionPreference.removeEventListener("change", sync); };
   }, []);
 
-  useEffect(() => {
-    if (!desktop || reduced || !root.current || !nav.current) return;
+  useLayoutEffect(() => {
+    if (!desktop || reduced || !root.current || !nav.current || !layout.current || !cardAnchor.current) return;
     const section = root.current;
     const categories = nav.current;
+    const grid = layout.current;
+    const anchor = cardAnchor.current;
     const context = gsap.context(() => {
-      gsap.fromTo(categories, { autoAlpha: 0, y: 18 }, {
-        autoAlpha: 1,
-        y: 0,
-        duration: 0.65,
-        ease: "power2.out",
-        scrollTrigger: { trigger: section, start: "top 55%", toggleActions: "play none none reverse" },
-      });
+      const buttons = gsap.utils.toArray<HTMLButtonElement>(categories.querySelectorAll("button"));
+      const centeredX = () => window.innerWidth / 2 - (grid.getBoundingClientRect().right - anchor.offsetWidth / 2);
+      const enlargedScale = () => Math.min(1.2, (window.innerWidth - 72) / anchor.offsetWidth);
+      gsap.set(anchor, { x: centeredX, y: 18, scale: enlargedScale });
+      gsap.set(categories, { autoAlpha: 0, x: -22 });
+      gsap.set(buttons, { autoAlpha: 0, y: 10 });
+      const intro = gsap.timeline({ paused: true });
+      intro.fromTo(anchor, {
+        x: centeredX,
+        y: 18,
+        scale: enlargedScale,
+      }, { x: 0, y: 0, scale: 1, duration: 1, ease: "power2.inOut", immediateRender: true }, 0);
+      intro.fromTo(categories, { autoAlpha: 0, x: -22 }, {
+        autoAlpha: 1, x: 0, duration: 0.58, ease: "power2.out", immediateRender: true,
+      }, 0.25);
+      intro.fromTo(buttons, { autoAlpha: 0, y: 10 }, {
+        autoAlpha: 1, y: 0, duration: 0.36, stagger: 0.055, ease: "power2.out", immediateRender: true,
+      }, 0.34);
+      const sync = (progress: number) => {
+        intro.progress(Math.min(1, progress / INTRO_END));
+        const next = categoryForProgress(progress);
+        if (activeRef.current !== next) {
+          activeRef.current = next;
+          setActive(next);
+        }
+      };
       ScrollTrigger.create({
         trigger: section,
         start: "top top",
         end: "bottom bottom",
         invalidateOnRefresh: true,
-        onUpdate: (self) => {
-          const progress = Math.max(0, self.progress - 0.14) / 0.74;
-          const next = Math.min(welcomeTalents.length - 1, Math.floor(progress * welcomeTalents.length));
-          if (activeRef.current !== next) {
-            activeRef.current = next;
-            setActive(next);
-          }
-        },
+        onUpdate: (self) => sync(self.progress),
+        onRefresh: (self) => { intro.invalidate(); sync(self.progress); },
       });
     }, section);
     return () => context.revert();
   }, [desktop, reduced]);
 
   const choose = (index: number) => {
-    activeRef.current = index;
-    setActive(index);
     if (desktop && !reduced && root.current) {
       const box = root.current.getBoundingClientRect();
       const top = window.scrollY + box.top;
       const travel = root.current.offsetHeight - window.innerHeight;
-      window.scrollTo({ top: top + travel * (0.14 + (index + 0.5) * 0.74 / welcomeTalents.length), behavior: "smooth" });
+      const progress = index === 0 ? INTRO_END + 0.025 : SECOND_PROFILE_START + (index - 0.5) * PROFILE_STEP;
+      window.scrollTo({ top: top + travel * progress, behavior: "smooth" });
     } else {
+      activeRef.current = index;
+      setActive(index);
       const container = tabs.current;
       const button = container?.querySelectorAll("button")[index];
       if (!container || !button) return;
@@ -123,7 +151,7 @@ export default function Talents() {
             }}>{talent.category}</button>
           ))}
         </div>
-        <div className="welcome-talent-layout">
+        <div ref={layout} className="welcome-talent-layout">
           <nav ref={nav} className="welcome-talent-desktop-nav" aria-label="Talent categories">
             <span>DISCOVER BY SKILL</span>
             <div className="welcome-talent-category-window"><div className="welcome-talent-category-track">
@@ -134,7 +162,7 @@ export default function Talents() {
               ))}
             </div></div>
           </nav>
-          <div className="welcome-talent-card-anchor">
+          <div ref={cardAnchor} className="welcome-talent-card-anchor">
             <div className="welcome-talent-card-stage" id="talent-panel" role="tabpanel" aria-labelledby={`talent-tab-${welcomeTalents[active].id}`}>
               <AnimatePresence mode="sync" initial={false}><TalentCard key={welcomeTalents[active].id} talent={welcomeTalents[active]} reduced={reduced} /></AnimatePresence>
             </div>

@@ -18,6 +18,18 @@ try {
     page.on("console", (message) => { if (message.type() === "error") failures.push(`${width} console: ${message.text()}`); });
     await page.goto("http://localhost:3000/", { waitUntil: "domcontentloaded" });
     await page.locator(".welcome-page").waitFor();
+    if (width === 1440) {
+      const stroke = page.locator(".welcome-wordmark-outline [data-stroke-char]").first();
+      await stroke.waitFor();
+      const firstOffset = await stroke.evaluate((node) => Number.parseFloat(getComputedStyle(node).strokeDashoffset));
+      await page.waitForFunction((offset) => {
+        const node = document.querySelector(".welcome-wordmark-outline [data-stroke-char]");
+        return node && Math.abs(Number.parseFloat(getComputedStyle(node).strokeDashoffset) - offset) > 1;
+      }, firstOffset, { timeout: 3500 });
+      const nextOffset = await stroke.evaluate((node) => Number.parseFloat(getComputedStyle(node).strokeDashoffset));
+      assert.ok(Number.isFinite(firstOffset) && Number.isFinite(nextOffset) && Math.abs(firstOffset - nextOffset) > 1, `Stroke Text outline did not draw: ${firstOffset} → ${nextOffset}`);
+      await page.waitForFunction(() => document.querySelector(".welcome-wordmark-stack")?.classList.contains("is-ready"), undefined, { timeout: 6000 });
+    }
     await page.waitForFunction(() => performance.getEntriesByType("resource").some((entry) => entry.name.includes("mu-emblem.glb")), undefined, { timeout: 15000 });
     await page.waitForTimeout(width === 1440 || width === 390 ? 2800 : 350);
     const metrics = await page.evaluate(() => ({
@@ -107,19 +119,33 @@ try {
         const box = node.getBoundingClientRect();
         return { left: box.left, right: box.right, width: box.width, xTransform: getComputedStyle(node).transform };
       });
-      await page.evaluate((top) => window.scrollTo({ top, behavior: "instant" }), position.top + position.travel * 0.08);
-      await page.waitForTimeout(850);
-      const first = await frameBounds();
-      const sidebar = await page.locator(".welcome-talent-desktop-nav").evaluate((node) => {
+      const sidebarBounds = () => page.locator(".welcome-talent-desktop-nav").evaluate((node) => {
         const box = node.getBoundingClientRect();
         return { left: box.left, right: box.right, opacity: Number(getComputedStyle(node).opacity) };
       });
+      await page.evaluate((top) => window.scrollTo({ top, behavior: "instant" }), position.top);
+      await page.waitForTimeout(400);
+      const centered = await frameBounds();
+      const hiddenSidebar = await sidebarBounds();
+      assert.ok(Math.abs((centered.left + centered.right) / 2 - width / 2) <= 3, `Profile 1 did not begin centered: ${JSON.stringify(centered)}`);
+      assert.ok(hiddenSidebar.opacity < 0.05, `Sidebar appeared before the intro: ${hiddenSidebar.opacity}`);
+      if (width === 1440) await page.screenshot({ path: join(tmpdir(), "mu-welcome-talent-intro.png") });
+      await page.evaluate((top) => window.scrollTo({ top, behavior: "instant" }), position.top + position.travel * 0.06);
+      await page.waitForTimeout(300);
+      const moving = await frameBounds();
+      const emergingSidebar = await sidebarBounds();
+      assert.ok(moving.left > centered.left && moving.width < centered.width, `Profile 1 did not move and shrink during intro: ${JSON.stringify({ centered, moving })}`);
+      assert.ok(emergingSidebar.opacity > 0 && emergingSidebar.opacity < 1, `Sidebar did not reveal with Profile 1: ${emergingSidebar.opacity}`);
+      await page.evaluate((top) => window.scrollTo({ top, behavior: "instant" }), position.top + position.travel * 0.145);
+      await page.waitForTimeout(400);
+      const first = await frameBounds();
+      const sidebar = await sidebarBounds();
       assert.ok((await page.locator(".welcome-talent-desktop-nav button.is-active").textContent())?.includes("Programming"), "Profile 1 was not active during introduction");
       assert.ok(sidebar.opacity > 0.95 && sidebar.right < first.left, `Sidebar did not settle beside Profile 1: ${JSON.stringify({ sidebar, first })}`);
       assert.equal(first.xTransform, "none", "Profile viewport has a horizontal transform");
       assert.ok(first.left >= 0 && first.right <= width + 1, `${width}px talent card clipped: ${JSON.stringify(first)}`);
 
-      const secondProgress = 0.14 + 1.5 * 0.74 / talents.length;
+      const secondProgress = 0.195 + 0.5 * 0.15;
       await page.evaluate((top) => window.scrollTo({ top, behavior: "instant" }), position.top + position.travel * secondProgress);
       await page.waitForFunction(() => document.querySelector(".welcome-talent-desktop-nav button.is-active")?.textContent?.includes("Design"));
       await page.waitForTimeout(90);
@@ -137,7 +163,7 @@ try {
       assert.ok(selected?.includes("Pitching"), `Desktop scroll did not change category: ${selected}`);
       for (let index = 0; index < talents.length; index++) {
         const [category, name] = talents[index];
-        const progress = 0.14 + (index + 0.5) * 0.74 / talents.length;
+        const progress = index === 0 ? 0.145 : 0.195 + (index - 0.5) * 0.15;
         await page.evaluate((top) => window.scrollTo({ top, behavior: "instant" }), position.top + position.travel * progress);
         await page.waitForTimeout(650);
         assert.ok((await page.locator(".welcome-talent-desktop-nav button.is-active").textContent())?.includes(category), `Desktop category ${category} did not activate`);
@@ -155,6 +181,22 @@ try {
       await page.evaluate((top) => window.scrollTo({ top, behavior: "instant" }), position.top);
       await page.waitForTimeout(650);
       assert.ok((await page.locator(".welcome-talent-desktop-nav button.is-active").textContent())?.includes("Programming"), "Desktop reverse scroll did not restore the first category");
+      const restoredCenter = await frameBounds();
+      assert.ok(Math.abs((restoredCenter.left + restoredCenter.right) / 2 - width / 2) <= 3, "Reverse scroll did not restore centered Profile 1");
+      assert.ok((await sidebarBounds()).opacity < 0.05, "Reverse scroll did not hide the sidebar");
+      if (width === 1440) {
+        await page.setViewportSize({ width: 768, height: 900 });
+        await page.waitForTimeout(450);
+        assert.ok(await page.locator(".welcome-talent-mobile-nav").isVisible(), "Tablet resize did not switch to the contained tabs");
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), 768, "Tablet resize introduced horizontal overflow");
+        await page.setViewportSize({ width: 1440, height: 900 });
+        await page.waitForTimeout(450);
+        const resizedTop = await talent.evaluate((node) => node.getBoundingClientRect().top + scrollY);
+        await page.evaluate((top) => window.scrollTo({ top, behavior: "instant" }), resizedTop);
+        await page.waitForTimeout(450);
+        const resizedCenter = await frameBounds();
+        assert.ok(Math.abs((resizedCenter.left + resizedCenter.right) / 2 - 720) <= 3, "Desktop resize did not restore the centered introduction");
+      }
     }
     if (width < 900) {
       await page.evaluate(() => {
