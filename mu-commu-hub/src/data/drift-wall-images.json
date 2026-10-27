@@ -1,10 +1,10 @@
 [
-  { "id": 1, "src": "/images/welcome/collaboration.png", "alt": "Illustrative example of students collaborating" },
-  { "id": 2, "src": "/images/welcome/programming.png", "alt": "Illustrative example of a robotics student" },
-  { "id": 3, "src": "/images/welcome/design.png", "alt": "Illustrative example of a design student" },
-  { "id": 4, "src": "/images/welcome/pitching.png", "alt": "Illustrative example of a student pitch practice" },
-  { "id": 5, "src": "/images/welcome/design.png", "alt": "Illustrative example of creative work" },
-  { "id": 6, "src": "/images/welcome/collaboration.png", "alt": "Illustrative example of teamwork" },
-  { "id": 7, "src": "/images/welcome/pitching.png", "alt": "Illustrative example of a presentation" },
-  { "id": 8, "src": "/images/welcome/programming.png", "alt": "Illustrative example of a technical project" }
+  { "id": 1, "src": "/images/welcome/photo-students.webp", "alt": "Students gathered around a laptop" },
+  { "id": 2, "src": "/images/welcome/photo-programming.webp", "alt": "Hands working on code at a laptop" },
+  { "id": 3, "src": "/images/welcome/photo-design.webp", "alt": "Person working on a computer-aided design" },
+  { "id": 4, "src": "/images/welcome/photo-pitching.webp", "alt": "Team planning at a whiteboard" },
+  { "id": 5, "src": "/images/welcome/photo-marketing.webp", "alt": "Team discussing a project around a table" },
+  { "id": 6, "src": "/images/welcome/photo-collaboration.webp", "alt": "Two people collaborating at a laptop" },
+  { "id": 7, "src": "/images/welcome/photo-robotics.webp", "alt": "Hands working with a drone beside a laptop" },
+  { "id": 8, "src": "/images/welcome/photo-ai-data.webp", "alt": "Researchers working at computers in a laboratory" }
 ]

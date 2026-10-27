@@ -1,0 +1,66 @@
+[
+  {
+    "id": "programming",
+    "file": "/images/welcome/photo-programming.webp",
+    "photographer": "Hasnain Ayaz",
+    "source": "https://unsplash.com/photos/person-working-on-a-laptop-coding-and-analyzing-data-Su1XYFlftXA",
+    "imageUrl": "https://images.unsplash.com/photo-1753613648242-6b6c5b88e4d1",
+    "license": "https://unsplash.com/license"
+  },
+  {
+    "id": "design",
+    "file": "/images/welcome/photo-design.webp",
+    "photographer": "ChuanYang Chen",
+    "source": "https://unsplash.com/photos/person-using-black-laptop-computer-wyA-H3XLQ0w",
+    "imageUrl": "https://images.unsplash.com/photo-1629118938047-0f28bbe5af7a",
+    "license": "https://unsplash.com/license"
+  },
+  {
+    "id": "marketing",
+    "file": "/images/welcome/photo-marketing.webp",
+    "photographer": "Memento Media",
+    "source": "https://unsplash.com/photos/people-sitting-at-the-table-2pPw5Glro5I",
+    "imageUrl": "https://images.unsplash.com/photo-1624555130581-1d9cca783bc0",
+    "license": "https://unsplash.com/license"
+  },
+  {
+    "id": "pitching",
+    "file": "/images/welcome/photo-pitching.webp",
+    "photographer": "Parabol | The Agile Meeting Tool",
+    "source": "https://unsplash.com/photos/a-man-and-a-woman-standing-in-front-of-a-whiteboard-lPgmMWtX14Q",
+    "imageUrl": "https://images.unsplash.com/photo-1646066490199-a395f7194f9e",
+    "license": "https://unsplash.com/license"
+  },
+  {
+    "id": "ai-data",
+    "file": "/images/welcome/photo-ai-data.webp",
+    "photographer": "Chidera Faustina Okeke",
+    "source": "https://unsplash.com/photos/two-scientists-working-on-computers-in-a-laboratory-XLQuTdktpa8",
+    "imageUrl": "https://images.unsplash.com/photo-1766297247924-6638d54e7c89",
+    "license": "https://unsplash.com/license"
+  },
+  {
+    "id": "robotics",
+    "file": "/images/welcome/photo-robotics.webp",
+    "photographer": "Árpád Czapp",
+    "source": "https://unsplash.com/photos/person-holding-white-and-orange-plastic-toy-JZ2lKW6TzHU",
+    "imageUrl": "https://images.unsplash.com/photo-1618593460108-4054ee753d5b",
+    "license": "https://unsplash.com/license"
+  },
+  {
+    "id": "collaboration",
+    "file": "/images/welcome/photo-collaboration.webp",
+    "photographer": "Christina @ wocintechchat.com M",
+    "source": "https://unsplash.com/photos/two-women-looking-at-the-screen-of-a-macbook-IxmHiUC-yOw",
+    "imageUrl": "https://images.unsplash.com/photo-1573497019414-e44d0759d00e",
+    "license": "https://unsplash.com/license"
+  },
+  {
+    "id": "students",
+    "file": "/images/welcome/photo-students.webp",
+    "photographer": "Vitaly Gariev",
+    "source": "https://unsplash.com/photos/diverse-group-of-students-gathered-around-a-laptop-8gAbl776pc0",
+    "imageUrl": "https://images.unsplash.com/photo-1758270705317-3ef6142d306f",
+    "license": "https://unsplash.com/license"
+  }
+]

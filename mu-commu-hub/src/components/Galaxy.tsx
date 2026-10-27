@@ -260,7 +260,7 @@ void main() {
     float coverage = pow(min(energy * 1.3, 1.0), 1.3) * 0.92 * uOpacity;
     outColor = uMode > 2.5 ? vec4(ink * coverage, coverage) : vec4(mix(uBackground, ink, coverage), 1.0);
   } else if (uMode > 0.5) {
-    float alpha = min(smoothstep(0.0, 0.3, length(col)), 1.0) * uOpacity;
+    float alpha = min(smoothstep(0.12, 0.7, length(col)), 1.0) * uOpacity;
     outColor = vec4(col * alpha, alpha);
   } else {
     outColor = vec4(mix(uBackground, col, uOpacity), 1.0);

@@ -6,6 +6,9 @@ import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import SplitText from "@/components/SplitText";
+import GradientText from "@/components/GradientText";
+import BlurText from "@/components/BlurText";
 import driftImages from "@/data/drift-wall-images.json";
 
 const DriftWall = dynamic(() => import("@/components/DriftWall"), { ssr: false });
@@ -94,7 +97,7 @@ export default function WelcomeNavbar() {
   }, []);
 
   return (
-    <header ref={nav} className={expanded ? "welcome-navbar is-expanded" : "welcome-navbar"}>
+    <header ref={nav} className={expanded ? "welcome-navbar is-expanded" : "welcome-navbar"} style={{ backdropFilter: "blur(22px) saturate(140%)", WebkitBackdropFilter: "blur(22px) saturate(140%)" }}>
       <Link href="/" ref={brand} className="welcome-navbar-brand" aria-label="MU Connect welcome page">MU <span>CONNECT</span></Link>
       <div ref={wall} className="welcome-nav-wall" aria-hidden="true" inert>
         {wallReady && <DriftWall items={driftImages.map((item) => ({ image: item.src, title: item.alt }))} columns={5} tileWidth={215} tileHeight={160} gap={19} radius={16} tilt={11} turn={-10} speed={15} variance={0.18} parallax={0.25} dim={0.74} fade={0.48} overlayColor="#102d58" />}
@@ -102,8 +105,14 @@ export default function WelcomeNavbar() {
       <div className="welcome-nav-overlay" aria-hidden="true" />
       <div ref={cta} className="welcome-nav-cta" aria-hidden={!expanded}>
         <span className="welcome-nav-kicker">YOUR NEXT CHAPTER IS WAITING</span>
-        <h2>Find your people.<br /><em>Build something together.</em></h2>
-        <p>One connection can change what&apos;s possible.</p>
+        {expanded ? (
+          <>
+            <h2><SplitText text="Find your people." tag="span" className="welcome-cta-split" trigger="load" effect="rise" splitType="words" delay={95} duration={0.92} /><br /><em className="welcome-cta-emphasis"><SplitText text="Build something" tag="span" className="welcome-cta-split" trigger="load" effect="blur" splitType="words" delay={92} duration={0.95} /> <GradientText colors={["#f6d184", "#ffffff", "#f9d575"]} animationSpeed={13} scale={2.4} className="welcome-cta-gradient">together.</GradientText></em></h2>
+            <BlurText text="One connection can change what's possible." className="welcome-cta-description" trigger="load" animateBy="words" effect="focus" delay={45} stepDuration={0.24} />
+          </>
+        ) : (
+          <><h2>Find your people.<br /><em>Build something together.</em></h2><p>One connection can change what&apos;s possible.</p></>
+        )}
         <Link href="/login" className="welcome-start-button" tabIndex={expanded ? 0 : -1}>Start <ArrowUpRight size={20} aria-hidden="true" /></Link>
       </div>
       <div className="welcome-nav-foot" aria-hidden={!expanded}><span>MU CONNECT / AN INDEPENDENT PROTOTYPE</span><span>MADE FOR WHAT&apos;S NEXT · 2026</span></div>

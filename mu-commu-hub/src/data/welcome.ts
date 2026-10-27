@@ -11,29 +11,42 @@ export interface WelcomeTalent {
   project: string;
 }
 
+export interface WelcomeCollageImage {
+  id: string;
+  label: string;
+  image: string;
+  scatterX: number;
+  scatterY: number;
+  scatterRotation: number;
+  baseRotation: number;
+  floatDuration: number;
+  mobile: boolean;
+  tablet: boolean;
+}
+
 // Fictional example profiles for the frontend prototype.
 export const welcomeTalents: WelcomeTalent[] = [
   {
     id: "programming",
     category: "Programming",
     name: "Narin",
-    role: "Creative developer",
+    role: "Full-Stack Developer",
     description: "Turns ambitious ideas into things people can actually use. Always up for a thoughtful build session.",
-    skills: ["React", "Python", "Robotics"],
-    image: "/images/welcome/programming.png",
-    imageAlt: "Illustrative example of a student working on a robotics project",
+    skills: ["React", "TypeScript", "Python"],
+    image: "/images/welcome/photo-programming.webp",
+    imageAlt: "Stock photograph of a person coding on a laptop; this does not depict Narin",
     accent: "#b8d5f2",
-    project: "Building a campus robotics prototype",
+    project: "Building a campus collaboration tool",
   },
   {
     id: "design",
     category: "Design",
     name: "Pim",
-    role: "Digital product designer",
+    role: "Product Designer",
     description: "Makes complex ideas feel simple, human, and a little more delightful.",
     skills: ["UI/UX", "Figma", "Illustration"],
-    image: "/images/welcome/design.png",
-    imageAlt: "Illustrative example of a student designing at a studio desk",
+    image: "/images/welcome/photo-design.webp",
+    imageAlt: "Stock photograph of a person working on a CAD design; this does not depict Pim",
     accent: "#eed8be",
     project: "Exploring better everyday campus experiences",
   },
@@ -41,11 +54,11 @@ export const welcomeTalents: WelcomeTalent[] = [
     id: "marketing",
     category: "Marketing",
     name: "Maya",
-    role: "Community storyteller",
+    role: "Digital Marketer",
     description: "Finds the message that brings people together and gives good projects their audience.",
     skills: ["Strategy", "Content", "Research"],
-    image: "/images/welcome/collaboration.png",
-    imageAlt: "Illustrative example of students collaborating around a laptop",
+    image: "/images/welcome/photo-marketing.webp",
+    imageAlt: "Stock photograph of a team meeting; this does not depict Maya",
     accent: "#d6e4ce",
     project: "Connecting ideas with the right community",
   },
@@ -53,14 +66,47 @@ export const welcomeTalents: WelcomeTalent[] = [
     id: "pitching",
     category: "Pitching",
     name: "Than",
-    role: "Ideas & presentation",
+    role: "Startup Pitch Specialist",
     description: "Brings clarity and energy to a room, from the first sketch to the final pitch.",
     skills: ["Public speaking", "Startup", "Teamwork"],
-    image: "/images/welcome/pitching.png",
-    imageAlt: "Illustrative example of students practicing a project pitch",
+    image: "/images/welcome/photo-pitching.webp",
+    imageAlt: "Stock photograph of a team presenting at a whiteboard; this does not depict Than",
     accent: "#e9d4c6",
     project: "Practicing for the next big presentation",
   },
+  {
+    id: "ai-data",
+    category: "AI & Data",
+    name: "Nicha",
+    role: "AI / Data Enthusiast",
+    description: "Finds useful patterns in messy questions and turns research into thoughtful tools.",
+    skills: ["Python", "Machine learning", "Data storytelling"],
+    image: "/images/welcome/photo-ai-data.webp",
+    imageAlt: "Stock photograph of researchers using computers in a lab; this does not depict Nicha",
+    accent: "#c6dbed",
+    project: "Exploring data to improve campus mobility",
+  },
+  {
+    id: "robotics",
+    category: "Robotics",
+    name: "Dao",
+    role: "Robotics Developer",
+    description: "Loves the moment when code, sensors, and a prototype finally move together.",
+    skills: ["Embedded systems", "CAD", "Sensors"],
+    image: "/images/welcome/photo-robotics.webp",
+    imageAlt: "Stock photograph of hands working on a drone and laptop; this does not depict Dao",
+    accent: "#cadceb",
+    project: "Testing a small autonomous robot prototype",
+  },
+];
+
+export const welcomeCollage: WelcomeCollageImage[] = [
+  { id: "01", label: "Programming", image: "/images/welcome/photo-programming.webp", scatterX: -250, scatterY: -130, scatterRotation: -10, baseRotation: -7, floatDuration: 11.5, mobile: true, tablet: true },
+  { id: "02", label: "Robotics", image: "/images/welcome/photo-robotics.webp", scatterX: -210, scatterY: 80, scatterRotation: 11, baseRotation: 5, floatDuration: 13.8, mobile: false, tablet: false },
+  { id: "03", label: "Design", image: "/images/welcome/photo-design.webp", scatterX: -190, scatterY: 190, scatterRotation: -9, baseRotation: -6, floatDuration: 12.6, mobile: false, tablet: true },
+  { id: "06", label: "Pitching", image: "/images/welcome/photo-pitching.webp", scatterX: 240, scatterY: -125, scatterRotation: 10, baseRotation: 6, floatDuration: 10.8, mobile: true, tablet: true },
+  { id: "07", label: "Marketing", image: "/images/welcome/photo-marketing.webp", scatterX: 235, scatterY: 80, scatterRotation: -8, baseRotation: -5, floatDuration: 15.4, mobile: false, tablet: true },
+  { id: "08", label: "AI & Data", image: "/images/welcome/photo-ai-data.webp", scatterX: 195, scatterY: 185, scatterRotation: 9, baseRotation: 5, floatDuration: 12.1, mobile: true, tablet: true },
 ];
 
 export const welcomeBenefits = [
