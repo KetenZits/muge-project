@@ -4,7 +4,7 @@ A frontend-only university community prototype for meeting students, recruiting 
 
 ## Tech stack
 
-Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4, Radix UI primitives, Lucide, Motion, Three.js, React Three Fiber, Zustand, Faker, MSW, React Hook Form, Zod, Dexie/IndexedDB, and Sonner. Inter and Kanit are bundled locally for English and Thai text.
+Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4, Radix UI primitives, Lucide, Motion, GSAP, React Bits, Three.js, React Three Fiber, Zustand, Faker, MSW, React Hook Form, Zod, Dexie/IndexedDB, and Sonner. Inter and Kanit are bundled locally for English and Thai text.
 
 ## Install and run
 
@@ -23,7 +23,7 @@ npm run build
 
 With the dev server running, `npm run test:smoke` checks primary routes, browser errors, and responsive overflow on key routes at 375, 430, 768, 1024, and 1440 pixels. `npm run test:interactions` checks posts, comments, recruitment, event announcements, bookmarks, join requests, follows, messages, drafts, and profile edits across refreshes in an isolated Chrome session. These scripts use the installed Chrome executable on Windows.
 
-`npm run test:motion` checks the landing scene at five viewport sizes, Canvas DPR caps, scroll pausing, reduced motion, WebGL fallback, and CTA navigation.
+`npm run test:motion` checks the welcome page at 1440, 1024, 768, 425, 390, 375, 360, and 320 pixels. It verifies the GLB request, pinned hero fade and reverse, folder interaction, mobile category switching without document movement, navbar expansion and collapse, reduced motion, WebGL fallback, and navigation through the final Start button. Screenshots are written to the system temporary directory.
 
 `npm run test:auth` checks profile restoration and startup states, Strict Mode replay, blocked database upgrades, storage and MSW failures, Retry, entering before data loads, onboarding completion, and browser navigation. It uses isolated storage and never opens an existing browser profile. Set `BASE_URL` to test a different local server.
 
@@ -45,7 +45,9 @@ The app uses a desktop sidebar, a tablet/mobile top bar, and mobile bottom navig
 src/app/                 App Router route files and layouts
 src/components/layout/   Responsive shell, navigation, search, route loading states
 src/components/motion/   Reusable entrance and reveal component
-src/components/three/    Isolated, lazy loaded landing scene and fallback
+src/components/welcome/  Welcome hero, emblem, folders, talent showcase, and transforming navbar
+src/components/         Installed React Bits source: Galaxy, LightRays, Folder, DriftWall, SplitText
+src/data/               Editable welcome talent/benefit data and Drift Wall JSON
 src/components/events/   Calendar view
 src/components/people/   Profile editing dialog
 src/components/posts/    Post creation dialog
@@ -134,4 +136,6 @@ Keep the service method signatures in `src/lib/api/client.ts` and point the shar
 
 ## Design notes
 
-The interface uses university blue `#17468C`, gold `#A5812D`, and accent yellow `#FAC334` on mostly neutral surfaces. No university logo asset was present, so the brand uses a replaceable text mark. Motion handles navigation, card, dialog, and message feedback with shared timing. The landing network is the only WebGL scene. It loads when visible, stops rendering offscreen or in a hidden tab, caps mobile DPR at 1, and falls back to a static illustration for reduced motion or unavailable WebGL. GSAP was unnecessary for this layout.
+The interface uses university blue `#17468C`, gold `#A5812D`, and accent yellow `#FAC334` on mostly neutral surfaces. The welcome page renders the provided emblem from `public/models/mu-emblem.glb`, preserving its materials. A floating navbar expands into the final call to action. GSAP ScrollTrigger pins the desktop hero and benefits during reversible scene crossfades, scatters the collage, and selects talent categories as the reader scrolls. Mobile keeps normal scrolling and uses a horizontally contained talent selector. The React Bits Galaxy, Light Rays, Folder, Drift Wall, and Split Text components live in `src/components/`. Galaxy runs only on wide screens with reduced layers and pixel density; CSS stars provide a lighter mobile atmosphere. The emblem and rays pause or reduce offscreen work. Reduced motion disables continuous effects and scroll choreography while keeping content and controls available. Browsers without WebGL keep the atmospheric hero and readable content without a blocking logo splash.
+
+Welcome content is intentionally easy to change: edit `src/data/welcome.ts` for benefit folders and fictional example talent profiles, and `src/data/drift-wall-images.json` for the final image wall. The example imagery is under `public/images/welcome/`. The four portraits/scenes are generated fictional illustrations, not real student profiles. The welcome page is an independent prototype and does not claim to be an official university website.

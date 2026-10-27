@@ -1,0 +1,10 @@
+[
+  { "id": 1, "src": "/images/welcome/collaboration.png", "alt": "Illustrative example of students collaborating" },
+  { "id": 2, "src": "/images/welcome/programming.png", "alt": "Illustrative example of a robotics student" },
+  { "id": 3, "src": "/images/welcome/design.png", "alt": "Illustrative example of a design student" },
+  { "id": 4, "src": "/images/welcome/pitching.png", "alt": "Illustrative example of a student pitch practice" },
+  { "id": 5, "src": "/images/welcome/design.png", "alt": "Illustrative example of creative work" },
+  { "id": 6, "src": "/images/welcome/collaboration.png", "alt": "Illustrative example of teamwork" },
+  { "id": 7, "src": "/images/welcome/pitching.png", "alt": "Illustrative example of a presentation" },
+  { "id": 8, "src": "/images/welcome/programming.png", "alt": "Illustrative example of a technical project" }
+]
