@@ -23,7 +23,7 @@ function TalentCard({ talent, reduced }: { talent: WelcomeTalent; reduced: boole
     >
       <div className="welcome-talent-photo"><Image src={talent.image} alt={talent.imageAlt} fill sizes="(max-width: 900px) 90vw, 560px" className="welcome-talent-photo-image" /></div>
       <div className="welcome-talent-details">
-        <span className="welcome-talent-index">FICTIONAL PROFILE · STOCK PHOTOGRAPHY</span>
+        <span className="welcome-talent-index">FICTIONAL PROFILE / STOCK PHOTOGRAPHY</span>
         <div>
           <span className="welcome-talent-category">{talent.category} / EXAMPLE PROFILE</span>
           <h3>{talent.name}<span>.</span></h3>
