@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { chromium } from "playwright-core";
+import { chromium } from "./browser.mjs";
 import { mkdir, writeFile } from "node:fs/promises";
 
 // All fixtures live in a new, isolated browser context. No existing browser profile is opened.
@@ -225,7 +225,7 @@ try {
   );
   await page.goto("http://localhost:3000/teams");
   await ready();
-  await page.getByRole("button", { name: /Recruit teammates/i }).click();
+  await page.getByRole("button", { name: /Create a Team/i }).click();
   const composer = page.getByRole("dialog", {
     name: "Create a post",
     exact: true,

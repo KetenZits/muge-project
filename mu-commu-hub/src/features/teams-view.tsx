@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import Link from "next/link";
 import { Plus, Trophy, Users } from "lucide-react";
 import { Button, EmptyState, PageHeader, inputClass } from "@/components/ui";
@@ -12,9 +12,13 @@ import {
   AppliedFilters,
   FilterDisclosure,
   SearchInput,
+  ResultGrid,
+  Segmented,
 } from "./shared-controls";
 
 const defaults = {
+  view: "browse",
+  limit: "12",
   query: "",
   competition: "",
   role: "",
@@ -53,7 +57,19 @@ export function TeamsView() {
       : "Recommended",
   };
   const options = (values: string[]) => [...new Set(values)].sort();
-  const list = filterTeams(teams, users, competitions, user, filters);
+  const interactions = useApp((s) => s.interactions);
+  const view = ["browse", "mine", "requests"].includes(state.view)
+    ? state.view
+    : "browse";
+  const limit = Math.max(12, Math.min(1000, Number(state.limit) || 12));
+  const list = filterTeams(teams, users, competitions, user, filters).filter(
+    (team) =>
+      view === "mine"
+        ? team.leaderId === user.id
+        : view === "requests"
+          ? interactions.some((item) => item.id === `teamRequest:${team.id}`)
+          : true,
+  );
   const filterKeys = [
     "query",
     "competition",
@@ -98,18 +114,50 @@ export function TeamsView() {
   return (
     <div>
       <PageHeader
-        title="Team Finder"
-        subtitle="Find an open role that fits your skills, or bring the missing person into your project."
+        title="Teams"
+        subtitle="Find your next project, start a team, or pick up where you left off."
         action={
           <Button onClick={() => openComposer("Team")}>
-            <Plus size={16} /> Recruit teammates
+            <Plus size={16} /> Create a Team
           </Button>
         }
       />
-      <div className="mb-6">
+      <div className="mb-5">
+        <Segmented
+          options={["Find teams", "My teams", "Join requests"]}
+          value={
+            view === "mine"
+              ? "My teams"
+              : view === "requests"
+                ? "Join requests"
+                : "Find teams"
+          }
+          setValue={(value) =>
+            setState({
+              view:
+                value === "My teams"
+                  ? "mine"
+                  : value === "Join requests"
+                    ? "requests"
+                    : "browse",
+              limit: "12",
+            })
+          }
+          label="Team views"
+        />
+      </div>
+      {view === "mine" && (
+        <p className="mb-5 text-sm leading-6 text-muted">
+          Teams you lead appear here. Your pending requests are in Join
+          requests.
+        </p>
+      )}
+      <div className="directory-toolbar">
         <SearchInput
           value={state.query}
-          onChange={(query) => setState({ query }, { replace: true })}
+          onChange={(query) =>
+            setState({ query, limit: "12" }, { replace: true })
+          }
           placeholder="Search projects, roles, or skills..."
           label="Search teams"
         />
@@ -204,21 +252,30 @@ export function TeamsView() {
             </select>
           </label>
         </FilterDisclosure>
-        <AppliedFilters items={applied} onReset={() => setState(defaults)} />
+        <AppliedFilters
+          items={applied}
+          onReset={() => setState({ ...defaults, view })}
+        />
       </div>
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="section-heading">Open roles</h2>
+          <h2 className="section-heading">
+            {view === "mine"
+              ? "Teams you lead"
+              : view === "requests"
+                ? "Your join requests"
+                : "Open projects"}
+          </h2>
           <p className="mt-1 text-sm text-muted" role="status">
             {list.length} teams found
           </p>
         </div>
         <label className="flex items-center gap-2 text-sm text-muted">
-          Sort
+          <span className="sr-only">Sort teams</span>
           <select
             value={filters.sort}
             onChange={(event) => setState({ sort: event.target.value })}
-            className={inputClass + " w-auto"}
+            className={inputClass + " w-auto max-w-40"}
           >
             {sortOrders.map((value) => (
               <option key={value}>{value}</option>
@@ -227,23 +284,37 @@ export function TeamsView() {
         </label>
       </div>
       <p className="mb-5 text-xs leading-5 text-muted">
-        Demo requests are saved in this browser. No team or student is
-        contacted.
+        Local demo · requests stay on this device. No one is contacted.
       </p>
       {list.length ? (
-        <div className="space-y-4">
-          {list.map((team) => (
+        <ResultGrid>
+          {list.slice(0, limit).map((team) => (
             <TeamCard key={team.id} team={team} />
           ))}
-        </div>
+        </ResultGrid>
       ) : (
         <EmptyState
           icon={<Users />}
-          title="No teams match these filters"
-          description="Try another role or clear refinements to see more projects."
+          title={
+            view === "mine"
+              ? "Your next team starts here"
+              : view === "requests"
+                ? "No matching join requests"
+                : "No teams match these filters"
+          }
+          description={
+            view === "mine"
+              ? "Create a team recruitment post to bring collaborators together."
+              : view === "requests"
+                ? "Find a team and request to join. Your saved requests will appear here."
+                : "Try another role or clear refinements to see more projects."
+          }
           action={
             <div className="flex flex-wrap justify-center gap-2">
-              <Button variant="secondary" onClick={() => setState(defaults)}>
+              <Button
+                variant="secondary"
+                onClick={() => setState({ ...defaults, view })}
+              >
                 Reset filters
               </Button>
               <Button onClick={() => openComposer("Team")}>
@@ -252,6 +323,17 @@ export function TeamsView() {
             </div>
           }
         />
+      )}
+      {list.length > limit && (
+        <Button
+          variant="secondary"
+          className="mt-6"
+          onClick={() =>
+            setState({ limit: String(limit + 12) }, { replace: true })
+          }
+        >
+          Show more teams
+        </Button>
       )}
       <Link
         href="/competitions"

@@ -1,0 +1,965 @@
+{
+  "responsive": [
+    {
+      "route": "/home",
+      "width": 320,
+      "overflow": false,
+      "documentWidth": 320,
+      "headings": ["Welcome back, Tester."],
+      "unnamed": 0
+    },
+    {
+      "route": "/home?view=feed",
+      "width": 320,
+      "overflow": false,
+      "documentWidth": 320,
+      "headings": ["Campus conversations"],
+      "unnamed": 0
+    },
+    {
+      "route": "/discover",
+      "width": 320,
+      "overflow": false,
+      "documentWidth": 320,
+      "headings": ["Discover"],
+      "unnamed": 0
+    },
+    {
+      "route": "/people",
+      "width": 320,
+      "overflow": false,
+      "documentWidth": 320,
+      "headings": ["Find your people"],
+      "unnamed": 0
+    },
+    {
+      "route": "/teams",
+      "width": 320,
+      "overflow": false,
+      "documentWidth": 320,
+      "headings": ["Teams"],
+      "unnamed": 0
+    },
+    {
+      "route": "/teams?view=mine",
+      "width": 320,
+      "overflow": false,
+      "documentWidth": 320,
+      "headings": ["Teams"],
+      "unnamed": 0
+    },
+    {
+      "route": "/teams/t1",
+      "width": 320,
+      "overflow": false,
+      "documentWidth": 320,
+      "headings": ["AI Study Companion"],
+      "unnamed": 0
+    },
+    {
+      "route": "/profile/tester",
+      "width": 320,
+      "overflow": false,
+      "documentWidth": 320,
+      "headings": ["Tester"],
+      "unnamed": 0
+    },
+    {
+      "route": "/messages",
+      "width": 320,
+      "overflow": false,
+      "documentWidth": 320,
+      "headings": ["Messages"],
+      "unnamed": 0
+    },
+    {
+      "route": "/notifications",
+      "width": 320,
+      "overflow": false,
+      "documentWidth": 320,
+      "headings": ["Notifications"],
+      "unnamed": 0
+    },
+    {
+      "route": "/saved",
+      "width": 320,
+      "overflow": false,
+      "documentWidth": 320,
+      "headings": ["Saved for later"],
+      "unnamed": 0
+    },
+    {
+      "route": "/me",
+      "width": 320,
+      "overflow": false,
+      "documentWidth": 320,
+      "headings": ["My Activity"],
+      "unnamed": 0
+    },
+    {
+      "route": "/competitions",
+      "width": 320,
+      "overflow": false,
+      "documentWidth": 320,
+      "headings": ["Competitions"],
+      "unnamed": 0
+    },
+    {
+      "route": "/competitions/c1",
+      "width": 320,
+      "overflow": false,
+      "documentWidth": 320,
+      "headings": ["Campus AI Challenge 2026"],
+      "unnamed": 0
+    },
+    {
+      "route": "/events",
+      "width": 320,
+      "overflow": false,
+      "documentWidth": 320,
+      "headings": ["Events & gatherings"],
+      "unnamed": 0
+    },
+    {
+      "route": "/communities",
+      "width": 320,
+      "overflow": false,
+      "documentWidth": 320,
+      "headings": ["Communities"],
+      "unnamed": 0
+    },
+    {
+      "route": "/communities/ai-collective",
+      "width": 320,
+      "overflow": false,
+      "documentWidth": 320,
+      "headings": ["AI Collective"],
+      "unnamed": 0
+    },
+    {
+      "route": "/posts/p1",
+      "width": 320,
+      "overflow": false,
+      "documentWidth": 320,
+      "headings": ["Looking for 2 teammates for AI Hackathon"],
+      "unnamed": 0
+    },
+    {
+      "route": "/login",
+      "width": 320,
+      "overflow": false,
+      "documentWidth": 320,
+      "headings": ["Enter the demo"],
+      "unnamed": 0
+    },
+    {
+      "route": "/onboarding",
+      "width": 320,
+      "overflow": false,
+      "documentWidth": 320,
+      "headings": ["What are you curious about?"],
+      "unnamed": 0
+    },
+    {
+      "route": "/home",
+      "width": 360,
+      "overflow": false,
+      "documentWidth": 360,
+      "headings": ["Welcome back, Tester."],
+      "unnamed": 0
+    },
+    {
+      "route": "/home?view=feed",
+      "width": 360,
+      "overflow": false,
+      "documentWidth": 360,
+      "headings": ["Campus conversations"],
+      "unnamed": 0
+    },
+    {
+      "route": "/discover",
+      "width": 360,
+      "overflow": false,
+      "documentWidth": 360,
+      "headings": ["Discover"],
+      "unnamed": 0
+    },
+    {
+      "route": "/people",
+      "width": 360,
+      "overflow": false,
+      "documentWidth": 360,
+      "headings": ["Find your people"],
+      "unnamed": 0
+    },
+    {
+      "route": "/teams",
+      "width": 360,
+      "overflow": false,
+      "documentWidth": 360,
+      "headings": ["Teams"],
+      "unnamed": 0
+    },
+    {
+      "route": "/teams?view=mine",
+      "width": 360,
+      "overflow": false,
+      "documentWidth": 360,
+      "headings": ["Teams"],
+      "unnamed": 0
+    },
+    {
+      "route": "/teams/t1",
+      "width": 360,
+      "overflow": false,
+      "documentWidth": 360,
+      "headings": ["AI Study Companion"],
+      "unnamed": 0
+    },
+    {
+      "route": "/profile/tester",
+      "width": 360,
+      "overflow": false,
+      "documentWidth": 360,
+      "headings": ["Tester"],
+      "unnamed": 0
+    },
+    {
+      "route": "/messages",
+      "width": 360,
+      "overflow": false,
+      "documentWidth": 360,
+      "headings": ["Messages"],
+      "unnamed": 0
+    },
+    {
+      "route": "/notifications",
+      "width": 360,
+      "overflow": false,
+      "documentWidth": 360,
+      "headings": ["Notifications"],
+      "unnamed": 0
+    },
+    {
+      "route": "/saved",
+      "width": 360,
+      "overflow": false,
+      "documentWidth": 360,
+      "headings": ["Saved for later"],
+      "unnamed": 0
+    },
+    {
+      "route": "/me",
+      "width": 360,
+      "overflow": false,
+      "documentWidth": 360,
+      "headings": ["My Activity"],
+      "unnamed": 0
+    },
+    {
+      "route": "/competitions",
+      "width": 360,
+      "overflow": false,
+      "documentWidth": 360,
+      "headings": ["Competitions"],
+      "unnamed": 0
+    },
+    {
+      "route": "/competitions/c1",
+      "width": 360,
+      "overflow": false,
+      "documentWidth": 360,
+      "headings": ["Campus AI Challenge 2026"],
+      "unnamed": 0
+    },
+    {
+      "route": "/events",
+      "width": 360,
+      "overflow": false,
+      "documentWidth": 360,
+      "headings": ["Events & gatherings"],
+      "unnamed": 0
+    },
+    {
+      "route": "/communities",
+      "width": 360,
+      "overflow": false,
+      "documentWidth": 360,
+      "headings": ["Communities"],
+      "unnamed": 0
+    },
+    {
+      "route": "/communities/ai-collective",
+      "width": 360,
+      "overflow": false,
+      "documentWidth": 360,
+      "headings": ["AI Collective"],
+      "unnamed": 0
+    },
+    {
+      "route": "/posts/p1",
+      "width": 360,
+      "overflow": false,
+      "documentWidth": 360,
+      "headings": ["Looking for 2 teammates for AI Hackathon"],
+      "unnamed": 0
+    },
+    {
+      "route": "/login",
+      "width": 360,
+      "overflow": false,
+      "documentWidth": 360,
+      "headings": ["Enter the demo"],
+      "unnamed": 0
+    },
+    {
+      "route": "/onboarding",
+      "width": 360,
+      "overflow": false,
+      "documentWidth": 360,
+      "headings": ["What are you curious about?"],
+      "unnamed": 0
+    },
+    {
+      "route": "/home",
+      "width": 390,
+      "overflow": false,
+      "documentWidth": 390,
+      "headings": ["Welcome back, Tester."],
+      "unnamed": 0
+    },
+    {
+      "route": "/home?view=feed",
+      "width": 390,
+      "overflow": false,
+      "documentWidth": 390,
+      "headings": ["Campus conversations"],
+      "unnamed": 0
+    },
+    {
+      "route": "/discover",
+      "width": 390,
+      "overflow": false,
+      "documentWidth": 390,
+      "headings": ["Discover"],
+      "unnamed": 0
+    },
+    {
+      "route": "/people",
+      "width": 390,
+      "overflow": false,
+      "documentWidth": 390,
+      "headings": ["Find your people"],
+      "unnamed": 0
+    },
+    {
+      "route": "/teams",
+      "width": 390,
+      "overflow": false,
+      "documentWidth": 390,
+      "headings": ["Teams"],
+      "unnamed": 0
+    },
+    {
+      "route": "/teams?view=mine",
+      "width": 390,
+      "overflow": false,
+      "documentWidth": 390,
+      "headings": ["Teams"],
+      "unnamed": 0
+    },
+    {
+      "route": "/teams/t1",
+      "width": 390,
+      "overflow": false,
+      "documentWidth": 390,
+      "headings": ["AI Study Companion"],
+      "unnamed": 0
+    },
+    {
+      "route": "/profile/tester",
+      "width": 390,
+      "overflow": false,
+      "documentWidth": 390,
+      "headings": ["Tester"],
+      "unnamed": 0
+    },
+    {
+      "route": "/messages",
+      "width": 390,
+      "overflow": false,
+      "documentWidth": 390,
+      "headings": ["Messages"],
+      "unnamed": 0
+    },
+    {
+      "route": "/notifications",
+      "width": 390,
+      "overflow": false,
+      "documentWidth": 390,
+      "headings": ["Notifications"],
+      "unnamed": 0
+    },
+    {
+      "route": "/saved",
+      "width": 390,
+      "overflow": false,
+      "documentWidth": 390,
+      "headings": ["Saved for later"],
+      "unnamed": 0
+    },
+    {
+      "route": "/me",
+      "width": 390,
+      "overflow": false,
+      "documentWidth": 390,
+      "headings": ["My Activity"],
+      "unnamed": 0
+    },
+    {
+      "route": "/competitions",
+      "width": 390,
+      "overflow": false,
+      "documentWidth": 390,
+      "headings": ["Competitions"],
+      "unnamed": 0
+    },
+    {
+      "route": "/competitions/c1",
+      "width": 390,
+      "overflow": false,
+      "documentWidth": 390,
+      "headings": ["Campus AI Challenge 2026"],
+      "unnamed": 0
+    },
+    {
+      "route": "/events",
+      "width": 390,
+      "overflow": false,
+      "documentWidth": 390,
+      "headings": ["Events & gatherings"],
+      "unnamed": 0
+    },
+    {
+      "route": "/communities",
+      "width": 390,
+      "overflow": false,
+      "documentWidth": 390,
+      "headings": ["Communities"],
+      "unnamed": 0
+    },
+    {
+      "route": "/communities/ai-collective",
+      "width": 390,
+      "overflow": false,
+      "documentWidth": 390,
+      "headings": ["AI Collective"],
+      "unnamed": 0
+    },
+    {
+      "route": "/posts/p1",
+      "width": 390,
+      "overflow": false,
+      "documentWidth": 390,
+      "headings": ["Looking for 2 teammates for AI Hackathon"],
+      "unnamed": 0
+    },
+    {
+      "route": "/login",
+      "width": 390,
+      "overflow": false,
+      "documentWidth": 390,
+      "headings": ["Enter the demo"],
+      "unnamed": 0
+    },
+    {
+      "route": "/onboarding",
+      "width": 390,
+      "overflow": false,
+      "documentWidth": 390,
+      "headings": ["What are you curious about?"],
+      "unnamed": 0
+    },
+    {
+      "route": "/home",
+      "width": 768,
+      "overflow": false,
+      "documentWidth": 768,
+      "headings": ["Welcome back, Tester."],
+      "unnamed": 0
+    },
+    {
+      "route": "/home?view=feed",
+      "width": 768,
+      "overflow": false,
+      "documentWidth": 768,
+      "headings": ["Campus conversations"],
+      "unnamed": 0
+    },
+    {
+      "route": "/discover",
+      "width": 768,
+      "overflow": false,
+      "documentWidth": 768,
+      "headings": ["Discover"],
+      "unnamed": 0
+    },
+    {
+      "route": "/people",
+      "width": 768,
+      "overflow": false,
+      "documentWidth": 768,
+      "headings": ["Find your people"],
+      "unnamed": 0
+    },
+    {
+      "route": "/teams",
+      "width": 768,
+      "overflow": false,
+      "documentWidth": 768,
+      "headings": ["Teams"],
+      "unnamed": 0
+    },
+    {
+      "route": "/teams?view=mine",
+      "width": 768,
+      "overflow": false,
+      "documentWidth": 768,
+      "headings": ["Teams"],
+      "unnamed": 0
+    },
+    {
+      "route": "/teams/t1",
+      "width": 768,
+      "overflow": false,
+      "documentWidth": 768,
+      "headings": ["AI Study Companion"],
+      "unnamed": 0
+    },
+    {
+      "route": "/profile/tester",
+      "width": 768,
+      "overflow": false,
+      "documentWidth": 768,
+      "headings": ["Tester"],
+      "unnamed": 0
+    },
+    {
+      "route": "/messages",
+      "width": 768,
+      "overflow": false,
+      "documentWidth": 768,
+      "headings": ["Messages"],
+      "unnamed": 0
+    },
+    {
+      "route": "/notifications",
+      "width": 768,
+      "overflow": false,
+      "documentWidth": 768,
+      "headings": ["Notifications"],
+      "unnamed": 0
+    },
+    {
+      "route": "/saved",
+      "width": 768,
+      "overflow": false,
+      "documentWidth": 768,
+      "headings": ["Saved for later"],
+      "unnamed": 0
+    },
+    {
+      "route": "/me",
+      "width": 768,
+      "overflow": false,
+      "documentWidth": 768,
+      "headings": ["My Activity"],
+      "unnamed": 0
+    },
+    {
+      "route": "/competitions",
+      "width": 768,
+      "overflow": false,
+      "documentWidth": 768,
+      "headings": ["Competitions"],
+      "unnamed": 0
+    },
+    {
+      "route": "/competitions/c1",
+      "width": 768,
+      "overflow": false,
+      "documentWidth": 768,
+      "headings": ["Campus AI Challenge 2026"],
+      "unnamed": 0
+    },
+    {
+      "route": "/events",
+      "width": 768,
+      "overflow": false,
+      "documentWidth": 768,
+      "headings": ["Events & gatherings"],
+      "unnamed": 0
+    },
+    {
+      "route": "/communities",
+      "width": 768,
+      "overflow": false,
+      "documentWidth": 768,
+      "headings": ["Communities"],
+      "unnamed": 0
+    },
+    {
+      "route": "/communities/ai-collective",
+      "width": 768,
+      "overflow": false,
+      "documentWidth": 768,
+      "headings": ["AI Collective"],
+      "unnamed": 0
+    },
+    {
+      "route": "/posts/p1",
+      "width": 768,
+      "overflow": false,
+      "documentWidth": 768,
+      "headings": ["Looking for 2 teammates for AI Hackathon"],
+      "unnamed": 0
+    },
+    {
+      "route": "/login",
+      "width": 768,
+      "overflow": false,
+      "documentWidth": 768,
+      "headings": ["Enter the demo"],
+      "unnamed": 0
+    },
+    {
+      "route": "/onboarding",
+      "width": 768,
+      "overflow": false,
+      "documentWidth": 768,
+      "headings": ["What are you curious about?"],
+      "unnamed": 0
+    },
+    {
+      "route": "/home",
+      "width": 1024,
+      "overflow": false,
+      "documentWidth": 1024,
+      "headings": ["Welcome back, Tester."],
+      "unnamed": 0
+    },
+    {
+      "route": "/home?view=feed",
+      "width": 1024,
+      "overflow": false,
+      "documentWidth": 1024,
+      "headings": ["Campus conversations"],
+      "unnamed": 0
+    },
+    {
+      "route": "/discover",
+      "width": 1024,
+      "overflow": false,
+      "documentWidth": 1024,
+      "headings": ["Discover"],
+      "unnamed": 0
+    },
+    {
+      "route": "/people",
+      "width": 1024,
+      "overflow": false,
+      "documentWidth": 1024,
+      "headings": ["Find your people"],
+      "unnamed": 0
+    },
+    {
+      "route": "/teams",
+      "width": 1024,
+      "overflow": false,
+      "documentWidth": 1024,
+      "headings": ["Teams"],
+      "unnamed": 0
+    },
+    {
+      "route": "/teams?view=mine",
+      "width": 1024,
+      "overflow": false,
+      "documentWidth": 1024,
+      "headings": ["Teams"],
+      "unnamed": 0
+    },
+    {
+      "route": "/teams/t1",
+      "width": 1024,
+      "overflow": false,
+      "documentWidth": 1024,
+      "headings": ["AI Study Companion"],
+      "unnamed": 0
+    },
+    {
+      "route": "/profile/tester",
+      "width": 1024,
+      "overflow": false,
+      "documentWidth": 1024,
+      "headings": ["Tester"],
+      "unnamed": 0
+    },
+    {
+      "route": "/messages",
+      "width": 1024,
+      "overflow": false,
+      "documentWidth": 1024,
+      "headings": ["Messages"],
+      "unnamed": 0
+    },
+    {
+      "route": "/notifications",
+      "width": 1024,
+      "overflow": false,
+      "documentWidth": 1024,
+      "headings": ["Notifications"],
+      "unnamed": 0
+    },
+    {
+      "route": "/saved",
+      "width": 1024,
+      "overflow": false,
+      "documentWidth": 1024,
+      "headings": ["Saved for later"],
+      "unnamed": 0
+    },
+    {
+      "route": "/me",
+      "width": 1024,
+      "overflow": false,
+      "documentWidth": 1024,
+      "headings": ["My Activity"],
+      "unnamed": 0
+    },
+    {
+      "route": "/competitions",
+      "width": 1024,
+      "overflow": false,
+      "documentWidth": 1024,
+      "headings": ["Competitions"],
+      "unnamed": 0
+    },
+    {
+      "route": "/competitions/c1",
+      "width": 1024,
+      "overflow": false,
+      "documentWidth": 1024,
+      "headings": ["Campus AI Challenge 2026"],
+      "unnamed": 0
+    },
+    {
+      "route": "/events",
+      "width": 1024,
+      "overflow": false,
+      "documentWidth": 1024,
+      "headings": ["Events & gatherings"],
+      "unnamed": 0
+    },
+    {
+      "route": "/communities",
+      "width": 1024,
+      "overflow": false,
+      "documentWidth": 1024,
+      "headings": ["Communities"],
+      "unnamed": 0
+    },
+    {
+      "route": "/communities/ai-collective",
+      "width": 1024,
+      "overflow": false,
+      "documentWidth": 1024,
+      "headings": ["AI Collective"],
+      "unnamed": 0
+    },
+    {
+      "route": "/posts/p1",
+      "width": 1024,
+      "overflow": false,
+      "documentWidth": 1024,
+      "headings": ["Looking for 2 teammates for AI Hackathon"],
+      "unnamed": 0
+    },
+    {
+      "route": "/login",
+      "width": 1024,
+      "overflow": false,
+      "documentWidth": 1024,
+      "headings": ["Enter the demo"],
+      "unnamed": 0
+    },
+    {
+      "route": "/onboarding",
+      "width": 1024,
+      "overflow": false,
+      "documentWidth": 1024,
+      "headings": ["What are you curious about?"],
+      "unnamed": 0
+    },
+    {
+      "route": "/home",
+      "width": 1440,
+      "overflow": false,
+      "documentWidth": 1440,
+      "headings": ["Welcome back, Tester."],
+      "unnamed": 0
+    },
+    {
+      "route": "/home?view=feed",
+      "width": 1440,
+      "overflow": false,
+      "documentWidth": 1440,
+      "headings": ["Campus conversations"],
+      "unnamed": 0
+    },
+    {
+      "route": "/discover",
+      "width": 1440,
+      "overflow": false,
+      "documentWidth": 1440,
+      "headings": ["Discover"],
+      "unnamed": 0
+    },
+    {
+      "route": "/people",
+      "width": 1440,
+      "overflow": false,
+      "documentWidth": 1440,
+      "headings": ["Find your people"],
+      "unnamed": 0
+    },
+    {
+      "route": "/teams",
+      "width": 1440,
+      "overflow": false,
+      "documentWidth": 1440,
+      "headings": ["Teams"],
+      "unnamed": 0
+    },
+    {
+      "route": "/teams?view=mine",
+      "width": 1440,
+      "overflow": false,
+      "documentWidth": 1440,
+      "headings": ["Teams"],
+      "unnamed": 0
+    },
+    {
+      "route": "/teams/t1",
+      "width": 1440,
+      "overflow": false,
+      "documentWidth": 1440,
+      "headings": ["AI Study Companion"],
+      "unnamed": 0
+    },
+    {
+      "route": "/profile/tester",
+      "width": 1440,
+      "overflow": false,
+      "documentWidth": 1440,
+      "headings": ["Tester"],
+      "unnamed": 0
+    },
+    {
+      "route": "/messages",
+      "width": 1440,
+      "overflow": false,
+      "documentWidth": 1440,
+      "headings": ["Messages"],
+      "unnamed": 0
+    },
+    {
+      "route": "/notifications",
+      "width": 1440,
+      "overflow": false,
+      "documentWidth": 1440,
+      "headings": ["Notifications"],
+      "unnamed": 0
+    },
+    {
+      "route": "/saved",
+      "width": 1440,
+      "overflow": false,
+      "documentWidth": 1440,
+      "headings": ["Saved for later"],
+      "unnamed": 0
+    },
+    {
+      "route": "/me",
+      "width": 1440,
+      "overflow": false,
+      "documentWidth": 1440,
+      "headings": ["My Activity"],
+      "unnamed": 0
+    },
+    {
+      "route": "/competitions",
+      "width": 1440,
+      "overflow": false,
+      "documentWidth": 1440,
+      "headings": ["Competitions"],
+      "unnamed": 0
+    },
+    {
+      "route": "/competitions/c1",
+      "width": 1440,
+      "overflow": false,
+      "documentWidth": 1440,
+      "headings": ["Campus AI Challenge 2026"],
+      "unnamed": 0
+    },
+    {
+      "route": "/events",
+      "width": 1440,
+      "overflow": false,
+      "documentWidth": 1440,
+      "headings": ["Events & gatherings"],
+      "unnamed": 0
+    },
+    {
+      "route": "/communities",
+      "width": 1440,
+      "overflow": false,
+      "documentWidth": 1440,
+      "headings": ["Communities"],
+      "unnamed": 0
+    },
+    {
+      "route": "/communities/ai-collective",
+      "width": 1440,
+      "overflow": false,
+      "documentWidth": 1440,
+      "headings": ["AI Collective"],
+      "unnamed": 0
+    },
+    {
+      "route": "/posts/p1",
+      "width": 1440,
+      "overflow": false,
+      "documentWidth": 1440,
+      "headings": ["Looking for 2 teammates for AI Hackathon"],
+      "unnamed": 0
+    },
+    {
+      "route": "/login",
+      "width": 1440,
+      "overflow": false,
+      "documentWidth": 1440,
+      "headings": ["Enter the demo"],
+      "unnamed": 0
+    },
+    {
+      "route": "/onboarding",
+      "width": 1440,
+      "overflow": false,
+      "documentWidth": 1440,
+      "headings": ["What are you curious about?"],
+      "unnamed": 0
+    }
+  ],
+  "errors": []
+}

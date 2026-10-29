@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { useId, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -11,7 +11,16 @@ import {
   X,
 } from "lucide-react";
 import { LayoutGroup, motion, useReducedMotion } from "motion/react";
-import { inputClass } from "@/components/ui";
+import { Button, inputClass } from "@/components/ui";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import AnimatedContent from "@/components/AnimatedContent";
 import { motionTiming } from "@/lib/motion/config";
 
 export function Segmented({
@@ -113,6 +122,31 @@ export function SectionHead({ title, href }: { title: string; href: string }) {
   );
 }
 
+const subscribeMobile = (callback: () => void) => {
+  const media = window.matchMedia("(max-width: 639px)");
+  media.addEventListener("change", callback);
+  return () => media.removeEventListener("change", callback);
+};
+export function ResultGrid({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <AnimatedContent
+      trigger="mount"
+      distance={6}
+      duration={0.24}
+      initialOpacity={0.85}
+      className={"result-grid directory-results " + className}
+    >
+      {children}
+    </AnimatedContent>
+  );
+}
+
 export function FilterDisclosure({
   children,
   count = 0,
@@ -120,6 +154,36 @@ export function FilterDisclosure({
   children: React.ReactNode;
   count?: number;
 }) {
+  const mobile = useSyncExternalStore(
+    subscribeMobile,
+    () => window.matchMedia("(max-width: 639px)").matches,
+    () => false,
+  );
+  const [open, setOpen] = useState(false);
+  if (mobile)
+    return (
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetTrigger asChild>
+          <Button variant="secondary" className="mt-4">
+            <SlidersHorizontal size={16} />
+            More filters{count > 0 && ` (${count} applied)`}
+          </Button>
+        </SheetTrigger>
+        <SheetContent
+          side="bottom"
+          className="max-h-[88svh] overflow-y-auto rounded-t-2xl bg-white p-5 pb-[max(20px,env(safe-area-inset-bottom))]"
+        >
+          <SheetHeader className="p-0 pr-8">
+            <SheetTitle>Refine your search</SheetTitle>
+            <SheetDescription>
+              Results update as you choose filters.
+            </SheetDescription>
+          </SheetHeader>
+          <div className="grid gap-4 py-3">{children}</div>
+          <Button onClick={() => setOpen(false)}>Show results</Button>
+        </SheetContent>
+      </Sheet>
+    );
   return (
     <details className="group mt-4 border-t border-[#e5ebf2] pt-2">
       <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 text-sm font-semibold text-[#17468c] [&::-webkit-details-marker]:hidden">

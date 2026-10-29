@@ -1,6 +1,10 @@
-﻿"use client";
-import { useState } from "react";
+"use client";
+import { useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import SplitText from "@/components/SplitText";
+import BlurText from "@/components/BlurText";
+import AnimatedContent from "@/components/AnimatedContent";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,6 +14,9 @@ import {
   ArrowRight,
   Check,
   GraduationCap,
+  Eye,
+  EyeOff,
+  LoaderCircle,
   LockKeyhole,
   Sparkles,
   Users,
@@ -76,6 +83,9 @@ function LoginForm() {
   const setUser = useApp((s) => s.setUser);
   const [role, setRole] = useState<Role>(user.role ?? "student");
   const [entryError, setEntryError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [entering, setEntering] = useState(false);
+  const entryLock = useRef(false);
   const {
     register,
     handleSubmit,
@@ -88,151 +98,253 @@ function LoginForm() {
     },
   });
   const enter = () => {
-    if (!ready) return;
+    if (!ready || entryLock.current) return;
+    entryLock.current = true;
+    setEntering(true);
+    setEntryError("");
     try {
       const current = useApp.getState().user;
       const completed = localStorage.getItem("mu-connect-onboarded") === "true";
       setUser({ ...current, role });
       router.push(completed ? "/home" : "/onboarding");
     } catch {
+      entryLock.current = false;
+      setEntering(false);
       setEntryError(
         "Could not save your demo session. Allow browser storage and try again. Your existing profile has not been replaced.",
       );
     }
   };
   return (
-    <div className="flex min-h-screen bg-white">
-      <div className="hidden w-[48%] flex-col justify-between bg-[#17468c] p-10 text-white lg:flex">
-        <Link href="/" className="text-xl font-bold">
-          M<span className="text-[#fac334]">.</span>{" "}
-          <span className="font-medium">MU Connect</span>
+    <main className="login-page grid min-h-svh bg-white lg:grid-cols-2">
+      <section
+        className="login-story relative hidden min-h-svh flex-col justify-between overflow-hidden bg-[#071e40] p-10 text-white lg:flex xl:p-14"
+        aria-label="Welcome to MU Connect"
+      >
+        <Link
+          href="/"
+          className="relative z-10 inline-flex min-h-11 items-center text-xl font-bold tracking-tight"
+        >
+          MU <span className="ml-1 font-medium">CONNECT</span>
+          <span className="ml-1 text-[#f6d184]">·</span>
         </Link>
-        <div className="max-w-md">
-          <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/12">
-            <Users size={31} className="text-[#fac334]" />
+        <div className="relative z-10 my-14 max-w-lg">
+          <h2 className="login-headline text-5xl font-semibold leading-[1.08] tracking-[-.035em] xl:text-6xl">
+            <SplitText
+              text="Find your people."
+              tag="span"
+              trigger="load"
+              effect="rise"
+              splitType="words"
+              delay={45}
+              duration={0.5}
+            />
+            <br />
+            <em className="mt-2 block font-serif font-normal text-[#f6d184]">
+              Build something together.
+            </em>
+          </h2>
+          <BlurText
+            text="Different faculties. Shared curiosity. Your next collaboration starts with a connection."
+            trigger="load"
+            delay={25}
+            distance={8}
+            blur={3}
+            stepDuration={0.15}
+            className="mt-6 max-w-sm text-base leading-7 text-[#d5e4f6]"
+          />
+        </div>
+        <div className="relative z-10 max-w-md">
+          <div className="relative h-48 overflow-hidden rounded-2xl xl:h-56">
+            <Image
+              src="/images/welcome/photo-collaboration.webp"
+              alt="Two people collaborating at a laptop"
+              fill
+              sizes="(min-width: 1024px) 440px, 1px"
+              className="object-cover"
+              priority
+            />
           </div>
-          <h1 className="text-4xl font-bold leading-tight tracking-[-.04em]">
-            Good things happen when we connect.
-          </h1>
-          <p className="mt-5 text-sm leading-7 text-[#dce8f8]">
-            A home for students to meet collaborators, exchange ideas, and take
-            on the next challenge together.
-          </p>
-          <div className="mt-10 flex -space-x-2">
-            {["T", "PS", "NW", "SK"].map((x, i) => (
-              <span
-                key={x}
-                className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#17468c] text-xs font-bold text-[#17468c]"
-                style={{
-                  background: ["#e4edf9", "#fae6ce", "#e7e4f8", "#ddf1e8"][i],
-                }}
-              >
-                {x}
-              </span>
-            ))}
-          </div>
-          <p className="mt-3 text-xs text-[#c7d9ef]">
-            Explore sample students, teams, and campus opportunities.
+          <p className="mt-3 text-xs leading-5 text-[#b8cce6]">
+            A place to find collaborators, share ideas, and try something new.
+            <br />
+            Illustrative photograph · independent student community prototype.
           </p>
         </div>
-        <p className="text-xs text-[#aebfda]">
-          Independent university community prototype · 2026
+        <p className="relative z-10 mt-10 text-xs text-[#b8cce6]">
+          MU CONNECT · MADE FOR WHAT’S NEXT
         </p>
-      </div>
-      <div className="flex w-full items-center justify-center px-5 py-12 lg:w-[52%]">
-        <div className="w-full max-w-md">
+      </section>
+      <section
+        className="flex items-center justify-center px-5 py-8 sm:px-10 sm:py-12"
+        aria-label="Demo login"
+      >
+        <div className="w-full max-w-[400px]">
           <Link
             href="/"
-            className="mb-12 inline-flex items-center gap-2 text-sm text-[#68778c] hover:text-[#17468c]"
+            className="mb-10 inline-flex min-h-11 items-center gap-2 text-sm text-muted hover:text-[#17468c]"
           >
-            <ArrowLeft size={15} /> Back to home
+            <ArrowLeft size={16} /> Back to home
           </Link>
-          <h2 className="text-3xl font-bold tracking-tight">Enter the demo</h2>
-          <p className="mt-3 text-sm leading-6 text-[#68778c]">
-            Choose a preview role and continue with your saved profile. These
-            roles do not grant real permissions. No real account is created.
-          </p>
-          {dataError && (
-            <div role="alert" className="mt-6 text-sm leading-6">
-              <p className="font-semibold">Campus data is unavailable</p>
-              <p className="mt-1 text-[var(--text-muted)]">{dataError}</p>
-              <p className="mt-2 text-[var(--text-muted)]">
-                Your demo profile is ready. Campus data can be retried
-                separately.
-              </p>
-              <Button variant="secondary" className="mt-3" onClick={retryData}>
-                Retry campus data
-              </Button>
-            </div>
-          )}
-          <div className="mt-7 grid grid-cols-3 gap-2">
-            {(
-              [
-                ["student", "Student", GraduationCap],
-                ["organizer", "Organizer", Users],
-                ["admin", "Admin", LockKeyhole],
-              ] as const
-            ).map(([value, label, Icon]) => (
-              <button
-                key={value}
-                onClick={() => setRole(value)}
-                aria-pressed={role === value}
-                className={`rounded-2xl border p-3 text-left transition ${role === value ? "border-[#17468c] bg-[#eef4fc] text-[#17468c]" : "border-[#e3eaf2] text-[#68778c] hover:border-[#b8cbe0]"}`}
-              >
-                <Icon size={19} />
-                <span className="mt-3 block text-xs font-bold">{label}</span>
-              </button>
-            ))}
+          <div className="mb-6 text-lg font-bold text-[#17468c] lg:hidden">
+            MU CONNECT<span className="text-[#a5812d]"> ·</span>
           </div>
-          <form onSubmit={handleSubmit(enter)} className="mt-7 space-y-4">
-            <Field label="Demo email" error={errors.email?.message}>
-              <input
-                {...register("email")}
-                type="email"
-                className={inputClass}
-              />
-            </Field>
-            <Field label="Password" error={errors.password?.message}>
-              <input
-                {...register("password")}
-                type="password"
-                className={inputClass}
-              />
-            </Field>
+          <AnimatedContent
+            trigger="mount"
+            distance={8}
+            duration={0.3}
+            initialOpacity={0.85}
+          >
+            <h1 className="text-3xl font-bold tracking-tight">
+              Enter the demo
+            </h1>
+            <p className="mt-3 text-sm leading-6 text-[#68778c]">
+              Pick up with your saved profile, or start exploring campus. No
+              real account is created.
+            </p>
+            {dataError && (
+              <div role="alert" className="mt-6 text-sm leading-6">
+                <p className="font-semibold">Campus data is unavailable</p>
+                <p className="mt-1 text-[var(--text-muted)]">{dataError}</p>
+                <p className="mt-2 text-[var(--text-muted)]">
+                  Your demo profile is ready. Campus data can be retried
+                  separately.
+                </p>
+                <Button
+                  variant="secondary"
+                  className="mt-3"
+                  onClick={retryData}
+                >
+                  Retry campus data
+                </Button>
+              </div>
+            )}
+            <p className="mt-6 text-xs font-semibold text-muted">
+              Preview role · no real permissions
+            </p>
+            <div
+              className="mt-2 grid grid-cols-3 gap-2"
+              role="group"
+              aria-label="Preview role"
+            >
+              {(
+                [
+                  ["student", "Student", GraduationCap],
+                  ["organizer", "Organizer", Users],
+                  ["admin", "Admin", LockKeyhole],
+                ] as const
+              ).map(([value, label, Icon]) => (
+                <button
+                  key={value}
+                  onClick={() => setRole(value)}
+                  aria-pressed={role === value}
+                  className={`flex min-h-11 items-center justify-center gap-2 rounded-xl border px-2 py-2 text-left transition ${role === value ? "border-[#17468c] bg-[#eef4fc] text-[#17468c]" : "border-[#e3eaf2] text-[#68778c] hover:border-[#b8cbe0]"}`}
+                >
+                  <Icon size={16} aria-hidden="true" />
+                  <span className="text-xs font-semibold">{label}</span>
+                </button>
+              ))}
+            </div>
+            <form
+              onSubmit={(event) => {
+                void handleSubmit(enter)(event);
+              }}
+              className="mt-7 space-y-4"
+            >
+              <Field label="Demo email" error={errors.email?.message}>
+                <input
+                  {...register("email")}
+                  type="email"
+                  autoComplete="email"
+                  aria-invalid={Boolean(errors.email)}
+                  className={inputClass}
+                />
+              </Field>
+              <div>
+                <label
+                  htmlFor="login-password"
+                  className="mb-2 block text-sm font-semibold text-[#33445c]"
+                >
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    {...register("password")}
+                    id="login-password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    aria-invalid={Boolean(errors.password)}
+                    aria-describedby={
+                      errors.password ? "password-error" : undefined
+                    }
+                    className={inputClass + " pr-12"}
+                  />
+                  <button
+                    type="button"
+                    className="icon-button absolute right-1 top-0 text-muted"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                    aria-pressed={showPassword}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+                {errors.password && (
+                  <p
+                    id="password-error"
+                    role="alert"
+                    className="mt-1 text-sm text-red-700"
+                  >
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full"
+                disabled={!ready || entering}
+              >
+                {entering ? (
+                  <>
+                    <LoaderCircle size={17} className="animate-spin" /> Opening
+                    campus…
+                  </>
+                ) : (
+                  <>
+                    Continue to campus <ArrowRight size={17} />
+                  </>
+                )}
+              </Button>
+            </form>
+            <div className="my-5 flex items-center gap-3 text-xs text-[#68778c]">
+              <span className="h-px flex-1 bg-[#e3eaf1]" />
+              or explore instantly
+              <span className="h-px flex-1 bg-[#e3eaf1]" />
+            </div>
             <Button
-              type="submit"
+              variant="secondary"
               size="lg"
               className="w-full"
-              disabled={!ready}
+              onClick={enter}
+              disabled={!ready || entering}
             >
-              Continue to campus <ArrowRight size={17} />
+              <Sparkles size={17} /> Continue as demo {role}
             </Button>
-          </form>
-          <div className="my-5 flex items-center gap-3 text-xs text-[#68778c]">
-            <span className="h-px flex-1 bg-[#e3eaf1]" />
-            or explore instantly
-            <span className="h-px flex-1 bg-[#e3eaf1]" />
-          </div>
-          <Button
-            variant="secondary"
-            size="lg"
-            className="w-full"
-            onClick={enter}
-            disabled={!ready}
-          >
-            <Sparkles size={17} /> Continue as demo {role}
-          </Button>
-          {entryError && (
-            <p role="alert" className="mt-4 text-sm text-red-700">
-              {entryError}
+            {entryError && (
+              <p role="alert" className="mt-4 text-sm text-red-700">
+                {entryError}
+              </p>
+            )}
+            <p className="mt-6 text-center text-xs leading-5 text-[#68778c]">
+              Frontend demo only. Your activity stays on this device.
             </p>
-          )}
-          <p className="mt-6 text-center text-xs leading-5 text-[#68778c]">
-            Frontend demo only. Your activity stays on this device.
-          </p>
+          </AnimatedContent>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }
 export function OnboardingView() {
@@ -273,7 +385,7 @@ function OnboardingForm() {
     }
   };
   return (
-    <div className="min-h-screen bg-[#f5f8fc] px-4 py-8">
+    <main className="min-h-screen bg-[#f5f8fc] px-4 py-8">
       <div className="mx-auto max-w-3xl">
         <Link href="/" className="text-xl font-bold text-[#17468c]">
           M<span className="text-[#fac334]">.</span>{" "}
@@ -362,6 +474,6 @@ function OnboardingForm() {
           Your selections are saved in this browser for the demo.
         </p>
       </div>
-    </div>
+    </main>
   );
 }

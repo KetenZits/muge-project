@@ -1,0 +1,80 @@
+{
+  "390": {
+    "before": {
+      "fps": 23.9,
+      "p95Ms": 138.9,
+      "longTasks": 13.3,
+      "longTaskMs": 1137.3,
+      "layoutCount": 46.3,
+      "layoutMs": 45.9,
+      "paintMs": 105.9,
+      "styleMs": 172.2,
+      "images": 48
+    },
+    "after": {
+      "fps": 54.3,
+      "p95Ms": 16.8,
+      "longTasks": 2,
+      "longTaskMs": 211,
+      "layoutCount": 15,
+      "layoutMs": 14.8,
+      "paintMs": 196.5,
+      "styleMs": 469.9,
+      "images": 26
+    },
+    "maxBefore": 200,
+    "maxAfter": 166.7
+  },
+  "768": {
+    "before": {
+      "fps": 22.4,
+      "p95Ms": 161.1,
+      "longTasks": 14.3,
+      "longTaskMs": 1447,
+      "layoutCount": 49.7,
+      "layoutMs": 51.6,
+      "paintMs": 132.3,
+      "styleMs": 215.3,
+      "images": 56
+    },
+    "after": {
+      "fps": 46.9,
+      "p95Ms": 38.9,
+      "longTasks": 3.3,
+      "longTaskMs": 413,
+      "layoutCount": 14,
+      "layoutMs": 16.2,
+      "paintMs": 144.8,
+      "styleMs": 425.7,
+      "images": 46
+    },
+    "maxBefore": 300,
+    "maxAfter": 216.6
+  },
+  "1440": {
+    "before": {
+      "fps": 43.9,
+      "p95Ms": 50.0,
+      "longTasks": 0.7,
+      "longTaskMs": 40.7,
+      "layoutCount": 58.3,
+      "layoutMs": 17.4,
+      "paintMs": 40.8,
+      "styleMs": 97.6,
+      "images": 48
+    },
+    "after": {
+      "fps": 51.7,
+      "p95Ms": 33.4,
+      "longTasks": 0,
+      "longTaskMs": 0,
+      "layoutCount": 16.3,
+      "layoutMs": 3.6,
+      "paintMs": 29.1,
+      "styleMs": 95.6,
+      "images": 46
+    },
+    "maxBefore": 283.3,
+    "maxAfter": 116.7
+  }
+}

@@ -1,10 +1,10 @@
-﻿"use client";
+"use client";
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { toast } from "sonner";
 import { ArrowRight, Bookmark, LoaderCircle } from "lucide-react";
-import { Button, Tag } from "@/components/ui";
+import { Avatar, Button, Tag } from "@/components/ui";
 import { useCardMotion } from "@/lib/motion/use-card-motion";
 import { deadline } from "@/lib/utils";
 import { withReturnTo } from "@/lib/navigation";
@@ -96,6 +96,9 @@ export function TeamCard({ team }: { team: TeamRecruitment }) {
         </button>
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-2">
+        <Tag tone={closed || full ? "neutral" : "green"}>
+          {closed ? "Applications closed" : full ? "Team full" : "Recruiting"}
+        </Tag>
         {roles.length ? (
           roles.slice(0, 3).map((role) => (
             <Tag key={role.name} tone="blue">
@@ -131,6 +134,11 @@ export function TeamCard({ team }: { team: TeamRecruitment }) {
         ))}
       </div>
       <p className="mt-3 text-xs leading-5 text-muted">
+        {leader && (
+          <span className="mr-2 inline-flex align-middle">
+            <Avatar user={leader} size="sm" />
+          </span>
+        )}
         Led by {leader?.name ?? "a sample student"}
         {team.faculty
           ? " · " + team.faculty + " only"
@@ -139,13 +147,13 @@ export function TeamCard({ team }: { team: TeamRecruitment }) {
       <div className="mt-auto flex flex-wrap justify-between gap-2 pt-5">
         <Link
           href={withReturnTo("/teams/" + team.id)}
-          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#dce5ef] bg-white px-4 text-sm font-semibold text-[#17468c] hover:bg-[#f5f8fc]"
+          className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-[#17468c] px-4 text-sm font-semibold text-white hover:bg-[#0f3672]"
         >
           View team <ArrowRight size={14} />
         </Link>
         <Button
           className="min-h-11"
-          variant={requested ? "secondary" : "primary"}
+          variant="secondary"
           disabled={pending || ownTeam || (!requested && (closed || full))}
           onClick={() => void sendRequest()}
         >

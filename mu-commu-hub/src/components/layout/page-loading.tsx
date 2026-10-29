@@ -17,6 +17,22 @@ function CardSkeleton() {
 }
 
 export function PageLoading({ pathname }: { pathname: string }) {
+  if (pathname === "/home")
+    return (
+      <div
+        aria-label="Loading your dashboard"
+        role="status"
+        className="space-y-6"
+      >
+        <Block className="h-9 w-2/3" />
+        <Block className="h-4 w-1/2" />
+        <div className="grid grid-cols-2 gap-4 xl:grid-cols-3">
+          {Array.from({ length: 6 }, (_, index) => (
+            <Block key={index} className="h-44 w-full rounded-2xl" />
+          ))}
+        </div>
+      </div>
+    );
   if (pathname.startsWith("/messages")) {
     return (
       <div className="card grid min-h-[480px] overflow-hidden md:grid-cols-[270px_1fr]">

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import Link from "next/link";
 import { Bookmark } from "lucide-react";
 import { Button, EmptyState, PageHeader } from "@/components/ui";
@@ -10,6 +10,7 @@ import {
 } from "@/components/shared/cards";
 import { useShallow } from "zustand/react/shallow";
 import { useApp } from "@/stores/app";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUrlState } from "@/lib/navigation";
 
 const categories = [
@@ -49,57 +50,57 @@ export function SavedView() {
         title="Saved for later"
         subtitle="Return to the conversations and opportunities you bookmarked in this browser."
       />
-      <div
-        className="mb-5 flex max-w-full gap-1 overflow-x-auto border-b border-[#e5ebf2]"
-        aria-label="Saved categories"
-      >
-        {categories.map(([value, label]) => (
-          <button
-            key={value}
-            aria-pressed={tab === value}
-            aria-controls="saved-results"
-            onClick={() => setState({ tab: value })}
-            className={`min-h-11 shrink-0 rounded-t-lg px-4 py-2 text-sm font-semibold ${tab === value ? "bg-[#17468c] text-white" : "text-[#53647c] hover:bg-[#eaf1fc]"}`}
-          >
-            {label} ({collections[value].length})
-          </button>
-        ))}
-      </div>
-      <section id="saved-results" aria-label={`Saved ${tab}`}>
-        {!collections[tab].length ? (
-          <EmptyState
-            icon={<Bookmark />}
-            title={`No saved ${tab} yet`}
-            description="Use Save on an item you want to return to. Your other saved categories are shown above."
-            action={
-              <Button asChild variant="secondary">
-                <Link href={tab === "posts" ? "/home" : `/${tab}`}>
-                  Explore {tab}
-                </Link>
-              </Button>
-            }
-          />
-        ) : (
-          <div className="grid min-w-0 gap-4 md:grid-cols-2">
-            {tab === "posts" &&
-              collections.posts.map((item) => (
-                <PostCard key={item.id} post={item} />
-              ))}
-            {tab === "teams" &&
-              collections.teams.map((item) => (
-                <TeamCard key={item.id} team={item} />
-              ))}
-            {tab === "competitions" &&
-              collections.competitions.map((item) => (
-                <CompetitionCard key={item.id} competition={item} />
-              ))}
-            {tab === "events" &&
-              collections.events.map((item) => (
-                <EventCard key={item.id} event={item} />
-              ))}
-          </div>
-        )}
-      </section>
+      <Tabs value={tab} onValueChange={(value) => setState({ tab: value })}>
+        <TabsList className="section-tabs" aria-label="Saved categories">
+          {categories.map(([value, label]) => (
+            <TabsTrigger key={value} value={value}>
+              {label}
+              <span className="ml-1 tabular-nums">
+                {collections[value].length}
+              </span>
+            </TabsTrigger>
+          ))}
+        </TabsList>
+        <TabsContent value={tab} className="pt-4">
+          <section id="saved-results" aria-label={`Saved ${tab}`}>
+            {!collections[tab].length ? (
+              <EmptyState
+                icon={<Bookmark />}
+                title={`No saved ${tab} yet`}
+                description="Use Save on an item you want to return to. Your other saved categories are shown above."
+                action={
+                  <Button asChild variant="secondary">
+                    <Link
+                      href={tab === "posts" ? "/home?view=feed" : `/${tab}`}
+                    >
+                      Explore {tab}
+                    </Link>
+                  </Button>
+                }
+              />
+            ) : (
+              <div className="grid min-w-0 gap-4 md:grid-cols-2">
+                {tab === "posts" &&
+                  collections.posts.map((item) => (
+                    <PostCard key={item.id} post={item} />
+                  ))}
+                {tab === "teams" &&
+                  collections.teams.map((item) => (
+                    <TeamCard key={item.id} team={item} />
+                  ))}
+                {tab === "competitions" &&
+                  collections.competitions.map((item) => (
+                    <CompetitionCard key={item.id} competition={item} />
+                  ))}
+                {tab === "events" &&
+                  collections.events.map((item) => (
+                    <EventCard key={item.id} event={item} />
+                  ))}
+              </div>
+            )}
+          </section>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

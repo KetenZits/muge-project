@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { CalendarDays } from "lucide-react";
 import { Button, EmptyState, PageHeader } from "@/components/ui";
 import { EventCard } from "@/components/shared/cards";
@@ -45,7 +45,7 @@ export function EventsView() {
           />
         }
       />
-      <div className="mb-5">
+      <div className="directory-toolbar">
         <p className="mb-2 text-sm font-semibold">Search events</p>
         <SearchInput
           value={state.query}

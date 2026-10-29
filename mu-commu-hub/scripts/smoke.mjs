@@ -1,4 +1,4 @@
-import { chromium } from "playwright-core";
+import { chromium } from "./browser.mjs";
 
 const browser = await chromium.launch({
   executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe",
@@ -44,7 +44,7 @@ for (const route of [
     console.log((await page.locator("body").innerText()).slice(0, 700));
   if (route === "/home")
     await page.screenshot({
-      path: process.env.TEMP + "/mu-connect-desktop.png",
+      path: (process.env.TEMP ?? "/tmp") + "/mu-connect-desktop.png",
       fullPage: true,
     });
 }
@@ -103,7 +103,7 @@ for (const { width, height } of [
     }
     if (width === 375 && route === "/home") {
       await page.screenshot({
-        path: process.env.TEMP + "/mu-connect-mobile.png",
+        path: (process.env.TEMP ?? "/tmp") + "/mu-connect-mobile.png",
         fullPage: true,
       });
       await page.getByRole("button", { name: "Create post" }).last().click();

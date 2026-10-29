@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -79,14 +79,19 @@ export function TeamDetailView({ id }: { id: string }) {
       <BackLink fallback="/teams" />
       <div className="card overflow-hidden">
         <div className="relative bg-[#17468c] p-6 text-white sm:p-8">
-          <div className="absolute -right-8 -top-15 h-46 w-46 rounded-full border-[36px] border-white/8" />
           <div className="relative">
             <Tag tone="gold">{competition?.title ?? "Independent project"}</Tag>
             <h1 className="mt-4 text-3xl font-bold tracking-tight">
               {team.title}
             </h1>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-[#d9e6f7]">
-              {team.description}
+            <p className="mt-2 text-sm text-[#d9e6f7]">
+              {ownTeam
+                ? "Your team recruitment"
+                : closed
+                  ? "Applications closed"
+                  : full
+                    ? "Team full"
+                    : "Looking for collaborators"}
             </p>
             <div className="mt-5 flex flex-wrap gap-4 text-xs text-[#d6e4f6]">
               <span>
@@ -105,6 +110,29 @@ export function TeamDetailView({ id }: { id: string }) {
           </div>
         </div>
         <div className="p-6 sm:p-8">
+          <nav
+            aria-label="Team sections"
+            className="mb-6 flex flex-wrap gap-5 border-b border-[var(--line)] text-sm font-semibold text-[#17468c]"
+          >
+            <a
+              href="#team-overview"
+              className="inline-flex min-h-11 items-center"
+            >
+              Overview
+            </a>
+            <a
+              href="#team-skills"
+              className="inline-flex min-h-11 items-center"
+            >
+              Skills needed
+            </a>
+            <a
+              href="#team-members"
+              className="inline-flex min-h-11 items-center"
+            >
+              Members
+            </a>
+          </nav>
           <div className="flex flex-wrap gap-2">
             <Button
               onClick={handleRequest}
@@ -160,7 +188,9 @@ export function TeamDetailView({ id }: { id: string }) {
           )}
           <div className="mt-8 grid gap-8 md:grid-cols-[1fr_230px]">
             <div>
-              <h2 className="section-title">About the project</h2>
+              <h2 id="team-overview" className="section-title scroll-mt-24">
+                About the project
+              </h2>
               <p className="mt-3 text-sm leading-7 text-[#68778c]">
                 {team.description}
               </p>
@@ -188,7 +218,9 @@ export function TeamDetailView({ id }: { id: string }) {
                   </div>
                 ))}
               </div>
-              <h2 className="section-title mt-8">Skills we value</h2>
+              <h2 id="team-skills" className="section-title mt-8 scroll-mt-24">
+                Skills needed
+              </h2>
               <div className="mt-3 flex flex-wrap gap-2">
                 {team.skills.map((x) => (
                   <Tag key={x} tone="blue">
@@ -208,7 +240,10 @@ export function TeamDetailView({ id }: { id: string }) {
                 )}
               </div>
             </div>
-            <aside className="soft-card h-fit p-5">
+            <aside
+              id="team-members"
+              className="soft-card h-fit scroll-mt-24 p-5"
+            >
               <h3 className="text-sm font-bold">Team at a glance</h3>
               <div
                 className="mt-4 h-2 overflow-hidden rounded-full bg-[#dfe9f5]"

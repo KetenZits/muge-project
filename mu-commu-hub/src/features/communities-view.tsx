@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { LayoutGrid } from "lucide-react";
 import { Button, EmptyState, PageHeader } from "@/components/ui";
 import { ClubCard } from "@/components/shared/cards";
@@ -24,7 +24,7 @@ export function CommunitiesView() {
         title="Communities"
         subtitle="Find a subject you care about and explore related conversations. Joining is saved in this browser."
       />
-      <div className="mb-5">
+      <div className="directory-toolbar">
         <SearchInput
           value={filters.query}
           onChange={(query) => setFilters({ query }, { replace: true })}

@@ -1,9 +1,10 @@
-﻿"use client";
+"use client";
 import { useState } from "react";
 import Link from "next/link";
 import { MessageCircle, Pencil, Sparkles, Trophy, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar, Button, EmptyState, Tag } from "@/components/ui";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BackLink } from "@/components/shared/back-link";
 import { EditProfileDialog } from "@/components/people/edit-profile-dialog";
 import { PostCard, TeamCard } from "@/components/shared/cards";
@@ -88,7 +89,7 @@ export function ProfileView({ username }: { username: string }) {
   return (
     <div>
       <BackLink fallback="/people" />
-      <header className="card p-5 sm:p-7">
+      <header className="profile-summary card p-5 sm:p-7">
         <div className="flex flex-wrap items-start gap-4">
           <Avatar user={person} size="xl" />
           <div className="min-w-0 flex-1 basis-48">
@@ -208,129 +209,138 @@ export function ProfileView({ username }: { username: string }) {
           </p>
         </section>
       )}
-      <div
-        className="my-6 flex max-w-full gap-1 overflow-x-auto border-b border-[#e5ebf2]"
-        aria-label="Profile sections"
+      <Tabs
+        value={tab}
+        onValueChange={(value) => setState({ tab: value })}
+        className="mt-6"
       >
-        {sections.map(([value, label]) => (
-          <button
-            key={value}
-            onClick={() => setState({ tab: value })}
-            aria-pressed={tab === value}
-            aria-controls="profile-section"
-            className={`min-h-11 shrink-0 rounded-t-lg px-3 py-2 text-sm font-semibold ${tab === value ? "bg-[#17468c] text-white" : "text-[#53647c] hover:bg-[#eaf1fc]"}`}
+        <TabsList className="section-tabs" aria-label="Profile sections">
+          {sections.map(([value, label]) => (
+            <TabsTrigger key={value} value={value}>
+              {label}
+              {counts[value] !== undefined && (
+                <span className="ml-1 tabular-nums">{counts[value]}</span>
+              )}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+        <TabsContent value={tab} className="pt-4">
+          <section
+            id="profile-section"
+            aria-label={sections.find(([value]) => value === tab)?.[1]}
           >
-            {label}
-            {value !== "about" && (
-              <span className="ml-1.5">({counts[value]})</span>
+            {tab === "about" ? (
+              <div className="space-y-7">
+                <div>
+                  <h2 className="section-title">
+                    About {person.name.split(" ")[0]}
+                  </h2>
+                  <p className="mt-3 max-w-2xl whitespace-pre-wrap text-sm leading-7 text-[#53647c]">
+                    {person.bio || "No introduction shared yet."}
+                  </p>
+                </div>
+                <div>
+                  <h2 className="section-title">Skills</h2>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {person.skills.length ? (
+                      person.skills.map((item) => (
+                        <Tag key={item} tone="blue">
+                          {item}
+                        </Tag>
+                      ))
+                    ) : (
+                      <p className="text-sm text-[#68778c]">
+                        No skills listed yet.
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <h2 className="section-title">Interests</h2>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {person.interests.length ? (
+                      person.interests.map((item) => (
+                        <Tag key={item} tone="gold">
+                          {item}
+                        </Tag>
+                      ))
+                    ) : (
+                      <p className="text-sm text-[#68778c]">
+                        No interests listed yet.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : tab === "posts" || tab === "projects" ? (
+              (tab === "posts" ? userPosts : projectPosts).length ? (
+                <div className="space-y-4">
+                  {(tab === "posts" ? userPosts : projectPosts).map((post) => (
+                    <PostCard key={post.id} post={post} />
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  icon={tab === "posts" ? <MessageCircle /> : <Sparkles />}
+                  title={
+                    tab === "posts" ? "No posts yet" : "No projects shared yet"
+                  }
+                  description={
+                    tab === "posts"
+                      ? "Posts from this student will appear here."
+                      : "Project and startup posts from this student will appear here."
+                  }
+                />
+              )
+            ) : tab === "teams" ? (
+              ledTeams.length ? (
+                <div className="grid gap-4 md:grid-cols-2">
+                  {ledTeams.map((team) => (
+                    <TeamCard key={team.id} team={team} />
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  icon={<Users />}
+                  title="No led teams listed"
+                  description="Teams led by this student will appear here."
+                  action={
+                    isMe ? (
+                      <Button asChild variant="secondary">
+                        <Link href="/teams?view=mine">Go to my teams</Link>
+                      </Button>
+                    ) : undefined
+                  }
+                />
+              )
+            ) : achievements.length ? (
+              <div>
+                <h2 className="section-title mb-4">Achievements</h2>
+                <ul className="space-y-4">
+                  {achievements.map((achievement) => (
+                    <li
+                      key={achievement}
+                      className="flex items-start gap-3 text-sm leading-6"
+                    >
+                      <Trophy
+                        size={18}
+                        className="mt-1 shrink-0 text-[#8a6820]"
+                      />
+                      {achievement}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <EmptyState
+                icon={<Trophy />}
+                title="No achievements listed"
+                description="Achievements shared by this student will appear here."
+              />
             )}
-          </button>
-        ))}
-      </div>
-      <section
-        id="profile-section"
-        aria-label={sections.find(([value]) => value === tab)?.[1]}
-      >
-        {tab === "about" ? (
-          <div className="space-y-7">
-            <div>
-              <h2 className="section-title">
-                About {person.name.split(" ")[0]}
-              </h2>
-              <p className="mt-3 max-w-2xl whitespace-pre-wrap text-sm leading-7 text-[#53647c]">
-                {person.bio || "No introduction shared yet."}
-              </p>
-            </div>
-            <div>
-              <h2 className="section-title">Skills</h2>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {person.skills.length ? (
-                  person.skills.map((item) => (
-                    <Tag key={item} tone="blue">
-                      {item}
-                    </Tag>
-                  ))
-                ) : (
-                  <p className="text-sm text-[#68778c]">
-                    No skills listed yet.
-                  </p>
-                )}
-              </div>
-            </div>
-            <div>
-              <h2 className="section-title">Interests</h2>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {person.interests.length ? (
-                  person.interests.map((item) => (
-                    <Tag key={item} tone="gold">
-                      {item}
-                    </Tag>
-                  ))
-                ) : (
-                  <p className="text-sm text-[#68778c]">
-                    No interests listed yet.
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        ) : tab === "posts" || tab === "projects" ? (
-          (tab === "posts" ? userPosts : projectPosts).length ? (
-            <div className="space-y-4">
-              {(tab === "posts" ? userPosts : projectPosts).map((post) => (
-                <PostCard key={post.id} post={post} />
-              ))}
-            </div>
-          ) : (
-            <EmptyState
-              icon={tab === "posts" ? <MessageCircle /> : <Sparkles />}
-              title={
-                tab === "posts" ? "No posts yet" : "No projects shared yet"
-              }
-              description={
-                tab === "posts"
-                  ? "Posts from this student will appear here."
-                  : "Project and startup posts from this student will appear here."
-              }
-            />
-          )
-        ) : tab === "teams" ? (
-          ledTeams.length ? (
-            <div className="grid gap-4 md:grid-cols-2">
-              {ledTeams.map((team) => (
-                <TeamCard key={team.id} team={team} />
-              ))}
-            </div>
-          ) : (
-            <EmptyState
-              icon={<Users />}
-              title="No led teams listed"
-              description="Teams led by this student will appear here."
-            />
-          )
-        ) : achievements.length ? (
-          <div>
-            <h2 className="section-title mb-4">Achievements</h2>
-            <ul className="space-y-4">
-              {achievements.map((achievement) => (
-                <li
-                  key={achievement}
-                  className="flex items-start gap-3 text-sm leading-6"
-                >
-                  <Trophy size={18} className="mt-1 shrink-0 text-[#8a6820]" />
-                  {achievement}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : (
-          <EmptyState
-            icon={<Trophy />}
-            title="No achievements listed"
-            description="Achievements shared by this student will appear here."
-          />
-        )}
-      </section>
+          </section>
+        </TabsContent>
+      </Tabs>
       <EditProfileDialog user={user} open={editing} onOpenChange={setEditing} />
     </div>
   );

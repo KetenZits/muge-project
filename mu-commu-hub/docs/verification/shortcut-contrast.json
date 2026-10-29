@@ -1,0 +1,32 @@
+[
+  {
+    "title": "Discover People",
+    "ratio": 7.37,
+    "opacity": "1"
+  },
+  {
+    "title": "Find Teams",
+    "ratio": 6.47,
+    "opacity": "1"
+  },
+  {
+    "title": "Create a Team",
+    "ratio": 6.4,
+    "opacity": "1"
+  },
+  {
+    "title": "My Teams",
+    "ratio": 5.6,
+    "opacity": "1"
+  },
+  {
+    "title": "Messages",
+    "ratio": 5.35,
+    "opacity": "1"
+  },
+  {
+    "title": "My Profile",
+    "ratio": 5.66,
+    "opacity": "1"
+  }
+]

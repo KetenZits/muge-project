@@ -40,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Local UI verification captures (measurements are kept in docs/verification).
+/.impeccable/review/

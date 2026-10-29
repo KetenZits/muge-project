@@ -1,9 +1,9 @@
-﻿"use client";
+"use client";
 import { useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { Check, MessageCircle, UserPlus } from "lucide-react";
+import { ArrowRight, Check, MessageCircle, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar, Button, Modal, Tag } from "@/components/ui";
 import { matchScore } from "@/lib/utils";
@@ -60,66 +60,67 @@ export function PersonCard({ person }: { person: User }) {
           <p className="text-xs leading-5 text-muted">{person.faculty}</p>
         </div>
       </div>
-      <p className="mt-4 text-sm font-semibold text-[var(--section-accent)]">
-        {mutual.length
-          ? mutual.length + " shared interests"
-          : sharedSkills.length
-            ? sharedSkills.length + " shared skills"
-            : "Explore a different perspective"}
+      <p className="mt-4 text-sm font-semibold text-[#17468c]">
+        {person.skills[0] ?? person.major}
       </p>
-      {(mutual.length > 0 || sharedSkills.length > 0) && (
-        <p className="mt-1 text-sm leading-5 text-muted">
-          {(mutual.length ? mutual : sharedSkills).slice(0, 3).join(" · ")}
-          {mutual.length > 3 && " · +" + (mutual.length - 3) + " more"}
-        </p>
-      )}
-      <p className="mt-3 line-clamp-2 text-sm leading-6 text-[#53647c]">
+      <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted">
         {person.bio}
       </p>
-      <p className="mt-3 text-sm text-muted">
-        <span className="font-semibold text-[#17263c]">Open to </span>
-        {person.availability.join(" · ") || "New conversations"}
-      </p>
-      <div className="mt-3 flex flex-wrap gap-1.5">
+      <div className="mt-4 flex flex-wrap gap-1.5">
         {person.skills.slice(0, 3).map((skill) => (
           <Tag key={skill}>{skill}</Tag>
         ))}
+        {person.skills.length > 3 && <Tag>+{person.skills.length - 3}</Tag>}
       </div>
-      <details className="mt-3 text-xs leading-5 text-muted">
-        <summary className="flex min-h-11 cursor-pointer items-center text-[#17468c]">
-          Why this suggestion?
-        </summary>
-        <p>
-          Local demo relevance: {matchScore(user, person)}/100, based on shared
-          interests, skills, faculty, and availability. This is a browsing aid,
-          not a validated compatibility prediction.
+      <p className="mt-4 text-xs leading-5 text-muted">
+        <span className="font-semibold text-[#266047]">Open to </span>
+        {person.availability.slice(0, 2).join(" · ") || "New conversations"}
+      </p>
+      {mutual.length > 0 && (
+        <p className="mt-2 text-xs text-[#63458b]">
+          {mutual.length} shared interests · {mutual.slice(0, 2).join(" · ")}
         </p>
-      </details>
-      <div className="mt-auto flex flex-wrap gap-2 pt-4">
-        <Link
-          href={withReturnTo("/messages?user=" + person.id)}
-          className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-[#17468c] px-3 text-sm font-semibold text-white hover:bg-[#0f3672]"
-        >
-          <MessageCircle size={15} /> Message
-        </Link>
+      )}
+      <div className="mt-auto flex flex-wrap gap-2 pt-5">
+        <Button asChild className="flex-1">
+          <Link href={withReturnTo("/profile/" + person.username)}>
+            View profile <ArrowRight size={15} />
+          </Link>
+        </Button>
         <Button
           variant="secondary"
           disabled={pending}
           aria-pressed={followed}
           onClick={() => void follow()}
-          className="min-h-11"
         >
-          {followed ? <Check size={14} /> : <UserPlus size={14} />}
+          {followed ? <Check size={15} /> : <UserPlus size={15} />}
           {pending ? "Saving..." : followed ? "Following" : "Follow"}
         </Button>
       </div>
-      <Button
-        variant="ghost"
-        className="mt-2 min-h-11 w-full"
-        onClick={() => setInviteOpen(true)}
-      >
-        Invite to team
-      </Button>
+      <details className="mt-3 border-t border-[var(--line)] pt-1 text-xs text-muted">
+        <summary className="flex min-h-11 cursor-pointer items-center font-medium">
+          Connect & match details
+        </summary>
+        <div className="flex flex-wrap gap-2 pb-3">
+          <Button asChild variant="secondary">
+            <Link href={withReturnTo("/messages?user=" + person.id)}>
+              <MessageCircle size={15} />
+              Message
+            </Link>
+          </Button>
+          <Button variant="ghost" onClick={() => setInviteOpen(true)}>
+            Invite to team
+          </Button>
+        </div>
+        <p className="leading-5">
+          Local relevance: {matchScore(user, person)}/100, based on shared
+          interests, skills, faculty, and availability
+          {sharedSkills.length
+            ? `, including ${sharedSkills.slice(0, 2).join(" and ")}`
+            : ""}
+          . A browsing aid, not a validated prediction.
+        </p>
+      </details>
       <Modal
         open={inviteOpen}
         onOpenChange={setInviteOpen}

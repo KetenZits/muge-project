@@ -1,4 +1,4 @@
-import { chromium } from "playwright-core";
+import { chromium } from "./browser.mjs";
 const browser = await chromium.launch({
   executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe",
   headless: true,
@@ -6,7 +6,7 @@ const browser = await chromium.launch({
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 const errors = [];
 page.on("pageerror", (error) => errors.push(error.message));
-await page.goto("http://localhost:3000/home");
+await page.goto("http://localhost:3000/home?view=feed");
 await page.getByRole("heading", { name: "Campus conversations" }).waitFor();
 await page.getByRole("button", { name: "Create post" }).first().click();
 const dialog = page.getByRole("dialog");
@@ -20,6 +20,7 @@ await dialog
   );
 await dialog.locator('input[name="tags"]').fill("React, Design");
 await dialog.getByRole("button", { name: "Publish post" }).click();
+await dialog.waitFor({ state: "hidden" });
 await page
   .getByText("Looking for teammates to build a campus app")
   .first()
@@ -50,7 +51,7 @@ await page
   .getByText("I can help with the interface and test it with students.")
   .waitFor();
 console.log("comment persists");
-await page.goto("http://localhost:3000/home");
+await page.goto("http://localhost:3000/home?view=feed");
 await page.getByRole("button", { name: "Create post" }).first().click();
 await dialog.locator('select[name="category"]').selectOption("Team");
 await dialog.locator('input[name="title"]').fill("Campus map makers");
@@ -68,7 +69,8 @@ await dialog
   .locator('input[name="deadline"]')
   .fill(new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10));
 await dialog.getByRole("button", { name: "Publish post" }).click();
-await page.goto("http://localhost:3000/teams");
+await dialog.waitFor({ state: "hidden" });
+await page.goto("http://localhost:3000/teams?view=mine");
 await page.getByText("Campus map makers").first().waitFor();
 console.log("recruitment appears in Team Finder");
 await page
@@ -77,7 +79,7 @@ await page
   .getByRole("button", { name: /^Save team / })
   .click();
 await page.goto("http://localhost:3000/saved");
-await page.getByRole("button", { name: /^Teams(?:\s|$)/ }).click();
+await page.getByRole("tab", { name: /^Teams(?:\s|$)/ }).click();
 await page.getByText("Campus map makers").first().waitFor();
 console.log("team bookmark persists");
 await page.goto("http://localhost:3000/teams/t1");
@@ -95,6 +97,7 @@ await page.reload();
 await page.getByPlaceholder("Name, skill, or interest").fill("Pimchanok");
 await person.getByRole("button", { name: "Following" }).waitFor();
 console.log("follow persists");
+await person.locator("summary").click();
 await person.getByRole("link", { name: "Message", exact: true }).click();
 await page
   .getByRole("textbox", { name: /^Message / })
@@ -106,7 +109,7 @@ await page
   .first()
   .waitFor();
 console.log("message persists");
-await page.goto("http://localhost:3000/home");
+await page.goto("http://localhost:3000/home?view=feed");
 await page.getByRole("button", { name: "Create post" }).first().click();
 await dialog.locator('select[name="category"]').selectOption("Event");
 await dialog.locator('input[name="title"]').fill("Open source campus night");
@@ -121,6 +124,7 @@ await dialog
 await dialog.locator('input[name="eventTime"]').fill("17:00");
 await dialog.locator('input[name="eventLocation"]').fill("Innovation Hub");
 await dialog.getByRole("button", { name: "Publish post" }).click();
+await dialog.waitFor({ state: "hidden" });
 await page.getByText("Open source campus night").first().waitFor();
 await page.reload();
 await page.getByText("Open source campus night").first().waitFor();
@@ -128,7 +132,7 @@ console.log("event announcement persists");
 await page.goto("http://localhost:3000/events");
 await page.getByText("Open source campus night").first().waitFor();
 console.log("event appears on Events board");
-await page.goto("http://localhost:3000/home");
+await page.goto("http://localhost:3000/home?view=feed");
 await page.getByRole("button", { name: "Create post" }).first().click();
 await dialog.locator('select[name="category"]').selectOption("Team");
 await dialog.locator('input[name="title"]').fill("Draft campus research group");

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { Users } from "lucide-react";
 import { Button, EmptyState, PageHeader, inputClass } from "@/components/ui";
 import { PersonCard } from "@/components/shared/cards";
@@ -7,9 +7,15 @@ import { useApp } from "@/stores/app";
 import { filterPeople } from "@/lib/discovery";
 import type { PeopleFilters } from "@/lib/discovery";
 import { useUrlState } from "@/lib/navigation";
-import { SearchInput } from "./shared-controls";
+import {
+  AppliedFilters,
+  FilterDisclosure,
+  ResultGrid,
+  SearchInput,
+} from "./shared-controls";
 
 const defaultFilters = {
+  limit: "12",
   query: "",
   faculty: "",
   major: "",
@@ -29,7 +35,7 @@ export function PeopleView() {
     sort: urlFilters.sort === "Name" ? "Name" : "Best match",
   };
   const applied = Object.entries(filters).filter(
-    ([key, value]) => key !== "sort" && value,
+    ([key, value]) => key !== "sort" && key !== "limit" && value,
   ).length;
   const update = <K extends keyof PeopleFilters>(
     key: K,
@@ -40,13 +46,14 @@ export function PeopleView() {
     });
   const options = (values: string[]) => [...new Set(values)].sort();
   const list = filterPeople(users, user, filters);
+  const limit = Math.max(12, Math.min(1000, Number(urlFilters.limit) || 12));
   return (
     <div>
       <PageHeader
         title="Find your people"
         subtitle="Meet students who share your interests and complement your skills."
       />
-      <div className="card mb-5 grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="directory-toolbar">
         <div className="sm:col-span-2 lg:col-span-4">
           <p className="mb-2 text-sm font-semibold">Search students</p>
           <SearchInput
@@ -55,11 +62,7 @@ export function PeopleView() {
             placeholder="Name, skill, or interest"
           />
         </div>
-        <details className="sm:col-span-2 lg:col-span-4">
-          <summary className="min-h-11 cursor-pointer py-3 text-sm font-semibold text-[#17468c]">
-            Refine by skills, interests, or study details
-            {applied > 0 ? ` (${applied} applied)` : ""}
-          </summary>
+        <FilterDisclosure count={applied}>
           <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <select
               value={filters.faculty}
@@ -149,8 +152,17 @@ export function PeopleView() {
               <option>Name</option>
             </select>
           </div>
-        </details>
+        </FilterDisclosure>
       </div>
+      <AppliedFilters
+        items={Object.entries(filters)
+          .filter(([key, value]) => key !== "sort" && key !== "limit" && value)
+          .map(([key, value]) => ({
+            label: `${key}: ${value}`,
+            onRemove: () => setFilters({ [key]: "" }),
+          }))}
+        onReset={() => setFilters(defaultFilters)}
+      />
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-[#53647c]" role="status">
           {list.length} students
@@ -173,11 +185,11 @@ export function PeopleView() {
         </p>
       )}
       {list.length ? (
-        <div className="grid gap-4 md:grid-cols-2">
-          {list.map((person) => (
+        <ResultGrid>
+          {list.slice(0, limit).map((person) => (
             <PersonCard key={person.id} person={person} />
           ))}
-        </div>
+        </ResultGrid>
       ) : (
         <EmptyState
           icon={<Users />}
@@ -192,6 +204,17 @@ export function PeopleView() {
             </Button>
           }
         />
+      )}
+      {list.length > limit && (
+        <Button
+          variant="secondary"
+          className="mt-6"
+          onClick={() =>
+            setFilters({ limit: String(limit + 12) }, { replace: true })
+          }
+        >
+          Show more people
+        </Button>
       )}
     </div>
   );

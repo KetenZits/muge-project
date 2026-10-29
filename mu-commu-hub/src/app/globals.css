@@ -477,3 +477,298 @@ summary:focus-visible {
     @apply font-sans;
   }
 }
+
+/* V6: one calm application surface, with color reserved for wayfinding. */
+:root {
+  --background: #f6f8fb;
+  --foreground: #17263c;
+  --muted-foreground: #617187;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #53647c;
+  --sidebar-accent: #eaf1fc;
+  --sidebar-accent-foreground: #17468c;
+  --sidebar-border: #e5ebf2;
+  --sidebar-ring: #17468c;
+  --input: #8091a5;
+  --card-radius: 16px;
+}
+.app-shell {
+  background: var(--background);
+}
+.app-shell .page-title {
+  color: var(--ink);
+  font-size: 28px;
+  letter-spacing: -0.035em;
+}
+.app-shell .page-subtitle {
+  max-width: 65ch;
+}
+.app-shell .card {
+  border-radius: var(--card-radius);
+}
+.app-shell .page-wrap {
+  max-width: 1200px;
+}
+.app-sidebar [data-slot="sidebar-inner"] {
+  background: #fff;
+}
+.app-nav-link {
+  min-height: 48px;
+  gap: 12px;
+  padding: 0 14px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+.app-nav-link[data-active="true"] {
+  font-weight: 650;
+  color: #17468c;
+  background: #eaf1fc;
+}
+.app-nav-link svg {
+  width: 20px;
+  height: 20px;
+}
+.app-sidebar [data-slot="sidebar-content"] {
+  overflow-x: hidden;
+}
+[data-collapsible="icon"] .brand-label,
+[data-collapsible="icon"] .sidebar-label,
+[data-collapsible="icon"] .sidebar-note,
+[data-collapsible="icon"] .nav-active-mark {
+  display: none;
+}
+[data-collapsible="icon"] [data-slot="sidebar-header"] {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+[data-collapsible="icon"] .app-nav-link {
+  width: 48px !important;
+  height: 48px !important;
+  padding: 14px !important;
+}
+[data-collapsible="icon"] .explore-trigger {
+  width: 48px;
+  justify-content: center;
+  padding: 0;
+}
+[data-collapsible="icon"] .account-trigger {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+.mobile-explore {
+  position: relative;
+}
+.mobile-explore .explore-trigger {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+}
+.mobile-explore .explore-trigger > * {
+  visibility: hidden;
+}
+.mobile-bottom-nav {
+  min-height: calc(68px + env(safe-area-inset-bottom));
+}
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 200;
+  transform: translateY(-150%);
+  border-radius: 8px;
+  background: #17468c;
+  padding: 12px 20px;
+  color: white;
+}
+.skip-link:focus {
+  transform: none;
+}
+.shortcut-tile {
+  display: block;
+  min-width: 0;
+  min-height: 176px;
+  border-radius: 16px;
+  padding: 22px;
+  color: var(--tile-ink);
+  background: var(--tile-bg);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+.shortcut-tile.blue {
+  --tile-bg: #e8effb;
+  --tile-ink: #214c8a;
+}
+.shortcut-tile.purple {
+  --tile-bg: #efeafa;
+  --tile-ink: #63458b;
+}
+.shortcut-tile.green {
+  --tile-bg: #e5f2ea;
+  --tile-ink: #266047;
+}
+.shortcut-tile.orange {
+  --tile-bg: #fbefdf;
+  --tile-ink: #845526;
+}
+.shortcut-tile.pink {
+  --tile-bg: #f8eaf0;
+  --tile-ink: #904a68;
+}
+.shortcut-tile.cyan {
+  --tile-bg: #e4f1f4;
+  --tile-ink: #2c6573;
+}
+.shortcut-arrow {
+  transition: transform 180ms ease;
+}
+.shortcut-tile:hover .shortcut-arrow {
+  transform: translateX(4px);
+}
+.directory-toolbar {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: white;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+.directory-toolbar input[type="search"] {
+  min-height: 52px;
+  background: #f8fafd;
+  border-color: #bac8d8;
+  font-size: 15px;
+}
+.result-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.directory-results > article {
+  min-width: 0;
+}
+@media (hover: hover) and (pointer: fine) {
+  .shortcut-tile:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px #183b6810;
+  }
+}
+@media (max-width: 639px) {
+  .app-shell .page-title {
+    font-size: 25px;
+  }
+  .shortcut-tile {
+    min-height: 145px;
+    padding: 18px;
+  }
+  .dashboard-shortcuts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .shortcut-tile .shortcut-top svg:first-child {
+    width: 23px;
+    height: 23px;
+  }
+  .shortcut-tile > span:nth-child(2) {
+    margin-top: 20px;
+    font-size: 15px;
+    line-height: 20px;
+  }
+  .shortcut-tile > span:last-child {
+    font-size: 12px;
+    line-height: 18px;
+  }
+  .shortcut-arrow {
+    width: 15px;
+  }
+  .directory-toolbar {
+    padding: 16px;
+  }
+  .result-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 359px) {
+  .dashboard-shortcuts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .shortcut-tile {
+    min-height: 148px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shortcut-tile:hover {
+    transform: none;
+  }
+}
+.section-tabs {
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  justify-content: flex-start;
+  gap: 4px;
+  overflow-x: auto;
+  border-radius: 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  padding: 0 0 5px;
+}
+.section-tabs [data-slot="tabs-trigger"] {
+  flex: 0 0 auto;
+  min-height: 44px;
+  border: 0;
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  box-shadow: none;
+}
+.section-tabs [data-slot="tabs-trigger"][data-state="active"] {
+  background: #eaf1fc;
+  color: #17468c;
+  box-shadow: none;
+}
+.section-tabs [data-slot="tabs-trigger"][data-state="active"]::after {
+  background: #17468c;
+}
+.profile-summary {
+  border-top: 3px solid #17468c;
+}
+.messages-workspace {
+  height: min(720px, calc(100svh - 240px));
+}
+.activity-sections .empty-state-icon {
+  animation: none;
+}
+@media (min-width: 1100px) {
+  .activity-sections {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 767px) {
+  .messages-workspace {
+    height: max(400px, calc(100svh - 320px));
+  }
+}
+.directory-toolbar label {
+  min-width: 0;
+}
+.directory-toolbar select {
+  min-width: 0;
+  max-width: 100%;
+}
+.directory-toolbar input[type="search"] {
+  border-color: var(--input-border);
+}
+[data-slot="sheet-close"] {
+  min-width: 44px;
+  min-height: 44px;
+}
+.shortcut-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+}

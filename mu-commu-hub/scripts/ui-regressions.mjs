@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
-import { chromium } from "playwright-core";
+import { chromium } from "./browser.mjs";
 
 const browser = await chromium.launch({
   executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe",
@@ -31,7 +31,7 @@ const pressScope = async (name) =>
     .click();
 
 try {
-  await go("/discover?q=AI");
+  await go("/discover?q=AI&scope=All");
   assert.equal(
     await page
       .getByRole("searchbox", { name: "Search campus", exact: true })
@@ -51,7 +51,9 @@ try {
   await page.goBack();
   await page.waitForURL((url) => url.searchParams.get("scope") === "Posts");
   await page.goForward();
-  await page.waitForURL((url) => url.searchParams.get("scope") === "People");
+  await page.waitForURL(
+    (url) => (url.searchParams.get("scope") ?? "People") === "People",
+  );
   check("Discover URL search, View all, and Back/Forward preserve scope");
 
   await go("/discover?q=AI+Study+Companion&scope=People");
@@ -79,7 +81,7 @@ try {
   await page.locator("main details > summary").click();
   check("Team detail returns to the originating filters");
 
-  await page.getByRole("button", { name: /Recruit teammates/i }).click();
+  await page.getByRole("button", { name: /Create a Team/i }).click();
   const composer = page.getByRole("dialog", {
     name: "Create a post",
     exact: true,
@@ -177,8 +179,8 @@ try {
   await go("/profile/tester?tab=Posts");
   assert.equal(
     await page
-      .getByRole("button", { name: /^Posts\b/ })
-      .getAttribute("aria-pressed"),
+      .getByRole("tab", { name: /^Posts\b/ })
+      .getAttribute("aria-selected"),
     "true",
   );
   check("Filtered competitions and requested profile panels match their URLs");
@@ -186,8 +188,8 @@ try {
   await go("/saved?tab=events");
   assert.equal(
     await page
-      .getByRole("button", { name: /^Events\b/ })
-      .getAttribute("aria-pressed"),
+      .getByRole("tab", { name: /^Events\b/ })
+      .getAttribute("aria-selected"),
     "true",
   );
   await page.evaluate(async () => {
@@ -200,8 +202,8 @@ try {
   await go("/saved");
   assert.equal(
     await page
-      .getByRole("button", { name: /^Teams\b/ })
-      .getAttribute("aria-pressed"),
+      .getByRole("tab", { name: /^Teams\b/ })
+      .getAttribute("aria-selected"),
     "true",
   );
   check(
@@ -254,7 +256,7 @@ try {
   const messageLink = page
     .locator("main article")
     .first()
-    .getByRole("link", { name: "Message", exact: true });
+    .getByRole("link", { name: /View profile/, exact: true });
   const contrast = await messageLink.evaluate((element) => {
     const rgb = (value) =>
       value
@@ -304,43 +306,44 @@ try {
     name: "Mobile navigation",
     exact: true,
   });
-  for (const name of ["Home", "Discover", "Teams", "Messages"])
+  for (const name of ["Home", "Discover", "Teams", "Messages", "Profile"])
     await nav.getByRole("link", { name, exact: true }).waitFor();
-  await nav.getByRole("button", { name: /More/i }).click();
+  const explore = page.getByRole("button", {
+    name: "Explore campus",
+    exact: true,
+  });
+  await explore.click();
   const more = page.getByRole("dialog", {
-    name: "More navigation",
+    name: "Explore campus",
     exact: true,
   });
   for (const name of [
     "Communities",
     "Competitions",
-    "Events",
-    "Saved",
-    "Notifications",
+    "Events & gatherings",
+    "Saved for later",
     "My Activity",
   ])
-    await more.getByRole("link", { name: new RegExp(`^${name}\\b`) }).waitFor();
+    await more.getByRole("link", { name: new RegExp(`^${name}`) }).waitFor();
+  await page.keyboard.press("Escape");
   assert.equal(
-    await more
-      .getByRole("link", { name: "Your profile", exact: true })
+    await nav
+      .getByRole("link", { name: "Profile", exact: true })
       .getAttribute("href"),
     "/profile/tester",
   );
-  await page.keyboard.press("Escape");
   await page.waitForFunction(
     () =>
-      document.activeElement?.getAttribute("aria-label") === "More navigation",
+      document.activeElement?.getAttribute("aria-label") === "Explore campus",
   );
-  const focus = await nav
-    .getByRole("button", { name: "More navigation", exact: true })
-    .evaluate((element) => ({
-      width: parseFloat(getComputedStyle(element).outlineWidth),
-      color: getComputedStyle(element).outlineColor,
-    }));
+  const focus = await explore.evaluate((element) => ({
+    width: parseFloat(getComputedStyle(element).outlineWidth),
+    color: getComputedStyle(element).outlineColor,
+  }));
   assert.ok(focus.width >= 3);
   assert.equal(focus.color, "rgb(23, 70, 140)");
   check(
-    "Mobile navigation exposes primary and secondary destinations with distinct profile/activity links",
+    "Five mobile destinations and the campus Sheet expose every secondary route and restore focus",
   );
 
   const responsive = [];

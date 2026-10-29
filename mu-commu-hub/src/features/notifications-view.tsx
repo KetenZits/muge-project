@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useState } from "react";
 import Link from "next/link";
 import { Bell, Heart, Trophy, Users, ArrowRight } from "lucide-react";
@@ -25,12 +25,14 @@ export function NotificationsView() {
       markAllRead: state.markAllRead,
     })),
   );
-  const [state, setState] = useUrlState({ tab: "All" });
+  const [state, setState] = useUrlState({ tab: "All", unread: "" });
   const tab = categories.includes(state.tab) ? state.tab : "All";
   const [pending, setPending] = useState<string[]>([]);
   const [allPending, setAllPending] = useState(false);
   const list = notifications.filter(
-    (notification) => tab === "All" || notification.category === tab,
+    (notification) =>
+      (tab === "All" || notification.category === tab) &&
+      (!state.unread || !notification.read),
   );
   const unread = notifications.filter(
     (notification) => !notification.read,
@@ -78,6 +80,17 @@ export function NotificationsView() {
           setValue={(value) => setState({ tab: value })}
         />
       </div>
+      <label className="mb-4 inline-flex min-h-11 cursor-pointer items-center gap-3 text-sm font-medium">
+        <input
+          type="checkbox"
+          checked={Boolean(state.unread)}
+          onChange={(event) =>
+            setState({ unread: event.target.checked ? "true" : "" })
+          }
+          className="size-4 accent-[#17468c]"
+        />
+        Unread only<span className="text-muted">({unread})</span>
+      </label>
       {list.length ? (
         <div className="divide-y divide-[#e5ebf2] border-y border-[#e5ebf2]">
           {list.map((notification) => {
@@ -160,7 +173,11 @@ export function NotificationsView() {
         <EmptyState
           icon={<Bell />}
           title={
-            tab === "All" ? "No updates yet" : `No ${tab.toLowerCase()} updates`
+            state.unread
+              ? "You’re all caught up"
+              : tab === "All"
+                ? "No updates yet"
+                : `No ${tab.toLowerCase()} updates`
           }
           description={
             tab === "All"
@@ -168,10 +185,10 @@ export function NotificationsView() {
               : "Choose All to see updates in the other categories."
           }
           action={
-            tab !== "All" ? (
+            tab !== "All" || state.unread ? (
               <Button
                 variant="secondary"
-                onClick={() => setState({ tab: "All" })}
+                onClick={() => setState({ tab: "All", unread: "" })}
               >
                 View all updates
               </Button>

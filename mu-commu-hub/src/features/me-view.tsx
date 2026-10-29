@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -114,7 +114,7 @@ export function MeView() {
           </div>
         ))}
       </div>
-      <div className="grid min-w-0 gap-6 [&>section]:min-w-0">
+      <div className="activity-sections grid min-w-0 gap-6 [&>section]:min-w-0">
         <section>
           <SectionHead
             title="My posts"
@@ -128,6 +128,7 @@ export function MeView() {
             </div>
           ) : (
             <EmptyState
+              compact
               icon={<Plus />}
               title="Your first post starts here"
               description="Share what you're working on or ask the community a question."
@@ -138,10 +139,7 @@ export function MeView() {
           )}
         </section>
         <section>
-          <SectionHead
-            title="Teams I lead"
-            href={`/profile/${user.username}?tab=teams`}
-          />
+          <SectionHead title="Teams I lead" href="/teams?view=mine" />
           {myTeams.length ? (
             <div className="grid gap-4 md:grid-cols-2">
               {myTeams.map((team) => (
@@ -150,6 +148,7 @@ export function MeView() {
             </div>
           ) : (
             <EmptyState
+              compact
               icon={<Users />}
               title="You have not started a team"
               description="Create a recruitment post to find collaborators."
@@ -171,6 +170,7 @@ export function MeView() {
             </div>
           ) : (
             <EmptyState
+              compact
               icon={<Users />}
               title="No saved join requests"
               description="Explore the Team Finder to discover projects you could join."
@@ -198,6 +198,7 @@ export function MeView() {
             </div>
           ) : (
             <EmptyState
+              compact
               icon={<Trophy />}
               title="No saved competitions"
               description="Bookmark opportunities that you may want to enter later."
@@ -219,6 +220,7 @@ export function MeView() {
             </div>
           ) : (
             <EmptyState
+              compact
               icon={<CalendarDays />}
               title="No upcoming events on your list"
               description="Choose I'm going on an event to keep it here. You can cancel your local RSVP any time."
@@ -254,6 +256,7 @@ export function MeView() {
             </div>
           ) : (
             <EmptyState
+              compact
               icon={<Sparkles />}
               title="No activity yet"
               description="Your posts and conversations will appear here."

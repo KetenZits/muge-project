@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import Link from "next/link";
 import { ArrowRight, Trophy } from "lucide-react";
 import { Button, EmptyState, PageHeader } from "@/components/ui";
@@ -44,7 +44,7 @@ export function CompetitionsView() {
         title="Competitions"
         subtitle="Compare challenges, check deadlines, and find teammates. Sample opportunities in your local demo."
       />
-      <div className="mb-6 space-y-3">
+      <div className="directory-toolbar space-y-3">
         <SearchInput
           value={filters.query}
           onChange={(query) => setFilters({ query }, { replace: true })}

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { chromium } from "playwright-core";
+import { chromium } from "./browser.mjs";
 
 // Every scenario uses an isolated context. Never open or reset a user's browser profile.
 const base = process.env.BASE_URL ?? "http://localhost:3000";

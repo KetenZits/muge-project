@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { mkdir } from "node:fs/promises";
-import { chromium } from "playwright-core";
+import { chromium } from "./browser.mjs";
 
 const base = process.env.BASE_URL ?? "http://localhost:3000";
 const artifacts = ".next/image-test-artifacts";
@@ -256,7 +256,7 @@ try {
     });
     db.close();
   });
-  await go("/home");
+  await go("/home?view=feed");
   const migrated = await snapshot();
   assert.equal(migrated.version, 30);
   assert.equal(migrated.posts.length, 1);
@@ -350,7 +350,7 @@ try {
     "PASS: text-only and one-photo publishing, immediate feed, refresh, detail, Escape, focus return",
   );
 
-  await go("/home");
+  await go("/home?view=feed");
   await openComposer();
   await composer()
     .locator('input[type="file"]')
@@ -570,7 +570,7 @@ try {
   await go("/saved");
   await assertPhotosLoaded(multi.id, 5);
   await go("/profile/tester");
-  await page.getByRole("button", { name: /^Posts\b/ }).click();
+  await page.getByRole("tab", { name: /^Posts\b/ }).click();
   await assertPhotosLoaded(multi.id, 5);
   await go("/me");
   await assertPhotosLoaded(multi.id, 5);
@@ -637,7 +637,7 @@ try {
     }
     return result;
   }, rawFixtures);
-  await go("/home");
+  await go("/home?view=feed");
   for (const width of [375, 430, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: width === 1024 ? 768 : 932 });
     for (const [id, count] of [
@@ -917,11 +917,11 @@ try {
         ?.querySelectorAll('[aria-label="Photo unavailable"]').length === 2,
     recruitment.id,
   );
-  await go("/home");
+  await go("/home?view=feed");
   await assertPhotosLoaded(multi.id, 5);
   // SPA navigation unmounts gallery consumers without resetting the URL instrumentation.
-  await page.locator('a[href="/people"]').first().click();
-  await page.waitForURL("**/people");
+  await page.getByRole("navigation", { name: "Main navigation", exact: true }).getByRole("link", { name: "Discover", exact: true }).click();
+  await page.waitForURL("**/discover");
   await page.waitForFunction(() => window.__photoUrls.active.size === 0);
   assert.equal(
     await page.evaluate(

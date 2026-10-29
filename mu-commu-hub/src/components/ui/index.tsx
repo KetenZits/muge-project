@@ -147,15 +147,27 @@ export function EmptyState({
   title,
   description,
   action,
+  compact = false,
 }: {
+  compact?: boolean;
   icon: React.ReactNode;
   title: string;
   description: string;
   action?: React.ReactNode;
 }) {
   return (
-    <Card className="card flex flex-col items-center justify-center px-6 py-16 text-center">
-      <div className="empty-state-icon mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#eef4fb] text-[#17468c]">
+    <Card
+      className={cn(
+        "card flex flex-col items-center justify-center px-6 text-center",
+        compact ? "py-6" : "py-12",
+      )}
+    >
+      <div
+        className={cn(
+          "empty-state-icon mb-4 flex items-center justify-center rounded-xl bg-[#eef4fb] text-[#17468c]",
+          compact ? "h-10 w-10" : "h-14 w-14",
+        )}
+      >
         {icon}
       </div>
       <h3 className="text-lg font-bold">{title}</h3>

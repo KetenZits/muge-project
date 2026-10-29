@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
@@ -184,8 +184,11 @@ export function MessagesView() {
     );
   }, [selected, openConversation]);
   useEffect(() => {
-    bottom.current?.scrollIntoView({
-      behavior: reducedMotion ? "auto" : "smooth",
+    // Scroll only the thread; keep page position and mobile navigation still.
+    const scroller = bottom.current?.parentElement;
+    scroller?.scrollTo({
+      top: scroller.scrollHeight,
+      behavior: reducedMotion ? "instant" : "smooth",
     });
   }, [messages, selected, reducedMotion]);
   const shown = conversations
@@ -252,8 +255,20 @@ export function MessagesView() {
     <div>
       <PageHeader
         title="Messages"
-        subtitle="Conversations are saved in this browser. Messages are not delivered to other people or devices."
+        subtitle="Pick up a conversation or connect with someone new."
+        action={
+          <Button asChild variant="secondary">
+            <Link href="/people">
+              <MessageCircle size={16} />
+              New conversation
+            </Link>
+          </Button>
+        }
       />
+      <p className="mb-4 text-xs leading-5 text-muted">
+        Local demo · conversations stay in this browser and are not delivered to
+        other people.
+      </p>
       {startError && (
         <div
           role="alert"
@@ -273,7 +288,7 @@ export function MessagesView() {
           </Link>
         </div>
       )}
-      <div className="card flex h-[min(720px,calc(100dvh-180px))] min-h-[440px] overflow-hidden">
+      <div className="messages-workspace card flex min-h-[400px] overflow-hidden">
         <aside
           className={`h-full w-full shrink-0 flex-col border-r border-[#e5ebf2] md:w-[280px] ${selected ? "hidden md:flex" : "flex"}`}
         >

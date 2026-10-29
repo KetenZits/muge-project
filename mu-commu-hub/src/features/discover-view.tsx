@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import Link from "next/link";
 import { Check, Search } from "lucide-react";
 import { Button, EmptyState, PageHeader, inputClass } from "@/components/ui";
@@ -19,12 +19,13 @@ import {
   AppliedFilters,
   FilterDisclosure,
   SearchInput,
+  ResultGrid,
   SectionHead,
 } from "./shared-controls";
 
 const defaults = {
   query: "",
-  scope: "All",
+  scope: "People",
   faculty: "",
   major: "",
   year: "",
@@ -97,7 +98,7 @@ export function DiscoverView() {
   const [state, setState] = useUrlState(defaults);
   const scope: Scope = scopes.includes(state.scope as Scope)
     ? (state.scope as Scope)
-    : "All";
+    : "People";
   const filters: DiscoverFilters = {
     ...state,
     mode: ["Online", "On-site", "Hybrid"].includes(state.mode)
@@ -239,21 +240,23 @@ export function DiscoverView() {
     <div>
       <PageHeader
         title="Discover"
-        subtitle="Find people, team roles, and campus opportunities by what matters to you."
+        subtitle="A good collaboration starts with the right person. Find yours across campus."
       />
-      <div className="mb-6">
+      <div className="directory-toolbar">
         <SearchInput
           value={state.query}
-          onChange={(query) => setState({ query }, { replace: true })}
+          onChange={(query) =>
+            setState({ query, limit: "12" }, { replace: true })
+          }
           placeholder="Search names, skills, teams, or topics..."
           label="Search campus"
         />
         <div
-          className="mt-3 flex max-w-full gap-2 overflow-x-auto pb-1"
+          className="discovery-scopes mt-4 flex max-w-full flex-wrap gap-2 pb-1"
           role="group"
           aria-label="Result type"
         >
-          {scopes.map((item) => (
+          {(["People", "Teams", "All"] as const).map((item) => (
             <button
               key={item}
               type="button"
@@ -272,6 +275,26 @@ export function DiscoverView() {
               )}
             </button>
           ))}
+          <label className="ml-auto flex shrink-0 items-center">
+            <span className="sr-only">More result types</span>
+            <select
+              value={["People", "Teams", "All"].includes(scope) ? "" : scope}
+              onChange={(event) => {
+                if (event.target.value)
+                  chooseScope(event.target.value as Scope);
+              }}
+              className={inputClass + " w-auto border-0 bg-[#f5f7fb] px-3"}
+            >
+              <option value="">More…</option>
+              {scopes
+                .filter((item) => !["People", "Teams", "All"].includes(item))
+                .map((item) => (
+                  <option key={item} value={item}>
+                    {item} ({counts[item]})
+                  </option>
+                ))}
+            </select>
+          </label>
         </div>
         {primary[scope].length > 0 && (
           <div className="mt-4 grid grid-cols-2 gap-3">
@@ -354,21 +377,18 @@ export function DiscoverView() {
         <div className="space-y-8">
           {show("People") && counts.People > 0 && (
             <section>
-              {head(
-                filtered ? "People" : "People with shared interests",
-                "People",
-              )}
-              <div className="grid gap-4 md:grid-cols-2">
+              {head(filtered ? "People" : "People to connect with", "People")}
+              <ResultGrid>
                 {results.people.slice(0, limit).map((person) => (
                   <PersonCard key={person.id} person={person} />
                 ))}
-              </div>
+              </ResultGrid>
             </section>
           )}
           {show("Teams") && counts.Teams > 0 && (
             <section>
               {head("Teams with open roles", "Teams")}
-              <div className="space-y-4">
+              <div className="space-y-4 directory-results">
                 {results.teams.slice(0, limit).map((team) => (
                   <TeamCard key={team.id} team={team} />
                 ))}
@@ -378,7 +398,7 @@ export function DiscoverView() {
           {show("Posts") && counts.Posts > 0 && (
             <section>
               {head("Conversations", "Posts")}
-              <div className="space-y-4">
+              <div className="space-y-4 directory-results">
                 {results.posts.slice(0, limit).map((post) => (
                   <PostCard key={post.id} post={post} />
                 ))}
@@ -388,20 +408,20 @@ export function DiscoverView() {
           {show("Competitions") && counts.Competitions > 0 && (
             <section>
               {head("Competitions", "Competitions")}
-              <div className="grid gap-4 md:grid-cols-2">
+              <ResultGrid>
                 {results.competitions.slice(0, limit).map((competition) => (
                   <CompetitionCard
                     key={competition.id}
                     competition={competition}
                   />
                 ))}
-              </div>
+              </ResultGrid>
             </section>
           )}
           {show("Events") && counts.Events > 0 && (
             <section>
               {head("Sample events", "Events")}
-              <div className="space-y-4">
+              <div className="space-y-4 directory-results">
                 {results.events.slice(0, limit).map((event) => (
                   <EventCard key={event.id} event={event} />
                 ))}
@@ -411,11 +431,11 @@ export function DiscoverView() {
           {show("Communities") && counts.Communities > 0 && (
             <section>
               {head("Communities", "Communities")}
-              <div className="grid gap-4 md:grid-cols-2">
+              <ResultGrid>
                 {results.clubs.slice(0, limit).map((club) => (
                   <ClubCard key={club.id} club={club} />
                 ))}
-              </div>
+              </ResultGrid>
             </section>
           )}
         </div>

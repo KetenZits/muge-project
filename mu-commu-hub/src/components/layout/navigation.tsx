@@ -1,181 +1,360 @@
-﻿"use client";
+"use client";
+
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import * as Popover from "@radix-ui/react-popover";
-import { motion, useReducedMotion } from "motion/react";
+import * as Dropdown from "@radix-ui/react-dropdown-menu";
 import {
   Bell,
   Bookmark,
   CalendarDays,
+  Check,
+  ChevronDown,
   Compass,
   Home,
   LayoutGrid,
+  LogOut,
+  Menu,
   MessageCircle,
-  MoreHorizontal,
   Plus,
   Search,
   Trophy,
   UserRound,
   Users,
-  X,
 } from "lucide-react";
-import { Avatar } from "@/components/ui";
-import { motionTiming } from "@/lib/motion/config";
+import { Avatar, Button } from "@/components/ui";
+import {
+  Sidebar as UISidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { useApp } from "@/stores/app";
 
-const nav = [
+const destinations = [
   { href: "/home", label: "Home", icon: Home },
   { href: "/discover", label: "Discover", icon: Compass },
-  { href: "/teams", label: "Team Finder", icon: Users },
+  { href: "/teams", label: "Teams", icon: Users },
   { href: "/messages", label: "Messages", icon: MessageCircle },
-  { href: "/communities", label: "Communities", icon: LayoutGrid },
-  { href: "/competitions", label: "Competitions", icon: Trophy },
-  { href: "/events", label: "Events", icon: CalendarDays },
-  { href: "/saved", label: "Saved", icon: Bookmark },
-  { href: "/notifications", label: "Notifications", icon: Bell },
-  { href: "/me", label: "My Activity", icon: UserRound },
 ];
-const isCurrent = (pathname: string, href: string) =>
-  pathname === href || pathname.startsWith(href + "/");
+export const campusDestinations = [
+  {
+    href: "/home?view=feed",
+    label: "Campus conversations",
+    description: "Share ideas and see what’s happening",
+    icon: MessageCircle,
+  },
+  {
+    href: "/people",
+    label: "People directory",
+    description: "Browse students across faculties",
+    icon: Users,
+  },
+  {
+    href: "/communities",
+    label: "Communities",
+    description: "Find a place for your interests",
+    icon: LayoutGrid,
+  },
+  {
+    href: "/competitions",
+    label: "Competitions",
+    description: "Find your next challenge",
+    icon: Trophy,
+  },
+  {
+    href: "/events",
+    label: "Events & gatherings",
+    description: "Learn, meet, and make plans",
+    icon: CalendarDays,
+  },
+  {
+    href: "/saved",
+    label: "Saved for later",
+    description: "Pick up something you bookmarked",
+    icon: Bookmark,
+  },
+  {
+    href: "/me",
+    label: "My Activity",
+    description: "Your posts, requests, and plans",
+    icon: UserRound,
+  },
+];
+const isCurrent = (path: string, href: string) =>
+  path === href || path.startsWith(href + "/");
 
-function Brand() {
+export function Brand({ compact = false }: { compact?: boolean }) {
   return (
     <Link
       href="/home"
-      className="flex items-center gap-3"
+      className="app-brand flex min-h-11 shrink-0 items-center gap-3"
       aria-label="MU Connect home"
     >
-      <span className="flex h-10 w-10 items-center justify-center rounded-[13px] bg-[#17468c] text-lg font-bold text-white">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#17468c] text-lg font-bold text-white">
         M<span className="text-[#fac334]">·</span>
       </span>
-      <span className="text-[19px] font-bold tracking-[-.03em] text-[#17468c]">
-        MU <span className="font-medium text-[#233a59]">Connect</span>
-      </span>
+      {!compact && (
+        <span className="brand-label whitespace-nowrap text-lg font-bold tracking-tight text-[#17468c]">
+          MU <span className="font-medium text-[#233a59]">Connect</span>
+        </span>
+      )}
     </Link>
   );
 }
-
+function usePrimary() {
+  const username = useApp((s) => s.user.username);
+  return [
+    ...destinations,
+    { href: "/profile/" + username, label: "Profile", icon: UserRound },
+  ];
+}
 export function Sidebar() {
   const pathname = usePathname();
-  const reducedMotion = useReducedMotion();
-  const user = useApp((state) => state.user);
-  const openComposer = useApp((state) => state.openComposer);
+  const primary = usePrimary();
   return (
-    <aside className="fixed inset-y-0 left-0 z-30 hidden w-[240px] flex-col overflow-y-auto border-r border-[#e4ebf2] bg-white px-4 py-6 lg:flex">
-      <div className="px-3">
-        <Brand />
-      </div>
-      <button
-        onClick={() => openComposer()}
-        className="mt-7 flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#17468c] text-sm font-semibold text-white transition hover:bg-[#0f3672]"
-      >
-        <Plus size={18} /> Create post
-      </button>
-      <nav className="mt-5 space-y-1" aria-label="Main navigation">
-        {nav.map((item, index) => {
-          const Icon = item.icon;
-          const active = isCurrent(pathname, item.href);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              aria-current={active ? "page" : undefined}
-              className={
-                "relative isolate flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-semibold transition-colors " +
-                (index === 4 || index === 7 ? "mt-4 " : "") +
-                (active
-                  ? "text-[#17468c]"
-                  : "text-[#68778c] hover:bg-[#f5f8fc] hover:text-[#17468c]")
-              }
-            >
-              {active && (
-                <motion.span
-                  layoutId="sidebar-active"
-                  className="absolute inset-0 -z-10 rounded-xl bg-[#eaf1fc]"
-                  transition={
-                    reducedMotion ? { duration: 0 } : motionTiming.softSpring
-                  }
-                />
-              )}
-              <Icon size={18} strokeWidth={active ? 2.4 : 1.9} />
-              <span>{item.label}</span>
-              {item.href === "/notifications" && <UnreadBadge />}
-            </Link>
-          );
-        })}
-      </nav>
-      <div className="mt-auto pt-6">
-        <Link
-          href="/people"
-          className="flex min-h-11 items-center gap-3 px-3 text-sm font-semibold text-[#17468c]"
+    <div className="hidden lg:block">
+      <UISidebar collapsible="icon" className="app-sidebar">
+        <SidebarHeader className="px-4 pb-8 pt-6">
+          <Brand />
+        </SidebarHeader>
+        <SidebarContent className="px-3">
+          <nav aria-label="Main navigation">
+            <SidebarMenu className="gap-2">
+              {primary.map(({ href, label, icon: Icon }) => {
+                const active =
+                  isCurrent(pathname, href) ||
+                  (href === "/discover" && pathname === "/people");
+                return (
+                  <SidebarMenuItem key={href}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={active}
+                      tooltip={label}
+                      className="app-nav-link"
+                    >
+                      <Link
+                        href={href}
+                        aria-current={active ? "page" : undefined}
+                        aria-label={label}
+                      >
+                        <Icon size={20} aria-hidden="true" />
+                        <span>{label}</span>
+                        {active && (
+                          <Check
+                            className="nav-active-mark ml-auto"
+                            size={15}
+                            aria-hidden="true"
+                          />
+                        )}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </nav>
+          <div className="mt-6 border-t border-[var(--line)] pt-5">
+            <ExploreMenu />
+          </div>
+        </SidebarContent>
+        <SidebarFooter className="gap-3 border-t border-[var(--line)] p-3">
+          <p className="sidebar-note px-2 text-xs leading-5 text-muted">
+            Your campus, connected.
+            <br />
+            Independent local demo.
+          </p>
+          <AccountMenu expanded />
+        </SidebarFooter>
+      </UISidebar>
+    </div>
+  );
+}
+export function ExploreMenu() {
+  const [open, setOpen] = useState(false);
+  const openComposer = useApp((s) => s.openComposer);
+  const pathname = usePathname();
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <button
+          title="Explore campus"
+          className="explore-trigger flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm font-semibold text-muted hover:bg-[#eef3fa]"
+          aria-label="Explore campus"
         >
-          <Users size={18} /> Find people
-        </Link>
+          <LayoutGrid size={20} className="shrink-0" />
+          <span className="sidebar-label">Explore campus</span>
+        </button>
+      </SheetTrigger>
+      <SheetContent
+        className="w-[min(400px,100vw)] overflow-y-auto bg-white p-6"
+        side="right"
+      >
+        <SheetHeader className="p-0 pr-8">
+          <SheetTitle className="text-2xl font-bold text-[#17263c]">
+            Explore campus
+          </SheetTitle>
+          <SheetDescription>
+            More ways to connect, all in one place.
+          </SheetDescription>
+        </SheetHeader>
+        <Button
+          className="mt-3 w-full"
+          onClick={() => {
+            setOpen(false);
+            openComposer();
+          }}
+        >
+          <Plus size={18} /> Create post
+        </Button>
+        <nav aria-label="Campus navigation" className="space-y-1">
+          {campusDestinations.map(
+            ({ href, label, description, icon: Icon }) => (
+              <Link
+                key={href}
+                href={href}
+                onClick={() => setOpen(false)}
+                aria-current={pathname === href ? "page" : undefined}
+                className="flex min-h-16 items-center gap-3 rounded-xl p-3 hover:bg-[#f0f4fa]"
+              >
+                <Icon size={20} className="shrink-0 text-[#17468c]" />
+                <span>
+                  <strong className="block text-sm">{label}</strong>
+                  <span className="mt-1 block text-xs text-muted">
+                    {description}
+                  </span>
+                </span>
+              </Link>
+            ),
+          )}
+        </nav>
         <Link
-          href={"/profile/" + user.username}
-          aria-current={
-            pathname === "/profile/" + user.username ? "page" : undefined
+          href="/login"
+          onClick={() => setOpen(false)}
+          className="flex min-h-11 items-center gap-3 border-t border-[var(--line)] px-3 pt-3 text-sm font-semibold text-[#17468c]"
+        >
+          <LogOut size={18} />
+          Return to login
+        </Link>
+        <p className="text-xs leading-5 text-muted">
+          Activity stays in this browser. Sample people and opportunities; no
+          one is contacted.
+        </p>
+      </SheetContent>
+    </Sheet>
+  );
+}
+function AccountMenu({ expanded = false }: { expanded?: boolean }) {
+  const user = useApp((s) => s.user);
+  return (
+    <Dropdown.Root>
+      <Dropdown.Trigger asChild>
+        <button
+          aria-label="Open account menu"
+          className={
+            expanded
+              ? "account-trigger flex min-h-12 w-full items-center gap-2 rounded-xl p-2 text-left hover:bg-[#eef3fa]"
+              : "icon-button"
           }
-          className="mt-2 flex items-center gap-3 rounded-xl px-2 py-3 hover:bg-[#f5f8fc]"
         >
           <Avatar user={user} size="sm" />
-          <span className="min-w-0 flex-1">
-            <strong className="block truncate text-sm">{user.name}</strong>
-            <span className="block text-xs text-muted">View your profile</span>
-          </span>
-        </Link>
-        <p className="px-3 pt-3 text-xs leading-5 text-muted">
-          Local demo · activity stays in this browser.
-        </p>
-      </div>
-    </aside>
+          {expanded && (
+            <>
+              <span className="sidebar-label min-w-0 flex-1">
+                <strong className="block truncate text-sm">{user.name}</strong>
+                <span className="block text-xs text-muted">Your account</span>
+              </span>
+              <ChevronDown size={15} className="sidebar-label" />
+            </>
+          )}
+        </button>
+      </Dropdown.Trigger>
+      <Dropdown.Portal>
+        <Dropdown.Content
+          align="end"
+          sideOffset={8}
+          className="z-50 w-60 rounded-2xl border border-[var(--line)] bg-white p-2 shadow-lg"
+        >
+          <Dropdown.Label className="px-3 py-2 text-xs text-muted">
+            {user.name} · Demo profile
+          </Dropdown.Label>
+          {[
+            {
+              href: "/profile/" + user.username,
+              label: "View & edit profile",
+              icon: UserRound,
+            },
+            { href: "/me", label: "My Activity", icon: LayoutGrid },
+            { href: "/saved", label: "Saved for later", icon: Bookmark },
+            { href: "/notifications", label: "Notifications", icon: Bell },
+            { href: "/login", label: "Return to login", icon: LogOut },
+          ].map(({ href, label, icon: Icon }) => (
+            <Dropdown.Item key={href} asChild>
+              <Link
+                href={href}
+                className="flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm outline-none hover:bg-[#eef3fa] focus:bg-[#eef3fa]"
+              >
+                <Icon size={17} />
+                {label}
+              </Link>
+            </Dropdown.Item>
+          ))}
+        </Dropdown.Content>
+      </Dropdown.Portal>
+    </Dropdown.Root>
   );
 }
-
-function UnreadBadge() {
-  const count = useApp(
-    (state) =>
-      state.notifications.filter((notification) => !notification.read).length,
-  );
-  return count > 0 ? (
-    <span
-      className="ml-auto inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-[#fac334] px-1 text-xs font-semibold text-[#4c390c]"
-      aria-label={count + " unread notifications"}
-    >
-      {count}
-    </span>
-  ) : null;
-}
-
 export function Topbar() {
-  const setSearch = useApp((state) => state.setSearchOpen);
-  const user = useApp((state) => state.user);
-  const notifications = useApp((state) => state.notifications);
-  const markRead = useApp((state) => state.markRead);
+  const setSearch = useApp((s) => s.setSearchOpen);
+  const openComposer = useApp((s) => s.openComposer);
+  const unread = useApp((s) => s.notifications.filter((n) => !n.read).length);
   const pathname = usePathname();
-  const pageLabel = pathname.startsWith("/profile/")
+  const label = pathname.startsWith("/profile/")
     ? "Profile"
     : pathname === "/people"
       ? "People"
-      : (nav.find((item) => isCurrent(pathname, item.href))?.label ?? "Campus");
+      : (destinations.find((d) => isCurrent(pathname, d.href))?.label ??
+        campusDestinations.find((d) => isCurrent(pathname, d.href))?.label ??
+        "Campus");
   return (
-    <header className="sticky top-0 z-20 flex min-h-[72px] items-center justify-between gap-2 border-b border-[#e5ebf2] bg-white px-4 md:px-8 lg:px-9">
-      <div className="lg:hidden">
-        <Brand />
+    <header className="app-topbar sticky top-0 z-20 flex min-h-[72px] items-center justify-between gap-2 border-b border-[var(--line)] bg-white px-4 md:px-8">
+      <div className="flex min-w-0 items-center gap-3">
+        <div className="hidden lg:block">
+          <SidebarTrigger className="min-h-11 min-w-11" />
+        </div>
+        <div className="lg:hidden">
+          <Brand compact />
+        </div>
+        <span className="truncate text-sm font-semibold text-muted">
+          {label}
+        </span>
       </div>
-      <p className="hidden text-sm font-semibold text-muted lg:block">
-        {pageLabel}
-      </p>
-      <div className="flex items-center gap-1 sm:gap-3">
+      <div className="flex shrink-0 items-center gap-1 sm:gap-3">
+        <button
+          onClick={() => openComposer()}
+          className="icon-button text-[#17468c]"
+          aria-label="Create post"
+        >
+          <Plus size={21} />
+        </button>
         <button
           onClick={() => setSearch(true)}
-          className="hidden min-h-11 w-64 items-center gap-2 rounded-xl border border-[#e2e9f0] bg-[#f8fafc] px-3 text-left text-sm text-[#68778c] hover:border-[#b9cce3] sm:flex"
+          className="hidden min-h-11 items-center gap-3 rounded-xl bg-[#f5f7fb] px-4 text-sm text-muted sm:flex"
         >
-          <Search size={17} /> Search campus{" "}
-          <kbd className="ml-auto rounded border border-[#dbe4ee] bg-white px-1.5 py-1 text-xs">
-            Ctrl/⌘ K
-          </kbd>
+          <Search size={17} />
+          Search campus<kbd className="ml-5 text-xs">⌘ K</kbd>
         </button>
         <button
           onClick={() => setSearch(true)}
@@ -184,194 +363,68 @@ export function Topbar() {
         >
           <Search size={20} />
         </button>
-        <Popover.Root>
-          <Popover.Trigger asChild>
-            <button
-              className="icon-button relative"
-              aria-label="Open notifications"
-            >
-              <Bell size={20} />
-              {notifications.some((notification) => !notification.read) && (
-                <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#a5812d] ring-2 ring-white" />
-              )}
-            </button>
-          </Popover.Trigger>
-          <Popover.Portal>
-            <Popover.Content
-              sideOffset={8}
-              align="end"
-              className="z-50 w-[min(360px,calc(100vw-24px))] rounded-2xl border border-[#e2eaf2] bg-white p-2 shadow-xl"
-            >
-              <div className="flex items-center justify-between px-3 py-3">
-                <strong className="text-sm">Notifications</strong>
-                <UnreadBadge />
-              </div>
-              {notifications.slice(0, 4).map((notification) => (
-                <button
-                  key={notification.id}
-                  onClick={() => markRead(notification.id)}
-                  className="block w-full rounded-xl px-3 py-3 text-left hover:bg-[#f5f8fc]"
-                  aria-label={
-                    notification.title +
-                    (notification.read ? ", read" : ", mark as read")
-                  }
-                >
-                  <span className="block text-sm font-semibold">
-                    {notification.title}
-                  </span>
-                  <span className="mt-1 block text-xs leading-5 text-muted">
-                    {notification.body}
-                  </span>
-                </button>
-              ))}
-              <Link
-                href="/notifications"
-                className="flex min-h-11 items-center justify-center border-t border-[#e8eef4] px-3 py-3 text-sm font-semibold text-[#17468c]"
-              >
-                View all notifications
-              </Link>
-            </Popover.Content>
-          </Popover.Portal>
-        </Popover.Root>
+        <div className="w-11 lg:hidden">
+          <SheetExploreIcon />
+        </div>
         <Link
-          href={"/profile/" + user.username}
-          aria-label="Your profile"
-          className="inline-flex min-h-11 min-w-11 items-center justify-center"
+          href="/notifications"
+          aria-label={`Notifications${unread ? `, ${unread} unread` : ""}`}
+          className="icon-button relative"
         >
-          <Avatar user={user} size="sm" />
+          <Bell size={20} />
+          {unread > 0 && (
+            <span className="absolute right-1 top-1 flex size-4 items-center justify-center rounded-full bg-[#17468c] text-[10px] font-bold text-white">
+              {unread > 9 ? "9+" : unread}
+            </span>
+          )}
         </Link>
+        <div className="hidden sm:block">
+          <AccountMenu />
+        </div>
       </div>
     </header>
   );
 }
-
-export function MobileNav() {
-  const pathname = usePathname();
-  const user = useApp((state) => state.user);
-  const openComposer = useApp((state) => state.openComposer);
-  const [moreOpen, setMoreOpen] = useState(false);
-  const primary = nav.slice(0, 4).map((item) => ({
-    ...item,
-    label: item.href === "/teams" ? "Teams" : item.label,
-  }));
-  const moreItems = [
-    ...nav.slice(4),
-    { href: "/people", label: "People", icon: Users },
-    {
-      href: "/profile/" + user.username,
-      label: "Your profile",
-      icon: UserRound,
-    },
-  ];
-  const moreActive = moreItems.some((item) => isCurrent(pathname, item.href));
+function SheetExploreIcon() {
   return (
-    <nav
-      className="fixed inset-x-0 bottom-0 z-30 flex min-h-[74px] items-center justify-around border-t border-[#e2eaf2] bg-white px-2 pb-[env(safe-area-inset-bottom)] lg:hidden"
-      aria-label="Mobile navigation"
-    >
-      {primary.map((item) => (
-        <MobileLink
-          key={item.href}
-          {...item}
-          active={isCurrent(pathname, item.href)}
-        />
-      ))}
-      <Popover.Root open={moreOpen} onOpenChange={setMoreOpen}>
-        <Popover.Trigger asChild>
-          <button
-            className={
-              "flex min-h-12 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl px-1 text-xs font-semibold " +
-              (moreActive || moreOpen
-                ? "bg-[#eaf1fc] text-[#17468c]"
-                : "text-[#68778c]")
-            }
-            aria-label="More navigation"
-          >
-            <MoreHorizontal size={21} />
-            More
-          </button>
-        </Popover.Trigger>
-        <Popover.Portal>
-          <Popover.Content
-            side="top"
-            align="end"
-            sideOffset={12}
-            aria-label="More navigation"
-            className="z-50 max-h-[75svh] w-[min(360px,calc(100vw-24px))] overflow-y-auto rounded-2xl border border-[#dce5ef] bg-white p-3 shadow-xl"
-          >
-            <div className="mb-2 flex items-center justify-between px-2">
-              <strong className="text-base">More on MU Connect</strong>
-              <Popover.Close
-                className="icon-button"
-                aria-label="Close navigation"
-              >
-                <X size={18} />
-              </Popover.Close>
-            </div>
-            <button
-              onClick={() => {
-                setMoreOpen(false);
-                openComposer();
-              }}
-              className="mb-2 flex min-h-11 w-full items-center gap-3 rounded-xl bg-[#17468c] px-3 text-sm font-semibold text-white"
-            >
-              <Plus size={18} /> Create post
-            </button>
-            {moreItems.map((item) => {
-              const Icon = item.icon;
-              const active = isCurrent(pathname, item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setMoreOpen(false)}
-                  aria-current={active ? "page" : undefined}
-                  className={
-                    "flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-semibold " +
-                    (active
-                      ? "bg-[#eaf1fc] text-[#17468c]"
-                      : "text-[#53647c] hover:bg-[#f5f8fc]")
-                  }
-                >
-                  <Icon size={18} />
-                  {item.label}
-                  {item.href === "/notifications" && <UnreadBadge />}
-                </Link>
-              );
-            })}
-            <p className="border-t border-[#e5ebf2] px-3 pt-3 text-xs leading-5 text-muted">
-              Independent local demo. Activity stays in this browser; no one is
-              contacted.
-            </p>
-          </Popover.Content>
-        </Popover.Portal>
-      </Popover.Root>
-    </nav>
+    <div className="mobile-explore">
+      <ExploreMenu />
+      <Menu
+        size={20}
+        aria-hidden="true"
+        className="pointer-events-none absolute left-3 top-3"
+      />
+    </div>
   );
 }
-
-function MobileLink({
-  href,
-  label,
-  icon: Icon,
-  active,
-}: {
-  href: string;
-  label: string;
-  icon: typeof Home;
-  active: boolean;
-}) {
+export function MobileNav() {
+  const primary = usePrimary();
+  const pathname = usePathname();
   return (
-    <Link
-      href={href}
-      aria-current={active ? "page" : undefined}
-      className={
-        "flex min-h-12 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl px-1 text-xs font-semibold " +
-        (active ? "bg-[#eaf1fc] text-[#17468c]" : "text-[#68778c]")
-      }
+    <nav
+      className="mobile-bottom-nav fixed inset-x-0 bottom-0 z-30 flex items-center justify-around border-t border-[var(--line)] bg-white px-2 pb-[env(safe-area-inset-bottom)] lg:hidden"
+      aria-label="Mobile navigation"
     >
-      <Icon size={21} strokeWidth={active ? 2.5 : 2} />
-      {label}
-    </Link>
+      {primary.map(({ href, label, icon: Icon }) => {
+        const active =
+          isCurrent(pathname, href) ||
+          (href === "/discover" && pathname === "/people");
+        return (
+          <Link
+            key={href}
+            href={href}
+            aria-current={active ? "page" : undefined}
+            className={`flex min-h-16 min-w-0 flex-1 flex-col items-center justify-center gap-1 text-[11px] font-semibold ${active ? "text-[#17468c]" : "text-muted"}`}
+          >
+            <span
+              className={`flex h-7 w-12 items-center justify-center rounded-full ${active ? "bg-[#eaf1fc]" : ""}`}
+            >
+              <Icon size={20} strokeWidth={active ? 2.5 : 1.8} />
+            </span>
+            {label}
+          </Link>
+        );
+      })}
+    </nav>
   );
 }

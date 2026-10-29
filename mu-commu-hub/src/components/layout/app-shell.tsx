@@ -7,7 +7,8 @@ import { ErrorState } from "@/components/ui";
 import { motionTiming } from "@/lib/motion/config";
 import { useApp } from "@/stores/app";
 import { Sidebar, Topbar, MobileNav } from "./navigation";
-import { RightRail } from "./right-rail";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { PageLoading } from "./page-loading";
 
 const CreatePostModal = dynamic(() =>
@@ -42,68 +43,76 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return () => document.removeEventListener("keydown", openSearch);
   }, [setSearchOpen]);
   return (
-    <div
-      className="min-h-screen"
-      data-section={pathname.split("/")[1] || "home"}
-    >
-      <Sidebar />
-      <div className="min-h-screen lg:pl-[240px]">
-        <Topbar />
-        <div className="page-wrap flex gap-7 px-4 pb-28 pt-7 md:px-8 lg:px-9 lg:pb-10">
-          <motion.main
-            key={pathname}
-            initial={false}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{
-              duration: reducedMotion ? 0 : motionTiming.normal,
-              ease: motionTiming.easeOut,
-            }}
-            className="min-w-0 flex-1"
-          >
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                key={
-                  sessionError
-                    ? "error"
-                    : !ready
-                      ? "loading"
-                      : error
-                        ? "error"
-                        : "content"
-                }
-                initial={reducedMotion ? false : { opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: reducedMotion ? 0 : motionTiming.fast }}
-              >
-                {sessionError ? (
-                  <ErrorState
-                    title="Could not restore your demo profile"
-                    description={sessionError}
-                    onRetry={initializeSession}
-                  />
-                ) : !ready || sessionStatus === "initializing" ? (
-                  <PageLoading pathname={pathname} />
-                ) : error ? (
-                  <ErrorState
-                    title="Could not load the demo"
-                    description={error}
-                    onRetry={load}
-                  />
-                ) : (
-                  <Suspense fallback={<PageLoading pathname={pathname} />}>
-                    {children}
-                  </Suspense>
-                )}
-              </motion.div>
-            </AnimatePresence>
-          </motion.main>
-          {ready && !error && sessionStatus === "ready" && <RightRail />}
+    <TooltipProvider delayDuration={200}>
+      <SidebarProvider
+        className="app-shell min-h-screen"
+        data-section={pathname.split("/")[1] || "home"}
+      >
+        <a href="#main-content" className="skip-link">
+          Skip to content
+        </a>
+        <Sidebar />
+        <div className="min-h-screen min-w-0 flex-1">
+          <Topbar />
+          <div className="page-wrap px-4 pb-28 pt-7 md:px-8 lg:pb-10 lg:pt-9">
+            <motion.main
+              key={pathname}
+              initial={false}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: reducedMotion ? 0 : motionTiming.normal,
+                ease: motionTiming.easeOut,
+              }}
+              id="main-content"
+              tabIndex={-1}
+              className="min-w-0 outline-none"
+            >
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={
+                    sessionError
+                      ? "error"
+                      : !ready
+                        ? "loading"
+                        : error
+                          ? "error"
+                          : "content"
+                  }
+                  initial={reducedMotion ? false : { opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{
+                    duration: reducedMotion ? 0 : motionTiming.fast,
+                  }}
+                >
+                  {sessionError ? (
+                    <ErrorState
+                      title="Could not restore your demo profile"
+                      description={sessionError}
+                      onRetry={initializeSession}
+                    />
+                  ) : !ready || sessionStatus === "initializing" ? (
+                    <PageLoading pathname={pathname} />
+                  ) : error ? (
+                    <ErrorState
+                      title="Could not load the demo"
+                      description={error}
+                      onRetry={load}
+                    />
+                  ) : (
+                    <Suspense fallback={<PageLoading pathname={pathname} />}>
+                      {children}
+                    </Suspense>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </motion.main>
+          </div>
         </div>
-      </div>
-      <MobileNav />
-      {createOpen && <CreatePostModal />}
-      {searchOpen && <SearchPalette />}
-    </div>
+        <MobileNav />
+        {createOpen && <CreatePostModal />}
+        {searchOpen && <SearchPalette />}
+      </SidebarProvider>
+    </TooltipProvider>
   );
 }
