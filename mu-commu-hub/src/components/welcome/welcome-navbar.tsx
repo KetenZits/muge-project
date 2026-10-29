@@ -25,8 +25,11 @@ export default function WelcomeNavbar() {
   const brand = useRef<HTMLAnchorElement>(null);
   const cta = useRef<HTMLDivElement>(null);
   const wall = useRef<HTMLDivElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
+  const panelContent = useRef<HTMLDivElement>(null);
   const surface = useRef<HTMLDivElement>(null);
   const glass = useRef<HTMLDivElement>(null);
+  const ornament = useRef<HTMLSpanElement>(null);
   const [wallReady, setWallReady] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [wallActive, setWallActive] = useState(false);
@@ -35,9 +38,26 @@ export default function WelcomeNavbar() {
     const header = nav.current,
       logo = brand.current,
       content = cta.current,
-      backdrop = wall.current;
+      backdrop = wall.current,
+      expansion = panel.current,
+      reveal = panelContent.current,
+      background = surface.current,
+      compactGlass = glass.current,
+      compactOrnament = ornament.current;
     const marker = document.getElementById("welcome-final");
-    if (!header || !logo || !content || !backdrop || !marker) return;
+    if (
+      !header ||
+      !logo ||
+      !content ||
+      !backdrop ||
+      !expansion ||
+      !reveal ||
+      !background ||
+      !compactGlass ||
+      !compactOrnament ||
+      !marker
+    )
+      return;
     // Mount/decode ahead of the transition and retain the tracks on reverse scroll.
     const prewarm = new IntersectionObserver(
       ([entry]) => {
@@ -61,7 +81,7 @@ export default function WelcomeNavbar() {
           running = false;
         const sync = (progress: number) => {
           const nextShown = progress > 0.58,
-            nextRunning = progress > 0.01;
+            nextRunning = progress > 0.7;
           if (shown !== nextShown) {
             shown = nextShown;
             setExpanded(shown);
@@ -72,44 +92,50 @@ export default function WelcomeNavbar() {
             if (running) setWallReady(true);
           }
         };
-        // All geometry is read only on setup/refresh. Header, CTA and wall retain
-        // their final dimensions throughout the scrub, avoiding descendant layout.
         const compact = () => {
-          const mobile = window.innerWidth < 640;
           const box = header.getBoundingClientRect();
-          const x = mobile
-            ? 14 - box.left
-            : Math.max(20, (window.innerWidth - 1080) / 2) - box.left;
-          const y = (mobile ? 14 : 20) - box.top;
-          const width = mobile
-            ? window.innerWidth - 28
-            : Math.min(1080, window.innerWidth - 40);
-          const height = mobile ? 60 : 66;
+          const destination = expansion.getBoundingClientRect();
+          const mobile = window.innerWidth < 700;
           return {
-            x,
-            y,
-            clip: `inset(${y}px ${box.width - x - width}px ${box.height - y - height}px ${x}px round ${height / 2}px)`,
+            scaleX: box.width / destination.width,
+            scaleY: box.height / destination.height,
+            y: box.top - destination.top,
+            logoX:
+              destination.left +
+              (mobile ? 20 : 34) -
+              box.left -
+              logo.offsetLeft,
+            logoY: destination.top - box.top,
           };
         };
-        const finalClip = () =>
-          `inset(0px 0px 0px 0px round ${window.innerWidth < 640 ? 26 : 30}px)`;
-        gsap.set(header, { opacity: 1 });
-        gsap.set([content, backdrop], { autoAlpha: 0 });
+        gsap.set([content, backdrop, reveal, background], { autoAlpha: 0 });
+        gsap.set([background, reveal], { transformOrigin: "50% 0%" });
         if (reduced) {
           const collapse = () => {
             const box = compact();
-            gsap.set(header, { clipPath: box.clip });
-            gsap.set(logo, { x: box.x, y: box.y });
-            gsap.set(surface.current, { opacity: 0 });
-            gsap.set(glass.current, { autoAlpha: 1 });
+            gsap.set([background, reveal], {
+              scaleX: box.scaleX,
+              scaleY: box.scaleY,
+              y: box.y,
+              autoAlpha: 0,
+            });
+            gsap.set(logo, { x: 0, y: 0 });
+            gsap.set(compactGlass, { autoAlpha: 1 });
+            gsap.set(compactOrnament, { autoAlpha: 1 });
             gsap.set([content, backdrop], { autoAlpha: 0 });
             sync(0);
           };
           const expand = () => {
-            gsap.set(header, { clipPath: finalClip() });
-            gsap.set(logo, { x: 0, y: 0 });
-            gsap.set(surface.current, { opacity: 1 });
-            gsap.set(glass.current, { autoAlpha: 0 });
+            const box = compact();
+            gsap.set([background, reveal], {
+              scaleX: 1,
+              scaleY: 1,
+              y: 0,
+              autoAlpha: 1,
+            });
+            gsap.set(logo, { x: box.logoX, y: box.logoY });
+            gsap.set(compactGlass, { autoAlpha: 0 });
+            gsap.set(compactOrnament, { autoAlpha: 0 });
             gsap.set(content, { autoAlpha: 1 });
             gsap.set(backdrop, { autoAlpha: 0.58 });
             sync(1);
@@ -134,43 +160,88 @@ export default function WelcomeNavbar() {
             end: "top 3%",
             scrub: 0.85,
             invalidateOnRefresh: true,
+            onEnter: () =>
+              gsap.set([background, reveal], {
+                willChange: "transform, opacity",
+              }),
+            onEnterBack: () =>
+              gsap.set([background, reveal], {
+                willChange: "transform, opacity",
+              }),
+            onLeave: () =>
+              gsap.set([background, reveal], { willChange: "auto" }),
+            onLeaveBack: () =>
+              gsap.set([background, reveal], { willChange: "auto" }),
           },
         });
         timeline.fromTo(
-          header,
-          { clipPath: () => compact().clip },
-          { clipPath: finalClip, duration: 1, ease: "none" },
+          background,
+          {
+            scaleX: () => compact().scaleX,
+            scaleY: () => compact().scaleY,
+            y: () => compact().y,
+          },
+          { scaleX: 1, scaleY: 1, y: 0, duration: 1, ease: "power1.inOut" },
+          0,
+        );
+        timeline.fromTo(
+          background,
+          { autoAlpha: 0 },
+          { autoAlpha: 1, duration: 0.2, ease: "none" },
           0,
         );
         timeline.fromTo(
           logo,
-          { x: () => compact().x, y: () => compact().y },
-          { x: 0, y: 0, duration: 1, ease: "none" },
+          { x: 0, y: 0 },
+          {
+            x: () => compact().logoX,
+            y: () => compact().logoY,
+            duration: 1,
+            ease: "power1.inOut",
+          },
           0,
         );
         timeline.fromTo(
-          surface.current,
-          { opacity: 0 },
-          { opacity: 1, duration: 0.3, ease: "none" },
-          0,
-        );
-        timeline.fromTo(
-          glass.current,
+          compactGlass,
           { autoAlpha: 1 },
-          { autoAlpha: 0, duration: 0.25, ease: "none" },
+          { autoAlpha: 0, duration: 0.32, ease: "none" },
           0,
+        );
+        timeline.fromTo(
+          compactOrnament,
+          { autoAlpha: 1 },
+          { autoAlpha: 0, duration: 0.32, ease: "none" },
+          0,
+        );
+        timeline.fromTo(
+          reveal,
+          {
+            scaleX: () => compact().scaleX,
+            scaleY: () => compact().scaleY,
+            y: () => compact().y,
+            autoAlpha: 0,
+          },
+          {
+            scaleX: 1,
+            scaleY: 1,
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.35,
+            ease: "power1.out",
+          },
+          0.65,
         );
         timeline.fromTo(
           backdrop,
           { autoAlpha: 0 },
           { autoAlpha: 0.58, duration: 0.38, ease: "none" },
-          0.4,
+          0.68,
         );
         timeline.fromTo(
           content,
           { autoAlpha: 0, y: 38 },
           { autoAlpha: 1, y: 0, duration: 0.38, ease: "power2.out" },
-          0.62,
+          0.69,
         );
       },
     );
@@ -185,117 +256,130 @@ export default function WelcomeNavbar() {
       ref={nav}
       className={expanded ? "welcome-navbar is-expanded" : "welcome-navbar"}
     >
-      <div
-        ref={glass}
-        className="welcome-nav-glass"
-        aria-hidden="true"
-        style={{
-          backdropFilter: "blur(22px) saturate(140%)",
-          WebkitBackdropFilter: "blur(22px) saturate(140%)",
-        }}
-      />
-      <div ref={surface} className="welcome-nav-surface" aria-hidden="true" />
-      <Link
-        href="/"
-        ref={brand}
-        className="welcome-navbar-brand"
-        aria-label="MU Connect welcome page"
-      >
-        MU <span>CONNECT</span>
-      </Link>
-      <div ref={wall} className="welcome-nav-wall" aria-hidden="true" inert>
-        {wallReady && (
-          <DriftWall
-            decorative
-            active={wallActive}
-            items={wallItems}
-            columns={5}
-            tileWidth={215}
-            tileHeight={160}
-            gap={19}
-            radius={16}
-            tilt={11}
-            turn={-10}
-            speed={15}
-            variance={0.18}
-            dim={0.74}
-          />
-        )}
-      </div>
-      <div className="welcome-nav-overlay" aria-hidden="true" />
-      <div
-        ref={cta}
-        className="welcome-nav-cta"
-        aria-hidden={!expanded}
-        inert={!expanded}
-      >
-        <span className="welcome-nav-kicker">YOUR NEXT CHAPTER IS WAITING</span>
-        {expanded ? (
-          <>
-            <h2>
-              <SplitText
-                text="Find your people."
-                tag="span"
-                className="welcome-cta-split"
-                trigger="load"
-                effect="rise"
-                splitType="words"
-                delay={95}
-                duration={0.92}
+      <div ref={panel} className="welcome-nav-panel">
+        <div ref={surface} className="welcome-nav-surface" aria-hidden="true" />
+        <div ref={panelContent} className="welcome-nav-panel-content">
+          <div ref={wall} className="welcome-nav-wall" aria-hidden="true" inert>
+            {wallReady && (
+              <DriftWall
+                decorative
+                active={wallActive}
+                items={wallItems}
+                columns={5}
+                tileWidth={215}
+                tileHeight={160}
+                gap={19}
+                radius={16}
+                tilt={11}
+                turn={-10}
+                speed={15}
+                variance={0.18}
+                dim={0.74}
               />
-              <br />
-              <em className="welcome-cta-emphasis">
-                <SplitText
-                  text="Build something"
-                  tag="span"
-                  className="welcome-cta-split"
+            )}
+          </div>
+          <div className="welcome-nav-overlay" aria-hidden="true" />
+          <div
+            ref={cta}
+            className="welcome-nav-cta"
+            aria-hidden={!expanded}
+            inert={!expanded}
+          >
+            <span className="welcome-nav-kicker">
+              YOUR NEXT CHAPTER IS WAITING
+            </span>
+            {expanded ? (
+              <>
+                <h2>
+                  <SplitText
+                    text="Find your people."
+                    tag="span"
+                    className="welcome-cta-split"
+                    trigger="load"
+                    effect="rise"
+                    splitType="words"
+                    delay={95}
+                    duration={0.92}
+                  />
+                  <br />
+                  <em className="welcome-cta-emphasis">
+                    <SplitText
+                      text="Build something"
+                      tag="span"
+                      className="welcome-cta-split"
+                      trigger="load"
+                      effect="blur"
+                      splitType="words"
+                      delay={92}
+                      duration={0.95}
+                    />{" "}
+                    <GradientText
+                      colors={["#f6d184", "#ffffff", "#f9d575"]}
+                      animationSpeed={13}
+                      scale={2.4}
+                      className="welcome-cta-gradient"
+                    >
+                      together.
+                    </GradientText>
+                  </em>
+                </h2>
+                <BlurText
+                  text="One connection can change what's possible."
+                  className="welcome-cta-description"
                   trigger="load"
-                  effect="blur"
-                  splitType="words"
-                  delay={92}
-                  duration={0.95}
-                />{" "}
-                <GradientText
-                  colors={["#f6d184", "#ffffff", "#f9d575"]}
-                  animationSpeed={13}
-                  scale={2.4}
-                  className="welcome-cta-gradient"
-                >
-                  together.
-                </GradientText>
-              </em>
-            </h2>
-            <BlurText
-              text="One connection can change what's possible."
-              className="welcome-cta-description"
-              trigger="load"
-              animateBy="words"
-              effect="focus"
-              delay={45}
-              stepDuration={0.24}
-            />
-          </>
-        ) : (
-          <>
-            <h2>
-              Find your people.
-              <br />
-              <em>Build something together.</em>
-            </h2>
-            <p>One connection can change what&apos;s possible.</p>
-          </>
-        )}
-        <Link
-          href="/login"
-          className="welcome-start-button"
-          tabIndex={expanded ? 0 : -1}
-        >
-          Start <ArrowUpRight size={20} aria-hidden="true" />
-        </Link>
+                  animateBy="words"
+                  effect="focus"
+                  delay={45}
+                  stepDuration={0.24}
+                />
+              </>
+            ) : (
+              <>
+                <h2>
+                  Find your people.
+                  <br />
+                  <em>Build something together.</em>
+                </h2>
+                <p>One connection can change what&apos;s possible.</p>
+              </>
+            )}
+            <Link
+              href="/login"
+              className="welcome-start-button"
+              tabIndex={expanded ? 0 : -1}
+            >
+              Start <ArrowUpRight size={20} aria-hidden="true" />
+            </Link>
+          </div>
+          <div className="welcome-nav-foot" aria-hidden={!expanded}>
+            <span>MU CONNECT / AN INDEPENDENT PROTOTYPE</span>
+            <span>MADE FOR WHAT&apos;S NEXT · 2026</span>
+          </div>
+        </div>
       </div>
-      <div className="welcome-nav-foot" aria-hidden={!expanded}>
-        <span>MU CONNECT / AN INDEPENDENT PROTOTYPE</span>
-        <span>MADE FOR WHAT&apos;S NEXT · 2026</span>
+      <div className="welcome-nav-compact">
+        <div
+          ref={glass}
+          className="welcome-nav-glass"
+          aria-hidden="true"
+          style={{
+            backdropFilter: "blur(14px) saturate(145%)",
+            WebkitBackdropFilter: "blur(14px) saturate(145%)",
+          }}
+        >
+          <span className="welcome-nav-rim">
+            <span className="welcome-nav-rim-glint" />
+          </span>
+        </div>
+        <Link
+          href="/"
+          ref={brand}
+          className="welcome-navbar-brand"
+          aria-label="MU Connect welcome page"
+        >
+          MU <span>CONNECT</span>
+        </Link>
+        <span ref={ornament} className="welcome-nav-ornament" aria-hidden="true" />
       </div>
     </header>
   );

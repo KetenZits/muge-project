@@ -18,7 +18,8 @@
     "test:auth": "node scripts/auth-store-regressions.mjs && node scripts/auth-regressions.mjs",
     "generate:doc": "node scripts/generate-doc.mjs",
     "test:v6": "node scripts/v6-verify.mjs",
-    "test:cta": "node scripts/cta-performance.mjs"
+    "test:cta": "node scripts/cta-performance.mjs",
+    "test:navbar": "node scripts/welcome-navbar-profile.mjs 320 360 390 768 1024 1440 1920"
   },
   "dependencies": {
     "@faker-js/faker": "^10.6.0",

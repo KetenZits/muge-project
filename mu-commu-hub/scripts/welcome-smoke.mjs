@@ -125,12 +125,18 @@ try {
         top: box.top,
         left: box.left,
         right: box.right,
+        width: box.width,
         radius: getComputedStyle(node).borderRadius,
       };
     });
     assert.ok(
       floating.top >= 11 && floating.left >= 11 && floating.right <= width - 11,
       `${width}px navbar not floating: ${JSON.stringify(floating)}`,
+    );
+    assert.ok(
+      Math.abs((floating.left + floating.right) / 2 - width / 2) <= 1 &&
+        Math.abs(floating.width - (width < 700 ? width - 24 : Math.min(1020, width - 32, width * 0.25 + 620))) <= 1,
+      `${width}px navbar is not a centered responsive pill: ${JSON.stringify(floating)}`,
     );
     const navBlur = await page
       .locator(".welcome-nav-glass")
@@ -618,7 +624,7 @@ try {
     await start.waitFor({ state: "visible" });
     assert.equal(await start.getAttribute("href"), "/login");
     const expandedHeight = await page
-      .locator(".welcome-navbar")
+      .locator(".welcome-nav-panel")
       .evaluate((node) => node.getBoundingClientRect().height);
     assert.ok(
       expandedHeight > 600,
@@ -635,19 +641,17 @@ try {
       await page.waitForTimeout(1100);
       const collapsedHeight = await page
         .locator(".welcome-navbar")
-        .evaluate((node) => {
-          const values =
-            getComputedStyle(node)
-              .clipPath.split("round")[0]
-              .match(/[\d.]+px/g)
-              ?.map(parseFloat) ?? [];
-          const top = values[0] ?? 0,
-            bottom = values[2] ?? top;
-          return node.getBoundingClientRect().height - top - bottom;
-        });
+        .evaluate((node) => node.getBoundingClientRect().height);
+      const collapsedSurface = await page
+        .locator(".welcome-nav-surface")
+        .evaluate((node) => Number(getComputedStyle(node).opacity));
       assert.ok(
         collapsedHeight < 100,
         `Reverse scroll did not collapse navbar: ${collapsedHeight}`,
+      );
+      assert.ok(
+        collapsedSurface < 0.05,
+        `Reverse scroll left the CTA surface visible: ${collapsedSurface}`,
       );
       await page.evaluate(() =>
         window.scrollTo({

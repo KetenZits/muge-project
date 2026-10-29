@@ -16,43 +16,120 @@
   position: fixed;
   z-index: 100;
   top: max(20px, calc(env(safe-area-inset-top) + 12px));
-  left: max(20px, calc((100% - 1080px) / 2));
-  width: min(1080px, calc(100% - 40px));
-  height: 66px;
-  display: flex;
-  align-items: flex-start;
-  padding: 0 clamp(23px, 3vw, 34px);
-  background: rgba(7, 25, 52, 0.68);
-  border: 1px solid rgba(230, 241, 255, 0.24);
+  left: 0;
+  right: 0;
+  width: min(1020px, calc(100% - 32px), calc(25vw + 620px));
+  height: 62px;
+  margin-inline: auto;
   border-radius: 999px;
+  pointer-events: none;
+}
+.welcome-nav-compact {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  padding-inline: clamp(24px, 3vw, 32px);
+  border-radius: inherit;
+  pointer-events: none;
+  animation: welcome-nav-intro 1s 0.08s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.welcome-nav-glass {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(229, 245, 255, 0.2);
+  border-radius: inherit;
+  background: linear-gradient(
+    115deg,
+    rgba(6, 27, 56, 0.82),
+    rgba(18, 53, 91, 0.72) 52%,
+    rgba(7, 32, 69, 0.82)
+  );
   box-shadow:
-    0 14px 38px rgba(4, 26, 60, 0.18),
-    inset 0 1px rgba(255, 255, 255, 0.13);
-  backdrop-filter: blur(22px) saturate(140%);
-  -webkit-backdrop-filter: blur(22px) saturate(140%);
-  opacity: 0;
-  transform: none;
+    0 12px 32px rgba(0, 17, 42, 0.17),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(14px) saturate(145%);
+  -webkit-backdrop-filter: blur(14px) saturate(145%);
+  pointer-events: none;
+}
+.welcome-nav-rim {
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
   overflow: hidden;
-  isolation: isolate;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+}
+.welcome-nav-rim-glint {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -25%;
+  width: 25%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(145, 213, 255, 0.3) 30%,
+    rgba(242, 251, 255, 0.9) 52%,
+    rgba(92, 183, 255, 0.38) 70%,
+    transparent
+  );
+  animation: welcome-nav-rim 12s linear infinite;
+}
+.welcome-navbar.is-expanded .welcome-nav-rim-glint {
+  animation-play-state: paused;
 }
 .welcome-navbar-brand {
   position: relative;
   z-index: 5;
   display: inline-flex;
   align-items: center;
-  height: 64px;
+  height: 100%;
   color: #fff;
   text-decoration: none;
-  font-size: clamp(17px, 1.5vw, 21px);
+  font-size: 22px;
   line-height: 1;
   font-weight: 800;
-  letter-spacing: -0.075em;
+  letter-spacing: -0.035em;
   white-space: nowrap;
+  pointer-events: auto;
 }
 .welcome-navbar-brand span {
-  margin-left: 0.25em;
-  font-weight: 500;
-  letter-spacing: -0.055em;
+  margin-left: 0.27em;
+  font-weight: 750;
+  background: linear-gradient(110deg, #fff 12%, #d5edff 62%, #99d7ff 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.welcome-nav-ornament {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  height: 100%;
+  opacity: 0.82;
+}
+.welcome-nav-ornament::before {
+  content: "";
+  width: clamp(58px, 7vw, 104px);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(162, 218, 255, 0.82));
+}
+.welcome-nav-ornament::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  transform: rotate(45deg);
+  border: 1px solid #caeaff;
+  box-shadow: 0 0 12px rgba(145, 213, 255, 0.48);
 }
 .welcome-nav-wall,
 .welcome-nav-overlay {
@@ -1192,14 +1269,17 @@
 @media (max-width: 699px) {
   .welcome-navbar {
     top: max(14px, calc(env(safe-area-inset-top) + 10px));
-    left: 14px;
-    width: calc(100% - 28px);
-    height: 60px;
-    padding: 0 21px;
+    width: calc(100% - 24px);
+    height: 54px;
+  }
+  .welcome-nav-compact {
+    padding-inline: 20px;
   }
   .welcome-navbar-brand {
-    height: 58px;
     font-size: 18px;
+  }
+  .welcome-nav-ornament {
+    display: none;
   }
   .welcome-blue-hero {
     height: clamp(400px, 57vh, 570px);
@@ -1427,50 +1507,32 @@
   }
 }
 
-/* Stable CTA geometry: only clipping, transforms and opacity change on scroll.
-   The backdrop filter belongs to the compact pill, never the full viewport. */
-.welcome-navbar {
-  top: 16px;
-  left: 16px;
-  width: calc(100% - 32px);
-  height: calc(100svh - 32px);
-  padding: 0 clamp(23px, 3vw, 34px);
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  clip-path: inset(
-    4px max(4px, calc((100% - 1080px) / 2)) calc(100% - 70px)
-      max(4px, calc((100% - 1080px) / 2)) round 33px
-  );
-  pointer-events: none;
-  contain: layout style;
-}
-.welcome-navbar-brand {
-  pointer-events: auto;
-}
-.welcome-nav-glass {
+/* The compact header owns its real bounds. The expanded surface stays pre-sized
+   and only its transform and opacity change while scrolling. */
+.welcome-nav-panel {
   position: fixed;
-  top: max(20px, calc(env(safe-area-inset-top) + 12px));
-  left: max(20px, calc((100% - 1080px) / 2));
-  width: min(1080px, calc(100% - 40px));
-  height: 66px;
-  border-radius: 999px;
-  background: rgba(7, 25, 52, 0.68);
-  border: 1px solid rgba(230, 241, 255, 0.24);
-  backdrop-filter: blur(22px) saturate(140%);
-  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  z-index: 1;
+  top: 16px;
+  right: 16px;
+  bottom: 16px;
+  left: 16px;
   pointer-events: none;
 }
 .welcome-nav-surface {
   position: absolute;
   inset: 0;
   border-radius: 30px;
-  border: 1px solid rgba(230, 241, 255, 0.24);
-  background: #071e40;
+  border: 1px solid rgba(230, 241, 255, 0.18);
+  background: #071b36;
   opacity: 0;
+}
+.welcome-nav-panel-content {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 30px;
+  opacity: 0;
+  pointer-events: none;
 }
 .welcome-nav-wall {
   contain: strict;
@@ -1523,23 +1585,18 @@
     transform: translate3d(0, var(--dw-travel), 0);
   }
 }
-@media (max-width: 639px) {
-  .welcome-navbar {
-    top: 12px;
+@media (max-width: 699px) {
+  .welcome-nav-panel {
+    top: max(12px, calc(env(safe-area-inset-top) + 8px));
+    right: 12px;
+    bottom: max(12px, calc(env(safe-area-inset-bottom) + 8px));
     left: 12px;
-    width: calc(100% - 24px);
-    height: calc(100svh - 24px);
-    padding: 0 21px;
-    clip-path: inset(2px 2px calc(100% - 62px) 2px round 30px);
   }
   .welcome-nav-surface {
     border-radius: 26px;
   }
-  .welcome-nav-glass {
-    top: max(14px, calc(env(safe-area-inset-top) + 10px));
-    left: 14px;
-    width: calc(100% - 28px);
-    height: 60px;
+  .welcome-nav-panel-content {
+    border-radius: 26px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -1547,33 +1604,29 @@
     animation: none;
     will-change: auto;
   }
+  .welcome-nav-compact {
+    animation: none;
+  }
+  .welcome-nav-rim-glint {
+    animation: none;
+    transform: translate3d(250%, 0, 0);
+  }
 }
-/* Preserve the pill's original entrance independently of scroll geometry. */
-.welcome-navbar {
-  animation: welcome-nav-intro-opacity 1.05s 0.08s both;
+@keyframes welcome-nav-rim {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(500%, 0, 0);
+  }
 }
-.welcome-navbar-brand,
-.welcome-nav-glass {
-  animation: welcome-nav-intro-slide 1.05s 0.08s cubic-bezier(0.22, 1, 0.36, 1)
-    both;
-}
-@keyframes welcome-nav-intro-opacity {
+@keyframes welcome-nav-intro {
   from {
     opacity: 0;
+    translate: 0 -80px;
   }
   to {
     opacity: 1;
-  }
-}
-@keyframes welcome-nav-intro-slide {
-  from {
-    translate: 0 -90px;
-  }
-  to {
     translate: 0 0;
   }
 }
-
-/* Release entrance layers after completion; invisible glass must not sample
-   the moving wall or the page behind the expanded CTA. */
-.welcome-navbar, .welcome-navbar-brand, .welcome-nav-glass { animation-fill-mode: backwards; }
